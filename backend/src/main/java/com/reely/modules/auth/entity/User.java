@@ -9,11 +9,13 @@ import jakarta.persistence.Id;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
+import lombok.Builder;
 import lombok.Data;
 
 @Entity
 @Data
 @Table(name = "users")
+// @Builder
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
