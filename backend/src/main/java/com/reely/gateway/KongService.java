@@ -24,18 +24,19 @@ public class KongService {
                 .block();
     }
 
-    public Map<String, Object> createJwtCredential(String username) {
+    public Map<String, Object> createJwtCredential(String username, String secretKey) {
         return webClient.post()
                 .uri("/consumers/{username}/jwt", username)
-                .bodyValue(Map.of("algorithm", "HS256"))
+                .bodyValue(Map.of("algorithm", "HS256", "secret", secretKey))
                 .retrieve()
                 .bodyToMono(Map.class)
                 .block();
     }
 
     public Map<String, Object> getJwtCredential(String username) {
-        return webClient.get()
+        return webClient.post()
                 .uri("/consumers/{username}/jwt", username)
+                .bodyValue(Map.of("algorithm", "HS256"))
                 .retrieve()
                 .bodyToMono(Map.class)
                 .block();
