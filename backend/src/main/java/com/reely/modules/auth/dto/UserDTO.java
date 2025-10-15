@@ -4,9 +4,13 @@ import java.time.Instant;
 
 import com.reely.modules.auth.entity.User;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class UserDTO {
     private Long id;
 
@@ -34,5 +38,4 @@ public class UserDTO {
         this.createdAt = user.getCreatedAt();
         this.updatedAt = user.getUpdatedAt();
     }
-
 }

@@ -33,4 +33,11 @@ public class KongService {
                 .block();
     }
 
+    public Map<String, Object> getJwtCredential(String username) {
+        return webClient.get()
+                .uri("/consumers/{username}/jwt", username)
+                .retrieve()
+                .bodyToMono(Map.class)
+                .block();
+    }
 }
