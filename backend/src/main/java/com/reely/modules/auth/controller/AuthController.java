@@ -52,7 +52,7 @@ public class AuthController {
         }
 
         @PostMapping("/login")
-        public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
+        public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest loginRequest) {
                 UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
                                 loginRequest.getEmail(), loginRequest.getPassword());
                 Authentication authentication = authenticationManager.authenticate(authenticationToken);
@@ -84,7 +84,7 @@ public class AuthController {
         }
 
         @PostMapping("/register")
-        public ResponseEntity<Void> register(@RequestBody RegistrationRequest request) {
+        public ResponseEntity<UserDTO> register(@RequestBody RegistrationRequest request) {
                 String hashPassword = this.passwordEncoder.encode(request.getPassword());
                 request.setPassword(hashPassword);
                 UserDTO userDTO = this.userService.createUser(request);
@@ -92,6 +92,6 @@ public class AuthController {
                 kongService.createConsumer(userDTO.getEmail());
                 kongService.createJwtCredential(userDTO.getEmail(), secretKey);
 
-                return ResponseEntity.noContent().build();
+                return ResponseEntity.ok(userDTO);
         }
 }
