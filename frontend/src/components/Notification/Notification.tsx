@@ -19,7 +19,7 @@ const Notification: React.FC = () => {
     {
       id: '1',
       username: 'ĐỒNG ĐÔ camping',
-      message: 'đã trả lời bình luận của bạn: Check ib em',
+      message: 'đã trả lời bình luận của bạn: Check ib emđá ád sad á ad d',
       timestamp: '8-24',
       avatarUrl: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQatFGGWLmfb6aTo1tyb3OxSkjfXrYft2TTbw&s',
       type: 'comment'
