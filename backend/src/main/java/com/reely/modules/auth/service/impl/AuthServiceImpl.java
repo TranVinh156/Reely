@@ -41,7 +41,7 @@ public class AuthServiceImpl implements AuthService {
     public static final MacAlgorithm JWT_ALGORITHM = MacAlgorithm.HS256;
 
     @Override
-    public String generateAccessToken(String email, String iss, UserDTO user) {
+    public String generateAccessToken(String email, UserDTO user) {
         Instant now = Instant.now();
         Instant validationTime = now.plus(this.accessTokenExpiration, ChronoUnit.SECONDS);
 
@@ -55,7 +55,7 @@ public class AuthServiceImpl implements AuthService {
                 .issuedAt(now)
                 .subject(email)
                 .expiresAt(validationTime)
-                .issuer(iss)
+                .issuer(email)
                 .claim("user", userClaims)
                 .build();
 

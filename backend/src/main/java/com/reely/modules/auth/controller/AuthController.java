@@ -62,10 +62,7 @@ public class AuthController {
                 User user = this.userService.getUserByEmail(email);
                 UserDTO userDTO = new UserDTO(user);
 
-                Map<String, Object> jwtCredential = this.kongService.getJwtCredential(email);
-                String iss = (String) jwtCredential.get("key");
-                String accessToken = this.authService.generateAccessToken(userDTO.getEmail(),
-                                iss, userDTO);
+                String accessToken = this.authService.generateAccessToken(userDTO.getEmail(), userDTO);
                 String refreshToken = this.authService.generateRefreshToken(userDTO.getEmail(), userDTO);
 
                 LoginResponse response = new LoginResponse(accessToken, userDTO);
