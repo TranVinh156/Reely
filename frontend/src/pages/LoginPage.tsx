@@ -1,8 +1,6 @@
 import React, { useState } from 'react'
 import FormInput from '../components/FormInput'
 import useLogin, { type LoginCredentials } from '../hooks/auth/useLogin'
-import type { AxiosError } from 'axios'
-
 
 const GOOGLE_LOGO = 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/768px-Google_%22G%22_logo.svg.png'
 
@@ -10,7 +8,7 @@ const LoginPage: React.FC = () => {
     const [formData, setFormData] = useState<LoginCredentials>({ email: '', password: '' })
     const [errorMessage, setErrorMessage] = useState<string>('')
 
-    const { mutateAsync: loginMutation, isPending, isError } = useLogin()
+    const { mutateAsync: loginMutation, isPending, error } = useLogin()
 
     const handleChange = (field: keyof LoginCredentials) => (value: string) => {
         setFormData((prev) => ({ ...prev, [field]: value }))
@@ -18,20 +16,14 @@ const LoginPage: React.FC = () => {
     }
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-        try {
-            e.preventDefault()
-            setErrorMessage('')
+        e.preventDefault()
+        setErrorMessage('')
 
-            if (!formData.email || !formData.password) {
-                setErrorMessage('Please fill in all fields')
-                return
-            }
-            await loginMutation(formData)
-        } catch (error: unknown) {
-            if (error instanceof Error) {
-                setErrorMessage(error.message)
-            }
+        if (!formData.email || !formData.password) {
+            setErrorMessage('Please fill in all fields')
+            return
         }
+        await loginMutation(formData)
     }
 
     return (
@@ -46,9 +38,9 @@ const LoginPage: React.FC = () => {
                     <h1 className="text-4xl font-extrabold">Sign in</h1>
                     <p className="text-gray-400 mt-1 mb-6">Please login to continue your account</p>
 
-                    {(isError || errorMessage) && (
+                    {error && (
                         <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-md" role="alert">
-                            {errorMessage}
+                            {error instanceof Error ? error.message : 'Login failed. Please try again.'}
                         </div>
                     )}
 

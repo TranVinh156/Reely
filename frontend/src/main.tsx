@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route } from "react-router";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import LoginPage from "./pages/LoginPage";
 import "./index.css";
+import RegisterPage from "./pages/RegisterPage";
 
 const queryClient = new QueryClient();
 
@@ -15,6 +16,7 @@ ReactDOM.createRoot(root).render(
     <BrowserRouter>
       <Routes>
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />}></Route>
       </Routes>
     </BrowserRouter>
   </QueryClientProvider>,

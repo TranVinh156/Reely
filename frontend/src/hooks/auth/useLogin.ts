@@ -1,23 +1,13 @@
 import { useMutation } from "@tanstack/react-query";
 import { login } from "../../api/auth";
+import type { User } from "../../types/user";
 
 export interface LoginCredentials {
     email: string;
     password: string;
 }
 
-interface User {
-    id: number;
-    username: string;
-    email: string;
-    displayName: string;
-    bio: string;
-    avatarUrl: string;
-    createdAt?: string;
-    updatedAt?: string;
-}
-
-interface LoginResponse {
+export interface LoginResponse {
     accessToken: string;
     user: User;
 }

@@ -1,16 +1,7 @@
+import type { LoginResponse } from '../hooks/auth/useLogin';
+import type { RegisterCredentials } from '../hooks/auth/useRegister';
+import type { User } from '../types/user';
 import axiosClient from '../utils/axios.client';
-
-interface LoginResponse {
-    accessToken: string;
-    user: {
-        id: number;
-        username: string;
-        email: string;
-        displayName: string;
-        bio: string;
-        avatarUrl: string;
-    };
-}
 
 interface RefreshTokenResponse {
     accessToken: string;
@@ -37,4 +28,9 @@ export const refreshToken = async (): Promise<string> => {
 
 export const logout = async (): Promise<void> => {
     await axiosClient.post(`/auth/logout`);
+};
+
+export const register = async (data: RegisterCredentials): Promise<User> => {
+    const response = await axiosClient.post('/auth/register', data);
+    return response.data;
 };
