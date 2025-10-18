@@ -17,4 +17,6 @@ public interface UserService {
     UserDTO updateUser(Long id, UserDTO userDTO);
 
     void deleteUser(Long id);
+
+    void updateRefreshToken(Long id, String refreshToken);
 }

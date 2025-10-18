@@ -85,4 +85,11 @@ public class UserServiceImpl implements UserService {
         this.userRepository.deleteById(id);
     }
 
+    @Override
+    public void updateRefreshToken(Long id, String refreshToken) {
+        User user = this.getUserById(id);
+        user.setRefreshToken(refreshToken);
+        this.userRepository.save(user);
+    }
+
 }

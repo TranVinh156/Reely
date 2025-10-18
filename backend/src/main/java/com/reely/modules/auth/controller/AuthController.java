@@ -12,8 +12,6 @@ import com.reely.modules.auth.entity.User;
 import com.reely.modules.auth.service.AuthService;
 import com.reely.modules.auth.service.UserService;
 
-import java.util.Map;
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
@@ -23,6 +21,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -65,6 +65,7 @@ public class AuthController {
                 String accessToken = this.authService.generateAccessToken(userDTO.getEmail(), userDTO);
                 String refreshToken = this.authService.generateRefreshToken(userDTO.getEmail(), userDTO);
 
+                userService.updateRefreshToken(userDTO.getId(), refreshToken);
                 LoginResponse response = new LoginResponse(accessToken, userDTO);
 
                 ResponseCookie cookies = ResponseCookie
@@ -78,6 +79,58 @@ public class AuthController {
                 return ResponseEntity.ok()
                                 .header(HttpHeaders.SET_COOKIE, cookies.toString())
                                 .body(response);
+        }
+
+        @PostMapping("/refresh")
+        public ResponseEntity<LoginResponse> refreshToken(
+                        @CookieValue(name = "refresh_token", required = false) String refreshToken) {
+                if (refreshToken == null || refreshToken.isEmpty()) {
+                        throw new RuntimeException("Refresh token not found.");
+                }
+
+                Jwt decodedJwt = this.authService.checkValidRefreshToken(refreshToken);
+
+                String email = decodedJwt.getSubject();
+                User user = this.userService.getUserByEmail(email);
+
+                if (!user.getRefreshToken().equals(refreshToken)) {
+                        throw new RuntimeException("User with this refresh token is not existed!");
+                }
+
+                UserDTO userDTO = new UserDTO(user);
+
+                String accessToken = this.authService.generateAccessToken(userDTO.getEmail(), userDTO);
+                String newRefreshToken = this.authService.generateRefreshToken(userDTO.getEmail(), userDTO);
+
+                this.userService.updateRefreshToken(userDTO.getId(), newRefreshToken);
+
+                LoginResponse response = new LoginResponse(accessToken, userDTO);
+
+                ResponseCookie cookies = ResponseCookie
+                                .from("refresh_token", refreshToken)
+                                .path("/")
+                                .maxAge(refreshTokenExpiration)
+                                .secure(true)
+                                .httpOnly(true)
+                                .build();
+
+                return ResponseEntity.ok()
+                                .header(HttpHeaders.SET_COOKIE, cookies.toString())
+                                .body(response);
+        }
+
+        @PostMapping("/logout")
+        public ResponseEntity<Void> logout() {
+                ResponseCookie clearCookie = ResponseCookie
+                                .from("refresh_token", "")
+                                .path("/")
+                                .maxAge(0)
+                                .secure(true)
+                                .httpOnly(true)
+                                .build();
+
+                return ResponseEntity.noContent()
+                                .header(HttpHeaders.SET_COOKIE, clearCookie.toString()).build();
         }
 
         @PostMapping("/register")
