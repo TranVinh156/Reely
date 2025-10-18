@@ -16,14 +16,10 @@ export const login = async (email: string, password: string): Promise<LoginRespo
 };
 
 export const refreshToken = async (): Promise<string> => {
-    try {
-        const response = await axiosClient.post<RefreshTokenResponse>(
-            `/auth/refresh`
-        );
-        return response.data.accessToken;
-    } catch (error) {
-        throw new Error('Failed to refresh token');
-    }
+    const response = await axiosClient.post<RefreshTokenResponse>(
+        `/auth/refresh`
+    );
+    return response.data.accessToken;
 };
 
 export const logout = async (): Promise<void> => {
