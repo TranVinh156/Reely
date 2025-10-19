@@ -143,7 +143,7 @@ const CommentCard: React.FC<CommentCardProps> = ({
                     onChange={(e) => setReplyText(e.target.value)}
                     placeholder="Thêm câu trả lời..."
                     className="flex-1 bg-transparent text-white text-sm outline-none placeholder:text-white/40"
-                    autoFocus
+                    // autoFocus
                   />
                   <button className="text-white hover:text-white/60 transition-colors cursor-pointer flex gap-2">
                     <Smile size={20} />

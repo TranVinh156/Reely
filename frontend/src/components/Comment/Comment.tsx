@@ -298,10 +298,14 @@ const Comment: React.FC = () => {
               value={commentText}
               onChange={(e) => setCommentText(e.target.value)}
               placeholder="Thêm bình luận..."
-              className="flex-1 bg-transparent text-white text-sm outline-none placeholder:text-white/40"
+              className="flex flex-1 bg-transparent text-white text-sm outline-none placeholder:text-white/40"
             />
             <button className="text-white hover:text-white/60 transition-colors cursor-pointer">
               <Smile size={20} />
+            </button>
+
+            <button className="text-white hover:text-white/60 transition-colors cursor-pointer flex gap-2">
+                                <Paperclip size={20} />
             </button>
           </div>
         </div>
@@ -314,7 +318,7 @@ const Comment: React.FC = () => {
               : 'text-white/40 cursor-not-allowed'
           }`}
         >
-          Đăng
+          Post <Send size={20} />
         </button>
       </div>
     </div>
