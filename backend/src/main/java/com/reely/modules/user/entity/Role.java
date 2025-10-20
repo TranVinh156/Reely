@@ -1,57 +1,48 @@
 package com.reely.modules.user.entity;
 
 import java.time.Instant;
+import java.util.List;
 
-import jakarta.persistence.CascadeType;
+import com.reely.modules.user.entity.enums.RoleName;
+
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
+import jakarta.persistence.PostUpdate;
 import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
-import jakarta.persistence.Table;
 import lombok.Data;
 
 @Entity
 @Data
-@Table(name = "users")
-public class User {
+public class Role {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String username;
+    @Enumerated(EnumType.STRING)
+    private RoleName name;
 
-    private String email;
-
-    private String passwordHash;
-
-    private String displayName;
-
-    private String bio;
-
-    private String avatarUrl;
-
-    private String refreshToken;
-
-    @ManyToOne
-    @JoinColumn(name = "role_id", nullable = false)
-    private Role role;
+    private String description;
 
     private Instant createdAt;
 
     private Instant updatedAt;
+
+    @OneToMany(mappedBy = "role")
+    private List<User> users;
 
     @PrePersist
     public void handleBeforeCreate() {
         this.createdAt = Instant.now();
     }
 
-    @PreUpdate
-    public void handleBeforeUpdate() {
+    @PostUpdate
+    public void handleAfterUpdate() {
         this.updatedAt = Instant.now();
     }
 }
