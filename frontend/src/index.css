@@ -1,2 +1,10 @@
 @import "tailwindcss";
+@plugin "@iconify/tailwind4";
 
+
+html, body, #root {
+    height: 100%;
+  }
+  body {
+    @apply bg-neutral-900 text-white;
+  }
