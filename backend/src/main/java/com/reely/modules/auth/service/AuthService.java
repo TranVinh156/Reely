@@ -2,7 +2,7 @@ package com.reely.modules.auth.service;
 
 import org.springframework.security.oauth2.jwt.Jwt;
 
-import com.reely.modules.auth.dto.UserDTO;
+import com.reely.modules.user.dto.UserDTO;
 
 public interface AuthService {
     String generateAccessToken(String email, UserDTO user);

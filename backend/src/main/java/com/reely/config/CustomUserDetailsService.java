@@ -5,8 +5,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import com.reely.modules.auth.entity.User;
-import com.reely.modules.auth.repository.UserRepository;
+import com.reely.modules.user.entity.User;
+import com.reely.modules.user.repository.UserRepository;
 
 @Service
 public class CustomUserDetailsService implements UserDetailsService {

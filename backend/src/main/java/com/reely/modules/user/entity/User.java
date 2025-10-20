@@ -1,4 +1,4 @@
-package com.reely.modules.auth.entity;
+package com.reely.modules.user.entity;
 
 import java.time.Instant;
 

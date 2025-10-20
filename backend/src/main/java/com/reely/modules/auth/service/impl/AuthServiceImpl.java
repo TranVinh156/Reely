@@ -14,8 +14,8 @@ import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import org.springframework.stereotype.Service;
 
 import com.reely.modules.auth.dto.UserClaims;
-import com.reely.modules.auth.dto.UserDTO;
 import com.reely.modules.auth.service.AuthService;
+import com.reely.modules.user.dto.UserDTO;
 
 @Service
 public class AuthServiceImpl implements AuthService {

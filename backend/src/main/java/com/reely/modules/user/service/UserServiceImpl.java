@@ -1,4 +1,4 @@
-package com.reely.modules.auth.service.impl;
+package com.reely.modules.user.service;
 
 import java.util.Optional;
 
@@ -9,10 +9,9 @@ import org.springframework.stereotype.Service;
 
 import com.reely.modules.auth.dto.PaginationResponse;
 import com.reely.modules.auth.dto.RegistrationRequest;
-import com.reely.modules.auth.dto.UserDTO;
-import com.reely.modules.auth.entity.User;
-import com.reely.modules.auth.repository.UserRepository;
-import com.reely.modules.auth.service.UserService;
+import com.reely.modules.user.dto.UserDTO;
+import com.reely.modules.user.entity.User;
+import com.reely.modules.user.repository.UserRepository;
 
 @Service
 public class UserServiceImpl implements UserService {

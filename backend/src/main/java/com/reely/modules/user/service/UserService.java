@@ -1,9 +1,9 @@
-package com.reely.modules.auth.service;
+package com.reely.modules.user.service;
 
 import com.reely.modules.auth.dto.PaginationResponse;
 import com.reely.modules.auth.dto.RegistrationRequest;
-import com.reely.modules.auth.dto.UserDTO;
-import com.reely.modules.auth.entity.User;
+import com.reely.modules.user.dto.UserDTO;
+import com.reely.modules.user.entity.User;
 
 public interface UserService {
     User getUserByEmail(String email);

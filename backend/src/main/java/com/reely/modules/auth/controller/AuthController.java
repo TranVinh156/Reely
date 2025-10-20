@@ -7,10 +7,10 @@ import com.reely.gateway.KongService;
 import com.reely.modules.auth.dto.LoginRequest;
 import com.reely.modules.auth.dto.LoginResponse;
 import com.reely.modules.auth.dto.RegistrationRequest;
-import com.reely.modules.auth.dto.UserDTO;
-import com.reely.modules.auth.entity.User;
 import com.reely.modules.auth.service.AuthService;
-import com.reely.modules.auth.service.UserService;
+import com.reely.modules.user.dto.UserDTO;
+import com.reely.modules.user.entity.User;
+import com.reely.modules.user.service.UserService;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
@@ -32,7 +32,6 @@ public class AuthController {
         private final AuthenticationManager authenticationManager;
         private final AuthService authService;
         private final PasswordEncoder passwordEncoder;
-        private final KongService kongService;
         private final UserService userService;
 
         @Value("${refresh.token.expiration.time}")
@@ -42,13 +41,12 @@ public class AuthController {
         private String secretKey;
 
         public AuthController(AuthenticationManager authenticationManager,
-                        AuthService authService, PasswordEncoder passwordEncoder, KongService kongService,
+                        AuthService authService, PasswordEncoder passwordEncoder,
                         UserService userService) {
                 this.authenticationManager = authenticationManager;
                 this.userService = userService;
                 this.authService = authService;
                 this.passwordEncoder = passwordEncoder;
-                this.kongService = kongService;
         }
 
         @PostMapping("/login")
@@ -138,10 +136,6 @@ public class AuthController {
                 String hashPassword = this.passwordEncoder.encode(request.getPassword());
                 request.setPassword(hashPassword);
                 UserDTO userDTO = this.userService.createUser(request);
-
-                kongService.createConsumer(userDTO.getEmail());
-                kongService.createJwtCredential(userDTO.getEmail(), secretKey);
-
                 return ResponseEntity.ok(userDTO);
         }
 }

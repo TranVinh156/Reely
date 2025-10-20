@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import FormInput from '../components/FormInput'
 import useLogin, { type LoginCredentials } from '../hooks/auth/useLogin'
+import backgroundImage from '../assets/background.png'
 
 const GOOGLE_LOGO = 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/768px-Google_%22G%22_logo.svg.png'
 
@@ -76,7 +77,9 @@ const LoginPage: React.FC = () => {
                 </div>
             </section>
 
-            <aside className="hidden md:flex bg-blue-500 min-h-20 md:flex-4 flex-1" aria-hidden="true" />
+            <aside className="hidden md:flex md:flex-4 flex-1 min-h-20" aria-hidden="true">
+                <img src={backgroundImage} alt="" className="w-full h-full object-cover object-left scale-x-[-1]" />
+            </aside>
         </main>
     )
 }

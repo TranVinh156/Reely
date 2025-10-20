@@ -1,8 +1,8 @@
-package com.reely.modules.auth.dto;
+package com.reely.modules.user.dto;
 
 import java.time.Instant;
 
-import com.reely.modules.auth.entity.User;
+import com.reely.modules.user.entity.User;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
