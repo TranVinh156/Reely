@@ -16,7 +16,7 @@ interface CommentData {
   comment: string;
   timestamp: string;
   avatarUrl: string;
-  replies?: Reply[];
+  // replies?: Reply[];
   replyCount?: number;
 }
 
@@ -29,7 +29,6 @@ const Comment: React.FC = () => {
       timestamp: '23 giờ trước',
       avatarUrl: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQatFGGWLmfb6aTo1tyb3OxSkjfXrYft2TTbw&s',
       replyCount: 0,
-      replies: [],
     },
     {
       id: '2',
@@ -38,7 +37,6 @@ const Comment: React.FC = () => {
       timestamp: '23 giờ trước',
       avatarUrl: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQatFGGWLmfb6aTo1tyb3OxSkjfXrYft2TTbw&s',
       replyCount: 0,
-      replies: [],
     },
     {
       id: '3',
@@ -47,7 +45,6 @@ const Comment: React.FC = () => {
       timestamp: '17 giờ trước',
       avatarUrl: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQatFGGWLmfb6aTo1tyb3OxSkjfXrYft2TTbw&s',
       replyCount: 0,
-      replies: [],
     },
     {
       id: '4',
@@ -56,92 +53,7 @@ const Comment: React.FC = () => {
       timestamp: '17 giờ trước',
       avatarUrl: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQatFGGWLmfb6aTo1tyb3OxSkjfXrYft2TTbw&s',
       replyCount: 3,
-      replies: [
-        {
-          id: '4-1',
-          username: 'User A',
-          comment: 'Phản hồi 1',
-          timestamp: '16 giờ trước',
-          avatarUrl: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQatFGGWLmfb6aTo1tyb3OxSkjfXrYft2TTbw&s'         
-        },
-        {
-          id: '4-2',
-          username: 'User B',
-          comment: 'Phản hồi 2',
-          timestamp: '15 giờ trước',
-          avatarUrl: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQatFGGWLmfb6aTo1tyb3OxSkjfXrYft2TTbw&s',
-        },
-        {
-          id: '4-3',
-          username: 'User C',
-          comment: 'Phản hồi 3',
-          timestamp: '14 giờ trước',
-          avatarUrl: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQatFGGWLmfb6aTo1tyb3OxSkjfXrYft2TTbw&s',
-        },
-        {
-          id: '4-4',
-          username: 'User A',
-          comment: 'Phản hồi 1',
-          timestamp: '16 giờ trước',
-          avatarUrl: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQatFGGWLmfb6aTo1tyb3OxSkjfXrYft2TTbw&s'         
-        },
-        {
-          id: '4-5',
-          username: 'User B',
-          comment: 'Phản hồi 2',
-          timestamp: '15 giờ trước',
-          avatarUrl: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQatFGGWLmfb6aTo1tyb3OxSkjfXrYft2TTbw&s',
-        },
-        {
-          id: '4-6',
-          username: 'User C',
-          comment: 'Phản hồi 3',
-          timestamp: '14 giờ trước',
-          avatarUrl: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQatFGGWLmfb6aTo1tyb3OxSkjfXrYft2TTbw&s',
-        },
-        {
-          id: '4-7',
-          username: 'User A',
-          comment: 'Phản hồi 1',
-          timestamp: '16 giờ trước',
-          avatarUrl: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQatFGGWLmfb6aTo1tyb3OxSkjfXrYft2TTbw&s'         
-        },
-        {
-          id: '4-8',
-          username: 'User B',
-          comment: 'Phản hồi 2',
-          timestamp: '15 giờ trước',
-          avatarUrl: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQatFGGWLmfb6aTo1tyb3OxSkjfXrYft2TTbw&s',
-        },
-        {
-          id: '4-9',
-          username: 'User C',
-          comment: 'Phản hồi 3',
-          timestamp: '14 giờ trước',
-          avatarUrl: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQatFGGWLmfb6aTo1tyb3OxSkjfXrYft2TTbw&s',
-        },
-        {
-          id: '4-10',
-          username: 'User A',
-          comment: 'Phản hồi 1',
-          timestamp: '16 giờ trước',
-          avatarUrl: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQatFGGWLmfb6aTo1tyb3OxSkjfXrYft2TTbw&s'         
-        },
-        {
-          id: '4-11',
-          username: 'User B',
-          comment: 'Phản hồi 2',
-          timestamp: '15 giờ trước',
-          avatarUrl: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQatFGGWLmfb6aTo1tyb3OxSkjfXrYft2TTbw&s',
-        },
-        {
-          id: '4-12',
-          username: 'User C',
-          comment: 'Phản hồi 3',
-          timestamp: '14 giờ trước',
-          avatarUrl: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQatFGGWLmfb6aTo1tyb3OxSkjfXrYft2TTbw&s',
-        },
-      ],
+      
     },
     {
       id: '5',
@@ -150,22 +62,7 @@ const Comment: React.FC = () => {
       timestamp: '21 giờ trước',
       avatarUrl: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQatFGGWLmfb6aTo1tyb3OxSkjfXrYft2TTbw&s',
       replyCount: 42,
-      replies: [
-        {
-          id: '5-1',
-          username: 'Reply User 1',
-          comment: 'Đồng ý với bạn',
-          timestamp: '20 giờ trước',
-          avatarUrl: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQatFGGWLmfb6aTo1tyb3OxSkjfXrYft2TTbw&s',
-        },
-        {
-          id: '5-2',
-          username: 'Reply User 2',
-          comment: 'Haha đúng rồi',
-          timestamp: '19 giờ trước',
-          avatarUrl: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQatFGGWLmfb6aTo1tyb3OxSkjfXrYft2TTbw&s',
-        },
-      ],
+      
     },
     {
       id: '6',
@@ -174,15 +71,7 @@ const Comment: React.FC = () => {
       timestamp: '23 giờ trước',
       avatarUrl: 'https://example.com/avatar6.jpg',
       replyCount: 8,
-      replies: [
-        {
-          id: '6-1',
-          username: 'Reply User',
-          comment: 'Tôi cũng nghĩ vậy',
-          timestamp: '22 giờ trước',
-          avatarUrl: 'https://example.com/avatar6.jpg',
-        },
-      ],
+      
     },
     {
       id: '7',
@@ -191,11 +80,12 @@ const Comment: React.FC = () => {
       timestamp: '1 ngày trước',
       avatarUrl: 'https://example.com/avatar7.jpg',
       replyCount: 0,
-      replies: [],
     },
   ]);
 
+  const [repliesData, setRepliesData] = useState<Record<string, Reply[]>>({});
   const [showReplies, setShowReplies] = useState<Record<string, number>>({});
+  const [loadingReplies, setLoadingReplies] = useState<Record<string, boolean>>({});
   const [commentText, setCommentText] = useState("");
 
   const handleSubmitComment = () => {
@@ -205,12 +95,75 @@ const Comment: React.FC = () => {
     }
   };
 
-  const toggleShowReplies = (id: string) => {
-    setShowReplies(prev => ({ ...prev, [id]: Math.min((prev[id] || 0) + 5, comments.find(c => c.id === id)?.replyCount || 0) }));
+  // ✅ Function: Fetch replies từ API
+  const fetchReplies = async (commentId: string) => {
+    // Nếu đã fetch rồi thì không fetch lại
+    if (repliesData[commentId]) {
+      return;
+    }
+
+    setLoadingReplies(prev => ({ ...prev, [commentId]: true }));
+
+    try {
+      // TODO: Thay bằng API call thật
+      // const response = await fetch(`/api/comments/${commentId}/replies`);
+      // const data = await response.json();
+      
+      // Mock data (giả lập API call)
+      await new Promise(resolve => setTimeout(resolve, 500)); // Giả lập delay
+      
+      const mockReplies: Reply[] = Array.from({ length: 12 }, (_, i) => ({
+        id: `${commentId}-${i + 1}`,
+        username: `User ${String.fromCharCode(65 + (i % 3))}`,
+        comment: `Phản hồi ${i + 1}`,
+        timestamp: `${16 - i} giờ trước`,
+        avatarUrl: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQatFGGWLmfb6aTo1tyb3OxSkjfXrYft2TTbw&s',
+      }));
+
+      // Lưu replies vào state
+      setRepliesData(prev => ({
+        ...prev,
+        [commentId]: mockReplies,
+      }));
+
+      // Hiển thị 5 replies đầu tiên
+      setShowReplies(prev => ({
+        ...prev,
+        [commentId]: Math.min(5, mockReplies.length),
+      }));
+
+    } catch (error) {
+      console.error('Error fetching replies:', error);
+    } finally {
+      setLoadingReplies(prev => ({ ...prev, [commentId]: false }));
+    }
+  };
+
+  const toggleShowMoreReplies = (commentId: string) => {
+    const currentCount = showReplies[commentId] || 0;
+    const totalReplies = repliesData[commentId]?.length || 0;
+    
+    
+    setShowReplies(prev => ({
+      ...prev,
+      [commentId]: Math.min(currentCount + 5, totalReplies),
+    }));
   };
 
   const hideReplies = (id: string) => {
     setShowReplies(prev => ({ ...prev, [id]: 0 }));
+  };
+
+
+  // ✅ Handle click "View replies" button
+  const handleViewReplies = async (commentId: string) => {
+    // Nếu chưa fetch thì fetch
+    if (!repliesData[commentId]) {
+      await fetchReplies(commentId);
+    } else {
+      // Nếu đã fetch rồi thì chỉ cần show thêm
+      toggleShowMoreReplies(commentId);
+    }
   };
 
   return (
@@ -225,7 +178,12 @@ const Comment: React.FC = () => {
 
       {/* Comment List */}
       <div className="flex-1 overflow-y-auto overflow-x-hidden [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-white/20 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:hover:bg-white/30">
-        {comments.map((comment) => (
+        {comments.map((comment) => {
+          const replies = repliesData[comment.id] || [];
+          const showCount = showReplies[comment.id] || 0;
+          const isLoading = loadingReplies[comment.id] || false;
+
+          return (
           <div key={comment.id}>
             {/* Main Comment */}
             <CommentCard
@@ -238,9 +196,9 @@ const Comment: React.FC = () => {
             />
 
             {/* Nested Replies */}
-            {showReplies[comment.id] > 0 && comment.replies && comment.replies.length > 0 && (
+            {showCount > 0 && replies.length > 0 && (
               <div className="ml-10">
-                {comment.replies.slice(0, showReplies[comment.id]).map((reply) => (
+                {replies.slice(0, showCount).map((reply) => (
                   <CommentCard
                     key={reply.id}
                     username={reply.username}
@@ -257,36 +215,49 @@ const Comment: React.FC = () => {
             {comment.replyCount !== undefined && comment.replyCount > 0 && (
             <div className="pt-1 ml-20 flex gap-15">
 
-              {comment.replyCount - (showReplies[comment.id] || 0) > 0 && (
+              {/* Loading spinner */}
+              {isLoading && (
+                <div className="flex items-center gap-2 text-xs text-white/60">
+                  <div className="animate-spin rounded-full h-3 w-3 border-b border-white/60"></div>
+                  <span>Loading replies...</span>
+                </div>
+              )}
+
+              {/* View More button */}
+              {!isLoading && showCount < (repliesData[comment.id]?.length || comment.replyCount) && (
                 <button
-                onClick={() => toggleShowReplies(comment.id)}
-                className="flex items-center gap-2 text-xs text-white/60 hover:text-white transition-colors"
-              >
-                <div className="h-px bg-white/20 w-10"></div>
-                <span className="whitespace-nowrap">
-                  View {comment.replyCount - (showReplies[comment.id] || 0)} replies
-                </span>
-                <ChevronDown size={14} />
-              </button>
+                  onClick={() => handleViewReplies(comment.id)}
+                  className="flex items-center gap-2 text-xs text-white/60 hover:text-white transition-colors"
+                >
+                  <div className="h-px bg-white/20 w-10"></div>
+                  <span className="whitespace-nowrap">
+                    {showCount === 0 
+                      ? `View ${comment.replyCount} replies`
+                      : `View ${comment.replyCount - showCount} more replies`
+                    }
+                  </span>
+                  <ChevronDown size={14} />
+                </button>
               )}
               
 
-              {showReplies[comment.id] > 0 && (
-              <button
-                onClick={() => hideReplies(comment.id)}
-                className="flex items-center gap-2 text-xs text-white/60 hover:text-white transition-colors"
-              >
-                <span className="whitespace-nowrap">
-                  Hide
-                </span>
-                <ChevronUp size={14} /> 
-              </button>
+              {/* Hide button */}
+              {!isLoading &&showCount > 0 && (
+                <button
+                  onClick={() => hideReplies(comment.id)}
+                  className="flex items-center gap-2 text-xs text-white/60 hover:text-white transition-colors"
+                >
+                  <span className="whitespace-nowrap">Hide</span>
+                  <ChevronUp size={14} />
+                </button>
               )}
             </div>
             
             )}
           </div>
-        ))}
+        )
+        }
+        )}
       </div>
 
       {/* Comment Input */}

@@ -25,9 +25,12 @@ public class Comment {
     private Video video;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "parent_id" , referencedColumnName = "id")
-    private Comment parentCommnent;
+    @JoinColumn(name = "rootComment_id" , referencedColumnName = "id")
+    private Comment rootCommnent;
 
+    @OneToOne(fetch = FetchType.LAZY)
+    private Comment replyToComment;
+    
     private Integer deleted_flag;
     private String text;
     private Instant created_at;
@@ -44,7 +47,6 @@ public class Comment {
     public void preUpdate() {
         updated_at = Instant.now();
     }
-
 
 
 }
