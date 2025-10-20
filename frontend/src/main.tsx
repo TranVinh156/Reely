@@ -1,28 +1,23 @@
-// // frontend/src/main.tsx (snippet)
-// import React from "react";
-// import { createRoot } from "react-dom/client";
-// import { BrowserRouter, Routes, Route } from "react-router-dom";
-// import FeedPage from "@/pages/FeedPage";
-// import "./index.css";
-
-// createRoot(document.getElementById("root")!).render(
-//   <React.StrictMode>
-//     <BrowserRouter>
-//       <Routes>
-//         <Route path="/" element={<FeedPage />} />
-//         {/* other routes */}
-//       </Routes>
-//     </BrowserRouter>
-//   </React.StrictMode>
-// );
-
-import React from "react";
 import ReactDOM from "react-dom/client";
-import IndexPage from "./pages/index";
+import { BrowserRouter, Routes, Route } from "react-router";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import LoginPage from "./pages/LoginPage";
 import "./index.css";
+import RegisterPage from "./pages/RegisterPage";
 
-ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
-  <React.StrictMode>
-    <IndexPage />
-  </React.StrictMode>
+const queryClient = new QueryClient();
+
+const root: HTMLElement | null = document.getElementById("root");
+
+if (!root) throw new Error("Root element not found");
+
+ReactDOM.createRoot(root).render(
+  <QueryClientProvider client={queryClient}>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />}></Route>
+      </Routes>
+    </BrowserRouter>
+  </QueryClientProvider>,
 );
