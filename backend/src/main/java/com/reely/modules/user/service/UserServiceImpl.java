@@ -28,9 +28,12 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User getUserByEmail(String email) {
+    public UserDTO getUserByEmail(String email) {
         Optional<User> user = this.userRepository.findByEmail(email);
-        return user.orElseThrow(() -> new UsernameNotFoundException(email));
+        if (!user.isPresent()) {
+            throw new UsernameNotFoundException(email);
+        }
+        return convertToDto(user.get());
     }
 
     @Override
@@ -52,9 +55,10 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User getUserById(Long id) {
+    public UserDTO getUserById(Long id) {
         Optional<User> userOptional = this.userRepository.findById(id);
-        return userOptional.orElseThrow(() -> new RuntimeException("User with id " + id + " not found."));
+        User user = userOptional.orElseThrow(() -> new RuntimeException("User with id " + id + " not found."));
+        return convertToDto(user);
     }
 
     @Override
@@ -68,7 +72,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDTO updateUser(Long id, UserDTO userDTO) {
-        User user = this.getUserById(id);
+        Optional<User> userOptional = this.userRepository.findById(id);
+        User user = userOptional.orElseThrow(() -> new RuntimeException("User with id " + id + " not found."));
+
         if (userDTO.getAvatarUrl() != null) {
             user.setAvatarUrl(userDTO.getAvatarUrl());
         }
@@ -95,15 +101,29 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void updateRefreshToken(Long id, String refreshToken) {
-        User user = this.getUserById(id);
+        Optional<User> userOptional = this.userRepository.findById(id);
+        User user = userOptional.orElseThrow(() -> new RuntimeException("User with id " + id + " not found."));
         user.setRefreshToken(refreshToken);
         this.userRepository.save(user);
     }
 
     @Override
-    public User getUserByRefreshToken(String refreshToken) {
+    public UserDTO getUserByRefreshToken(String refreshToken) {
         Optional<User> user = this.userRepository.findByRefreshToken(refreshToken);
-        return user.orElseThrow(() -> new RuntimeException("User with this refresh token not found."));
+        return convertToDto(user.orElseThrow(() -> new RuntimeException("User with this refresh token not found.")));
     }
 
+    public UserDTO convertToDto(User user) {
+        UserDTO userDTO = new UserDTO();
+        userDTO.setId(user.getId());
+        userDTO.setUsername(user.getUsername());
+        userDTO.setEmail(user.getEmail());
+        userDTO.setDisplayName(user.getDisplayName());
+        userDTO.setBio(user.getBio());
+        userDTO.setAvatarUrl(user.getAvatarUrl());
+        userDTO.setRole(user.getRole());
+        userDTO.setCreatedAt(user.getCreatedAt());
+        userDTO.setUpdatedAt(user.getUpdatedAt());
+        return userDTO;
+    }
 }

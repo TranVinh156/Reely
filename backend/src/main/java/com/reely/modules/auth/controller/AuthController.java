@@ -8,7 +8,6 @@ import com.reely.modules.auth.dto.LoginResponse;
 import com.reely.modules.auth.dto.RegistrationRequest;
 import com.reely.modules.auth.service.AuthService;
 import com.reely.modules.user.dto.UserDTO;
-import com.reely.modules.user.entity.User;
 import com.reely.modules.user.service.UserService;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -54,11 +53,8 @@ public class AuthController {
                 Authentication authentication = authenticationManager.authenticate(authenticationToken);
                 SecurityContextHolder.getContext().setAuthentication(authentication);
 
-                System.out.println(SecurityContextHolder.getContext());
-
                 String email = loginRequest.getEmail();
-                User user = this.userService.getUserByEmail(email);
-                UserDTO userDTO = new UserDTO(user);
+                UserDTO userDTO = this.userService.getUserByEmail(email);
 
                 String accessToken = this.authService.generateAccessToken(userDTO.getEmail(), userDTO);
                 String refreshToken = this.authService.generateRefreshToken(userDTO.getEmail(), userDTO);
@@ -86,11 +82,7 @@ public class AuthController {
                         throw new RuntimeException("Refresh token not found.");
                 }
 
-                // Note: Token signature/expiration is not validated anymore
-                // We only check if it exists in the database
-                User user = this.userService.getUserByRefreshToken(refreshToken);
-
-                UserDTO userDTO = new UserDTO(user);
+                UserDTO userDTO = this.userService.getUserByRefreshToken(refreshToken);
 
                 String accessToken = this.authService.generateAccessToken(userDTO.getEmail(), userDTO);
                 String newRefreshToken = this.authService.generateRefreshToken(userDTO.getEmail(), userDTO);

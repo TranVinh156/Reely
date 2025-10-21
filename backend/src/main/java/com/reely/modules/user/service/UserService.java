@@ -6,11 +6,11 @@ import com.reely.modules.user.dto.UserDTO;
 import com.reely.modules.user.entity.User;
 
 public interface UserService {
-    User getUserByEmail(String email);
+    UserDTO getUserByEmail(String email);
 
     UserDTO createUser(RegistrationRequest request);
 
-    User getUserById(Long id);
+    UserDTO getUserById(Long id);
 
     PaginationResponse<UserDTO> getAllUser(int page, int pageSize);
 
@@ -20,5 +20,7 @@ public interface UserService {
 
     void updateRefreshToken(Long id, String refreshToken);
 
-    User getUserByRefreshToken(String refreshToken);
+    UserDTO getUserByRefreshToken(String refreshToken);
+
+    UserDTO convertToDto(User user);
 }
