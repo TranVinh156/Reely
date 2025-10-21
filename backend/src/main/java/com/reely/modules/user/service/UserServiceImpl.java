@@ -5,26 +5,32 @@ import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import com.reely.modules.auth.dto.PaginationResponse;
 import com.reely.modules.auth.dto.RegistrationRequest;
 import com.reely.modules.user.dto.UserDTO;
+import com.reely.modules.user.entity.Role;
 import com.reely.modules.user.entity.User;
+import com.reely.modules.user.entity.enums.RoleName;
+import com.reely.modules.user.repository.RoleRepository;
 import com.reely.modules.user.repository.UserRepository;
 
 @Service
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
 
-    public UserServiceImpl(UserRepository userRepository) {
+    public UserServiceImpl(UserRepository userRepository, RoleRepository roleRepository) {
         this.userRepository = userRepository;
+        this.roleRepository = roleRepository;
     }
 
     @Override
     public User getUserByEmail(String email) {
-        User user = this.userRepository.findByEmail(email);
-        return user;
+        Optional<User> user = this.userRepository.findByEmail(email);
+        return user.orElseThrow(() -> new UsernameNotFoundException(email));
     }
 
     @Override
@@ -33,10 +39,13 @@ public class UserServiceImpl implements UserService {
             throw new RuntimeException("User with this email already existed.");
         }
 
+        Role role = this.roleRepository.findByName(RoleName.USER).get();
+
         User user = new User();
         user.setEmail(request.getEmail());
         user.setUsername(request.getUsername());
         user.setPasswordHash(request.getPassword());
+        user.setRole(role);
 
         this.userRepository.save(user);
         return new UserDTO(user);
