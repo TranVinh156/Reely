@@ -1,5 +1,7 @@
 package com.reely.config;
 
+import java.util.Optional;
+
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -19,11 +21,13 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        User user = userRepository.findByEmail(email);
+        Optional<User> userOptional = userRepository.findByEmail(email);
 
-        if (user == null) {
+        if (!userOptional.isPresent()) {
             throw new UsernameNotFoundException("User not found with email: " + email);
         }
+
+        User user = userOptional.get();
 
         return org.springframework.security.core.userdetails.User
                 .withUsername(user.getEmail())
