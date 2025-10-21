@@ -2,13 +2,13 @@ package com.reely.modules.auth.service.impl;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jwt.JwsHeader;
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtClaimsSet;
-import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import org.springframework.stereotype.Service;
@@ -31,11 +31,8 @@ public class AuthServiceImpl implements AuthService {
 
     private JwtEncoder jwtEncoder;
 
-    private JwtDecoder jwtDecoder;
-
-    public AuthServiceImpl(JwtEncoder jwtEncoder, JwtDecoder jwtDecoder) {
+    public AuthServiceImpl(JwtEncoder jwtEncoder) {
         this.jwtEncoder = jwtEncoder;
-        this.jwtDecoder = jwtDecoder;
     }
 
     public static final MacAlgorithm JWT_ALGORITHM = MacAlgorithm.HS256;
@@ -44,6 +41,9 @@ public class AuthServiceImpl implements AuthService {
     public String generateAccessToken(String email, UserDTO user) {
         Instant now = Instant.now();
         Instant validationTime = now.plus(this.accessTokenExpiration, ChronoUnit.SECONDS);
+
+        List<String> authorities = new ArrayList<>();
+        authorities.add(user.getRole().getName().toString());
 
         UserClaims userClaims = UserClaims.builder()
                 .email(user.getEmail())
@@ -57,6 +57,7 @@ public class AuthServiceImpl implements AuthService {
                 .expiresAt(validationTime)
                 .issuer(email)
                 .claim("user", userClaims)
+                .claim("authorities", authorities)
                 .build();
 
         JwsHeader jwsHeader = JwsHeader.with(JWT_ALGORITHM).build();
@@ -82,14 +83,5 @@ public class AuthServiceImpl implements AuthService {
 
         JwsHeader jwsHeader = JwsHeader.with(JWT_ALGORITHM).build();
         return this.jwtEncoder.encode(JwtEncoderParameters.from(jwsHeader, claimsSet)).getTokenValue();
-    }
-
-    @Override
-    public Jwt checkValidRefreshToken(String refreshToken) {
-        try {
-            return jwtDecoder.decode(refreshToken);
-        } catch (Exception e) {
-            throw e;
-        }
     }
 }

@@ -20,7 +20,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -55,6 +54,8 @@ public class AuthController {
                 Authentication authentication = authenticationManager.authenticate(authenticationToken);
                 SecurityContextHolder.getContext().setAuthentication(authentication);
 
+                System.out.println(SecurityContextHolder.getContext());
+
                 String email = loginRequest.getEmail();
                 User user = this.userService.getUserByEmail(email);
                 UserDTO userDTO = new UserDTO(user);
@@ -85,14 +86,9 @@ public class AuthController {
                         throw new RuntimeException("Refresh token not found.");
                 }
 
-                Jwt decodedJwt = this.authService.checkValidRefreshToken(refreshToken);
-
-                String email = decodedJwt.getSubject();
-                User user = this.userService.getUserByEmail(email);
-
-                if (!user.getRefreshToken().equals(refreshToken)) {
-                        throw new RuntimeException("User with this refresh token is not existed!");
-                }
+                // Note: Token signature/expiration is not validated anymore
+                // We only check if it exists in the database
+                User user = this.userService.getUserByRefreshToken(refreshToken);
 
                 UserDTO userDTO = new UserDTO(user);
 
@@ -104,7 +100,7 @@ public class AuthController {
                 LoginResponse response = new LoginResponse(accessToken);
 
                 ResponseCookie cookies = ResponseCookie
-                                .from("refresh_token", refreshToken)
+                                .from("refresh_token", newRefreshToken)
                                 .path("/")
                                 .maxAge(refreshTokenExpiration)
                                 .secure(true)

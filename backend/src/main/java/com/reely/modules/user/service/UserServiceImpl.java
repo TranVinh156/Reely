@@ -100,4 +100,10 @@ public class UserServiceImpl implements UserService {
         this.userRepository.save(user);
     }
 
+    @Override
+    public User getUserByRefreshToken(String refreshToken) {
+        Optional<User> user = this.userRepository.findByRefreshToken(refreshToken);
+        return user.orElseThrow(() -> new RuntimeException("User with this refresh token not found."));
+    }
+
 }
