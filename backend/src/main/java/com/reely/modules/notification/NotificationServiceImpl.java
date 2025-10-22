@@ -1,5 +1,7 @@
 package com.reely.modules.notification;
 
+import com.reely.modules.user.entity.User;
+import com.reely.modules.user.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

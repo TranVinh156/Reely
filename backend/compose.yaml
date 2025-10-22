@@ -32,28 +32,22 @@ services:
       - 'MYSQL_USER=myuser'
     ports:
       - '3306:3306'
-  rabbitmq:
-    image: 'rabbitmq:latest'
-    environment:
-      KONG_DATABASE: postgres
-      KONG_PG_HOST: postgres
-      KONG_PG_USER: kong
-      KONG_PG_PASSWORD: kongpass
-      KONG_PG_DATABASE: kong
-      KONG_ADMIN_LISTEN: 0.0.0.0:8001
-      KONG_PROXY_LISTEN: 0.0.0.0:8000
-      KONG_ADMIN_GUI_URL: http://localhost:8002
-      KONG_LOG_LEVEL: info
-    ports:
-      - "8000:8000"
-      - "8001:8001"
-      - "8002:8002"
-    networks:
-      - kong-net
+#  rabbitmq:
+#    image: 'rabbitmq:latest'
+#    environment:
+#      KONG_DATABASE: postgres
+#      KONG_PG_HOST: postgres
+#      KONG_PG_USER: kong
+#      KONG_PG_PASSWORD: kongpass
+#      KONG_PG_DATABASE: kong
+#      KONG_ADMIN_LISTEN: 0.0.0.0:8001
+#      KONG_PROXY_LISTEN: 0.0.0.0:8000
+#      KONG_ADMIN_GUI_URL: http://localhost:8002
+#      KONG_LOG_LEVEL: info
+#    ports:
+#      - "8000:8000"
+#      - "8001:8001"
+#      - "8002:8002"
+#    networks:
+#      - kong-net
 
-networks:
-  kong-net:
-    driver: bridge
-
-volumes:
-  kong_data:

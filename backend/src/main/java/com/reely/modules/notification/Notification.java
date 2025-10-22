@@ -1,5 +1,6 @@
 package com.reely.modules.notification;
 
+import com.reely.modules.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

@@ -4,6 +4,10 @@ import com.reely.modules.interaction.dto.LikeRequestDTO;
 import com.reely.modules.interaction.dto.LikeResponseDTO;
 import com.reely.modules.interaction.entity.Like;
 import com.reely.modules.interaction.repository.LikeRepository;
+import com.reely.modules.user.entity.User;
+import com.reely.modules.user.service.UserService;
+import com.reely.modules.video.VideoService;
+import com.reely.modules.video.entity.Video;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -47,9 +51,9 @@ public class LikeServiceImpl implements LikeService{
                         .id(like.getId())
                         .userId(like.getUser().getId())
                         .videoId(like.getVideo().getId())
-                        .createdAt(like.getCreatAt())
+                        .createdAt(like.getCreatedAt())
                         .build()
-                );
+                ).toList();
     }
 
     public List<LikeResponseDTO> getLikeByUserId(Long userId) {
@@ -59,9 +63,9 @@ public class LikeServiceImpl implements LikeService{
                         .id(like.getId())
                         .userId(like.getUser().getId())
                         .videoId(like.getVideo().getId())
-                        .createdAt(like.getCreatAt())
+                        .createdAt(like.getCreatedAt())
                         .build()
-                );
+                ).toList();
     }
 
     public LikeResponseDTO getLikeByVideoIdAndUserId(Long videoId, Long userId) {
@@ -74,7 +78,7 @@ public class LikeServiceImpl implements LikeService{
                 .id(like.get().getId())
                 .userId(userId)
                 .videoId(videoId)
-                .createdAt(like.get().getCreatAt())
+                .createdAt(like.get().getCreatedAt())
                 .build();
     }
 

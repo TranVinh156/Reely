@@ -1,4 +1,7 @@
 package com.reely.modules.video;
 
-public class VideoService {
+import com.reely.modules.video.entity.Video;
+
+public interface VideoService {
+    Video getVideoById(Long id);
 }

@@ -3,7 +3,6 @@ package com.reely.modules.auth.controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.reely.gateway.KongService;
 import com.reely.modules.auth.dto.LoginRequest;
 import com.reely.modules.auth.dto.LoginResponse;
 import com.reely.modules.auth.dto.RegistrationRequest;

@@ -1,5 +1,7 @@
 package com.reely.modules.interaction.entity;
 
+import com.reely.modules.user.entity.User;
+import com.reely.modules.video.entity.Video;
 import jakarta.persistence.*;
 import lombok.*;
 import org.w3c.dom.Text;
@@ -25,10 +27,11 @@ public class Comment {
     private Video video;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "rootComment_id" , referencedColumnName = "id")
-    private Comment rootCommnent;
+    @JoinColumn(name = "root_comment_id" , referencedColumnName = "id")
+    private Comment rootComment;
 
     @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "reply_comment_id", referencedColumnName = "id")
     private Comment replyToComment;
     
     private Integer deleted_flag;
@@ -47,6 +50,5 @@ public class Comment {
     public void preUpdate() {
         updated_at = Instant.now();
     }
-
 
 }
