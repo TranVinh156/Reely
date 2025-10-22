@@ -8,6 +8,7 @@ interface Reply {
   comment: string;
   timestamp: string;
   avatarUrl: string;
+  usernameReplied?: string;
 }
 
 interface CommentData {
@@ -87,6 +88,9 @@ const Comment: React.FC = () => {
   const [showReplies, setShowReplies] = useState<Record<string, number>>({});
   const [loadingReplies, setLoadingReplies] = useState<Record<string, boolean>>({});
   const [commentText, setCommentText] = useState("");
+  const [activeReplyId, setActiveReplyId] = useState<string | null>(null);
+  const [replyText, setReplyText] = useState("");
+  const [activeReportId, setActiveReportId] = useState<string | null>(null);
 
   const handleSubmitComment = () => {
     if (commentText.trim()) {
@@ -118,6 +122,7 @@ const Comment: React.FC = () => {
         comment: `Phản hồi ${i + 1}`,
         timestamp: `${16 - i} giờ trước`,
         avatarUrl: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQatFGGWLmfb6aTo1tyb3OxSkjfXrYft2TTbw&s',
+        usernameReplied: `User ${String.fromCharCode(65 + ((i + 1) % 3))}`,
       }));
 
       // Lưu replies vào state
@@ -191,8 +196,12 @@ const Comment: React.FC = () => {
               comment={comment.comment}
               timestamp={comment.timestamp}
               avatarUrl={comment.avatarUrl}
-              replyCount={comment.replyCount}
-              showReplies={0}
+              showReplyInput={activeReplyId === comment.id}
+              onReplyClick={() => setActiveReplyId(comment.id)}
+              onReplyClose={() => setActiveReplyId(null)}
+              showReportMenu={activeReportId === comment.id}
+              onReportClick={() => setActiveReportId(comment.id)}
+              onReportClose={() => setActiveReportId(null)}
             />
 
             {/* Nested Replies */}
@@ -206,6 +215,13 @@ const Comment: React.FC = () => {
                     timestamp={reply.timestamp}
                     avatarUrl={reply.avatarUrl}
                     isReply={true}
+                    usernameReplied={reply.usernameReplied}
+                    showReplyInput={activeReplyId === reply.id}
+                    onReplyClick={() => setActiveReplyId(reply.id)}
+                    onReplyClose={() => setActiveReplyId(null)}
+                    showReportMenu={activeReportId === reply.id}
+                    onReportClick={() => setActiveReportId(reply.id)}
+                    onReportClose={() => setActiveReportId(null)}
                   />
                 ))}
               </div>
@@ -242,7 +258,7 @@ const Comment: React.FC = () => {
               
 
               {/* Hide button */}
-              {!isLoading &&showCount > 0 && (
+              {!isLoading && showCount > 0 && (
                 <button
                   onClick={() => hideReplies(comment.id)}
                   className="flex items-center gap-2 text-xs text-white/60 hover:text-white transition-colors"
@@ -276,7 +292,7 @@ const Comment: React.FC = () => {
             </button>
 
             <button className="text-white hover:text-white/60 transition-colors cursor-pointer flex gap-2">
-                                <Paperclip size={20} />
+              <Paperclip size={20} />
             </button>
           </div>
         </div>

@@ -1,4 +1,4 @@
-import { Paperclip, Send, Smile, X, ChevronDown, ChevronUp} from "lucide-react";
+import { Paperclip, Send, Smile, X, Ellipsis, Flag, ChevronRight} from "lucide-react";
 import React, { useState } from "react";
 
 interface CommentCardProps {
@@ -6,13 +6,14 @@ interface CommentCardProps {
   comment?: string;
   timestamp?: string;
   avatarUrl?: string;
-  replyCount?: number;
-  onViewReplies?: () => void;
-  showReplies?: number;
   isReply?: boolean;
-  // likeCount?: number;
-  // commentId?: string; // ✅ Thêm ID để track like
-  // onLike?: (commentId: string) => void; // ✅ Callback khi like
+  showReplyInput?: boolean;
+  usernameReplied?: string;
+  onReplyClick?: () => void;
+  onReplyClose?: () => void;
+  showReportMenu?: boolean;
+  onReportClick?: () => void;
+  onReportClose?: () => void;
 }
 
 const CommentCard: React.FC<CommentCardProps> = ({
@@ -20,60 +21,54 @@ const CommentCard: React.FC<CommentCardProps> = ({
   comment,
   timestamp,
   avatarUrl,
-  replyCount = 0,
-  showReplies = 0,
   isReply = false,
-  // likeCount = 0,
-  // commentId = '',
-  // onLike,
+  showReplyInput = false,
+  usernameReplied,
+  onReplyClick,
+  onReplyClose,
+  showReportMenu = false,
+  onReportClick,
+  onReportClose,
 }) => {
-  const [showReplyInput, setShowReplyInput] = useState(false);
   const [replyText, setReplyText] = useState("");
-  // const [isLiked, setIsLiked] = useState(false); // ✅ Track trạng thái like
-  // const [currentLikeCount, setCurrentLikeCount] = useState(likeCount); // ✅ Local like count
 
-  const handleReplyClick = () => {
-    setShowReplyInput(true);
-  };
+  // const handleReplyClick = () => {
+  //   setShowReplyInput(true);
+  // };
 
-  const handleCancelReply = () => {
-    setShowReplyInput(false);
-    setReplyText("");
-  };
+  // const handleCancelReply = () => {
+  //   setShowReplyInput(false);
+  //   setReplyText("");
+  // };
 
   const handleSubmitReply = () => {
     if (replyText.trim()) {
       console.log("Reply:", replyText);
       setReplyText("");
-      setShowReplyInput(false);
+      if (onReplyClose) onReplyClose();
     }
   };
 
-  // // ✅ Handle like/unlike
-  // const handleLike = () => {
-  //   setIsLiked(!isLiked);
-    
-  //   if (!isLiked) {
-  //     // Like: Tăng count
-  //     setCurrentLikeCount(prev => prev + 1);
-  //   } else {
-  //     // Unlike: Giảm count
-  //     setCurrentLikeCount(prev => Math.max(0, prev - 1));
-  //   }
+  const handleViewReport = () => {
+    if (showReportMenu) {
+      onReportClose?.(); 
+    } else {
+      onReportClick?.();
+    }
+  };
 
-  //   // Callback to parent component
-  //   if (onLike && commentId) {
-  //     onLike(commentId);
-  //   }
-  // };
+  const handleReport = () => {
+    console.log("Report comment:");
+    onReportClose?.(); 
+  };
 
-  // Avatar size dựa vào isReply
+
   const avatarSize = isReply ? "w-8 h-8" : "w-12 h-12";
 
   return (
-    <div className="w-full mt-2">
+    <div className="w-full mt-2 group">
       {/* Main Comment */}
-      <div className="flex gap-3 px-4 py-3 w-full bg-[#1e1e1e]">
+      <div className="flex gap-3 px-4 py-2 w-full bg-[#1e1e1e]">
         {/* Avatar */}
         <div className="flex flex-col justify-start pt-1">
           <img
@@ -86,10 +81,19 @@ const CommentCard: React.FC<CommentCardProps> = ({
         {/* Content */}
         <div className="flex-1 min-w-0 flex flex-col gap-y-1">
           {/* Username */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1">
             <h4 className={`${isReply ? 'text-sm' : 'text-base'} font-semibold text-white`}>
               {username || 'Unknown'}
             </h4>
+            
+            {usernameReplied && (
+              <div className="flex items-center gap-1">
+                <ChevronRight size={15} className="text-white/60"/>
+                <h4 className={`${isReply ? 'text-sm' : 'text-base'} font-semibold text-white`}>
+                  {usernameReplied || 'Unknown'}
+                </h4>
+              </div>
+            )}
           </div>
 
           {/* Comment Text */}
@@ -101,35 +105,11 @@ const CommentCard: React.FC<CommentCardProps> = ({
           <div className="flex items-center gap-10">
             <span className="text-sm text-white/60">{timestamp || ''}</span>
             <button
-              onClick={handleReplyClick}
+              onClick={onReplyClick}
               className="text-sm text-white/60 hover:text-white cursor-pointer transition-colors"
             >
               Reply
             </button>
-
-            {/* ✅ Like Button với logic */}
-            {/* <button 
-              onClick={handleLike}
-              className="flex items-center gap-1 group cursor-pointer"
-            >
-              <Heart 
-                size={14} 
-                className={`transition-all duration-200 ${
-                  isLiked 
-                    ? 'fill-red-500 text-red-500' 
-                    : 'text-white/60 group-hover:text-red-500'
-                }`}
-              />
-              {currentLikeCount > 0 && (
-                <span className={`text-sm transition-colors duration-200 ${
-                  isLiked 
-                    ? 'text-red-500' 
-                    : 'text-white/60 group-hover:text-white'
-                }`}>
-                  {currentLikeCount}
-                </span>
-              )}
-            </button> */}
           </div>
 
           {/* Reply Input */}
@@ -166,30 +146,35 @@ const CommentCard: React.FC<CommentCardProps> = ({
                 Post <Send size={20} />
               </button>
               <button
-                onClick={handleCancelReply}
+                onClick={() => {
+                  setReplyText("");
+                  onReplyClose?.();
+                }}
                 className="text-white hover:text-white/60 transition-colors cursor-pointer flex-shrink-0"
               >
                 <X size={20} />
               </button>
             </div>
           )}
+        </div>
 
-          {/* View Replies Button - Chỉ hiện ở comment chính */}
-          {/* {!isReply && replyCount > 0 && (
-            <div className="pt-2">
-              <button
-                onClick={onViewReplies}
-                className="flex items-center gap-2 text-xs text-white/60 hover:text-white transition-colors"
-              >
-                <div className="h-px bg-white/20 w-16"></div>
-                <span className="whitespace-nowrap">
-                  {showReplies ? 'Hide' : `View ${replyCount} replies`}
-                </span>
-                {showReplies ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+        <div className="h-20 relative"> 
+          <button
+          onClick={handleViewReport}
+          className={`flex justify-start cursor-pointer text-white/60 hover:text-white ${showReportMenu ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
+            <Ellipsis className="mt-0.5"/>
+          </button>
+          {showReportMenu && (
+            <div className="flex absolute right-0 w-30 bg-[#2a2a2a] rounded-lg shadow-lg p-2 border border-white/10 hover:text-[#FE2C55] gap-1">
+              <Flag className="" size={25}/>
+              <button className="flex justify-start text-center text-xl font-semibold">
+                Report
               </button>
             </div>
-          )} */}
+          )}
+          
         </div>
+        
       </div>
     </div>
   );
