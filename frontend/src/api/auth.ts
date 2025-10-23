@@ -5,7 +5,7 @@ import axiosClient from '../utils/axios.client';
 
 interface RefreshTokenResponse {
     accessToken: string;
-    user: any;
+    user: User;
 }
 
 export const login = async (email: string, password: string): Promise<LoginResponse> => {
