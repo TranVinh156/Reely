@@ -11,5 +11,6 @@ public class CommentRequestDTO {
     private Long videoId;
     private Long rootCommentId;
     private Long userId;
-    private String text;
+    private String text ;
+    private Long replyToCommentId;
 }

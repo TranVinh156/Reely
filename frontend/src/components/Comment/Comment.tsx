@@ -1,6 +1,8 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import CommentCard from "./CommentCard";
 import { X, ChevronDown, Paperclip, Smile, Send, ChevronUp } from "lucide-react";
+import axios from "axios";
+import { formatTimestamp } from "../../utils/formatTimestamp.ts";
 
 interface Reply {
   id: string;
@@ -9,6 +11,7 @@ interface Reply {
   timestamp: string;
   avatarUrl: string;
   usernameReplied?: string;
+  rootCommentId: string;
 }
 
 interface CommentData {
@@ -16,89 +19,168 @@ interface CommentData {
   username: string;
   comment: string;
   timestamp: string;
-  avatarUrl: string;
-  // replies?: Reply[];
+  avatarUrl: string;  
   replyCount?: number;
+  rootCommentId: string;
 }
 
-const Comment: React.FC = () => {
-  const [comments] = useState<CommentData[]>([
-    {
-      id: '1',
-      username: 'Nhỏ Uyenn 💙 🦀',
-      comment: '"Anh hát chơi chơi hơn 1 kiếp của nó đi làm" =))))',
-      timestamp: '23 giờ trước',
-      avatarUrl: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQatFGGWLmfb6aTo1tyb3OxSkjfXrYft2TTbw&s',
-      replyCount: 0,
-    },
-    {
-      id: '2',
-      username: 'như quỳnh 😺 😺',
-      comment: '😂 😂 nghe nói a tui hát 1bài 1, 2 tỷ đó hát chơi chơi hơn anti lm 1kiep là có thật',
-      timestamp: '23 giờ trước',
-      avatarUrl: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQatFGGWLmfb6aTo1tyb3OxSkjfXrYft2TTbw&s',
-      replyCount: 0,
-    },
-    {
-      id: '3',
-      username: 'MONO TEAM FC vn',
-      comment: 'JACK5TR CA SĨ SỐ 1 CAMPUCHIA NHÉ 😂 😴 😂 😂 😂 😂 😂 😂 😂 🤑 🤑 🤑 🤑',
-      timestamp: '17 giờ trước',
-      avatarUrl: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQatFGGWLmfb6aTo1tyb3OxSkjfXrYft2TTbw&s',
-      replyCount: 0,
-    },
-    {
-      id: '4',
-      username: 'Thành Đạt',
-      comment: 'Ổ 😂 😂',
-      timestamp: '17 giờ trước',
-      avatarUrl: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQatFGGWLmfb6aTo1tyb3OxSkjfXrYft2TTbw&s',
-      replyCount: 3,
+const Comment: React.FC<{ videoId: number, userId: number }> = ({ videoId, userId}) => {
+  // const [comments] = useState<CommentData[]>([
+  //   {
+  //     id: '1',
+  //     username: 'Nhỏ Uyenn 💙 🦀',
+  //     comment: '"Anh hát chơi chơi hơn 1 kiếp của nó đi làm" =))))',
+  //     timestamp: '23 giờ trước',
+  //     avatarUrl: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQatFGGWLmfb6aTo1tyb3OxSkjfXrYft2TTbw&s',
+  //     replyCount: 0,
+  //   },
+  //   {
+  //     id: '2',
+  //     username: 'như quỳnh 😺 😺',
+  //     comment: '😂 😂 nghe nói a tui hát 1bài 1, 2 tỷ đó hát chơi chơi hơn anti lm 1kiep là có thật',
+  //     timestamp: '23 giờ trước',
+  //     avatarUrl: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQatFGGWLmfb6aTo1tyb3OxSkjfXrYft2TTbw&s',
+  //     replyCount: 0,
+  //   },
+  //   {
+  //     id: '3',
+  //     username: 'MONO TEAM FC vn',
+  //     comment: 'JACK5TR CA SĨ SỐ 1 CAMPUCHIA NHÉ 😂 😴 😂 😂 😂 😂 😂 😂 😂 🤑 🤑 🤑 🤑',
+  //     timestamp: '17 giờ trước',
+  //     avatarUrl: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQatFGGWLmfb6aTo1tyb3OxSkjfXrYft2TTbw&s',
+  //     replyCount: 0,
+  //   },
+  //   {
+  //     id: '4',
+  //     username: 'Thành Đạt',
+  //     comment: 'Ổ 😂 😂',
+  //     timestamp: '17 giờ trước',
+  //     avatarUrl: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQatFGGWLmfb6aTo1tyb3OxSkjfXrYft2TTbw&s',
+  //     replyCount: 3,
       
-    },
-    {
-      id: '5',
-      username: 'Phạm Anh Minh',
-      comment: 'Báo đạo nhạc là đời à 🤣',
-      timestamp: '21 giờ trước',
-      avatarUrl: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQatFGGWLmfb6aTo1tyb3OxSkjfXrYft2TTbw&s',
-      replyCount: 42,
+  //   },
+  //   {
+  //     id: '5',
+  //     username: 'Phạm Anh Minh',
+  //     comment: 'Báo đạo nhạc là đời à 🤣',
+  //     timestamp: '21 giờ trước',
+  //     avatarUrl: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQatFGGWLmfb6aTo1tyb3OxSkjfXrYft2TTbw&s',
+  //     replyCount: 42,
       
-    },
-    {
-      id: '6',
-      username: 'Tiêu Đằng',
-      comment: 'Giai điệu y chang cái gì 100% ngay trc hay trong đám cưới vậy',
-      timestamp: '23 giờ trước',
-      avatarUrl: 'https://example.com/avatar6.jpg',
-      replyCount: 8,
+  //   },
+  //   {
+  //     id: '6',
+  //     username: 'Tiêu Đằng',
+  //     comment: 'Giai điệu y chang cái gì 100% ngay trc hay trong đám cưới vậy',
+  //     timestamp: '23 giờ trước',
+  //     avatarUrl: 'https://example.com/avatar6.jpg',
+  //     replyCount: 8,
       
-    },
-    {
-      id: '7',
-      username: 'haan.',
-      comment: 'hay quá tui sốc luôn mà=))',
-      timestamp: '1 ngày trước',
-      avatarUrl: 'https://example.com/avatar7.jpg',
-      replyCount: 0,
-    },
-  ]);
+  //   },
+  //   {
+  //     id: '7',
+  //     username: 'haan.',
+  //     comment: 'hay quá tui sốc luôn mà=))',
+  //     timestamp: '1 ngày trước',
+  //     avatarUrl: 'https://example.com/avatar7.jpg',
+  //     replyCount: 0,
+  //   },
+  // ]);
+  const [comments, setComments] = useState<CommentData[]>([]);
+  const [isLoadingComments, setIsLoadingComments] = useState(false);
 
   const [repliesData, setRepliesData] = useState<Record<string, Reply[]>>({});
   const [showReplies, setShowReplies] = useState<Record<string, number>>({});
   const [loadingReplies, setLoadingReplies] = useState<Record<string, boolean>>({});
   const [commentText, setCommentText] = useState("");
   const [activeReplyId, setActiveReplyId] = useState<string | null>(null);
-  const [replyText, setReplyText] = useState("");
   const [activeReportId, setActiveReportId] = useState<string | null>(null);
+
+  const [lastReplyAddedTo, setLastReplyAddedTo] = useState<string | null>(null);
+  useEffect( () => {
+    fetchComments();
+  }, [videoId]
+  )
+
+   useEffect(() => {
+    if (lastReplyAddedTo) {
+      // Re-fetch replies của comment đó
+      refetchReplies(lastReplyAddedTo);
+      // Reset flag
+      setLastReplyAddedTo(null);
+    }
+  }, [lastReplyAddedTo]);
+
+  const fetchComments = async () => {
+    setIsLoadingComments(true);
+    try {
+      const response = await axios.get(`http://localhost:8080/api/v1/comments/video?videoId=${videoId}`)
+      setComments(response.data.data)
+    } catch (error) {
+      console.error('Error fetching comments:', error);
+    } finally {
+      setIsLoadingComments(false);
+    }
+  };
+
+  // ✅ Function mới: Re-fetch replies
+  const refetchReplies = async (commentId: string) => {
+    setLoadingReplies(prev => ({ ...prev, [commentId]: true }));
+
+    try {
+      const response = await axios.get(`http://localhost:8080/api/v1/comments/replies?rootCommentId=${commentId}`);
+      const replies: Reply[] = response.data.data;
+      
+      // Update repliesData
+      setRepliesData(prev => ({
+        ...prev,
+        [commentId]: replies,
+      }));
+
+      // Update showReplies để hiện reply mới
+      setShowReplies(prev => ({
+        ...prev,
+        [commentId]: replies.length,
+      }));
+
+      // Update replyCount của root comment
+      setComments(prev => 
+        prev.map(c => 
+          c.id === commentId 
+            ? { ...c, replyCount: replies.length }
+            : c
+        )
+      );
+
+    } catch (error) {
+      console.error('Error refetching replies:', error);
+    } finally {
+      setLoadingReplies(prev => ({ ...prev, [commentId]: false }));
+    }
+  };
+
+  const handleReplyAdded = (rootCommentId: string) => {
+    setLastReplyAddedTo(rootCommentId);
+  };
+
 
 
   const closeReportMenu = () => setActiveReportId(null);
 
-  const handleSubmitComment = () => {
+  const handleSubmitComment = async() => {
     if (commentText.trim()) {
-      console.log("Comment:", commentText);
-      setCommentText("");
+      try {
+        const response = await axios.post('http://localhost:8080/api/v1/comments', {
+          videoId,
+          userId: userId,
+          text: commentText.trim()
+        });
+        console.log('Comment submitted:', response.data.data);
+        setComments(prev => [response.data, ...prev]);
+        setCommentText("");
+      } catch (error) {
+        console.error('Error submitting comment:', error);
+      }   
     }
     closeReportMenu();
   };
@@ -113,32 +195,20 @@ const Comment: React.FC = () => {
     setLoadingReplies(prev => ({ ...prev, [commentId]: true }));
 
     try {
-      // TODO: Thay bằng API call thật
-      // const response = await fetch(`/api/comments/${commentId}/replies`);
-      // const data = await response.json();
+      const response = await axios.get(`http://localhost:8080/api/v1/comments/replies?rootCommentId=${commentId}`);
       
-      // Mock data (giả lập API call)
-      await new Promise(resolve => setTimeout(resolve, 500)); // Giả lập delay
+      const replies: Reply[] = response.data.data;
       
-      const mockReplies: Reply[] = Array.from({ length: 12 }, (_, i) => ({
-        id: `${commentId}-${i + 1}`,
-        username: `User ${String.fromCharCode(65 + (i % 3))}`,
-        comment: `Phản hồi ${i + 1}`,
-        timestamp: `${16 - i} giờ trước`,
-        avatarUrl: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQatFGGWLmfb6aTo1tyb3OxSkjfXrYft2TTbw&s',
-        usernameReplied: `User ${String.fromCharCode(65 + ((i + 1) % 3))}`,
-      }));
-
       // Lưu replies vào state
       setRepliesData(prev => ({
         ...prev,
-        [commentId]: mockReplies,
+        [commentId]: replies,
       }));
 
       // Hiển thị 5 replies đầu tiên
       setShowReplies(prev => ({
         ...prev,
-        [commentId]: Math.min(5, mockReplies.length),
+        [commentId]: Math.min(5, replies.length),
       }));
 
     } catch (error) {
@@ -194,18 +264,34 @@ const Comment: React.FC = () => {
 
       {/* Comment List */}
       <div className="flex-1 overflow-y-auto overflow-x-hidden [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-white/20 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:hover:bg-white/30">
-        {comments.map((comment) => {
+        
+        {/* ✅ Loading State */}
+        {isLoadingComments && (
+          <div className="flex items-center justify-center h-32">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
+          </div>
+        )}
+
+        {!isLoadingComments && comments.length === 0 && (
+          <div className="px-4 py-8 text-center text-white/40">
+            Chưa có bình luận nào. Hãy là người đầu tiên bình luận!
+          </div>
+        )}
+
+
+        {!isLoadingComments && comments.map((comment) => {
           const replies = repliesData[comment.id] || [];
           const showCount = showReplies[comment.id] || 0;
           const isLoading = loadingReplies[comment.id] || false;
 
+          
           return (
           <div key={comment.id}>
             {/* Main Comment */}
             <CommentCard
               username={comment.username}
               comment={comment.comment}
-              timestamp={comment.timestamp}
+              timestamp={formatTimestamp(comment.timestamp)}
               avatarUrl={comment.avatarUrl}
               showReplyInput={activeReplyId === comment.id}
               onReplyClick={() => setActiveReplyId(comment.id)}
@@ -213,8 +299,13 @@ const Comment: React.FC = () => {
               showReportMenu={activeReportId === comment.id}
               onReportClick={() => setActiveReportId(comment.id)}
               onReportClose={() => setActiveReportId(null)}
+              videoId={videoId}
+              userId={userId}
+              commentId={comment.id}
+              rootCommentId={comment.rootCommentId}
+              onReplyAdded={handleReplyAdded}
             />
-
+            
             {/* Nested Replies */}
             {showCount > 0 && replies.length > 0 && (
               <div className="ml-10">
@@ -223,7 +314,7 @@ const Comment: React.FC = () => {
                     key={reply.id}
                     username={reply.username}
                     comment={reply.comment}
-                    timestamp={reply.timestamp}
+                    timestamp={formatTimestamp(reply.timestamp)}
                     avatarUrl={reply.avatarUrl}
                     isReply={true}
                     usernameReplied={reply.usernameReplied}
@@ -233,10 +324,16 @@ const Comment: React.FC = () => {
                     showReportMenu={activeReportId === reply.id}
                     onReportClick={() => setActiveReportId(reply.id)}
                     onReportClose={closeReportMenu}
+                    videoId={videoId}
+                    userId={userId}
+                    commentId={reply.id}
+                    rootCommentId={reply.rootCommentId}
+                    onReplyAdded={handleReplyAdded}
                   />
                 ))}
               </div>
             )}
+            
 
             {/* View Replies Button */}
             {comment.replyCount !== undefined && comment.replyCount > 0 && (
@@ -299,7 +396,7 @@ const Comment: React.FC = () => {
               placeholder="Thêm bình luận..."
               className="flex flex-1 bg-transparent text-white text-sm outline-none placeholder:text-white/40"
             />
-            <button className="text-white hover:text-white/60 transition-colors cursor-pointer" onClick={handleSubmitComment}>
+            <button className="text-white hover:text-white/60 transition-colors cursor-pointer" onClick={closeReportMenu}>
               <Smile size={20} />
             </button>
 

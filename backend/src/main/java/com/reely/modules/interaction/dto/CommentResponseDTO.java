@@ -13,17 +13,27 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CommentResponseDTO {
-    private Long id;
-    private String text;
-    private String userName;
-    private Instant created_at;
-    private Instant updated_at;
+    private String id;
+    private String username;
+    private String comment;
+    private String avatarUrl;
+    private String timestamp;
+    private Integer replyCount;
+    private String usernameReplied;
+    private String rootCommentId;
 
     public CommentResponseDTO(Comment comment) {
-        this.id = comment.getId();
-        this.text = comment.getText();
-        this.userName = comment.getUser().getUsername();
-        this.created_at = comment.getCreated_at();
-        this.updated_at = comment.getUpdated_at();
+        this.id = comment.getId().toString();
+        this.username = comment.getUser().getUsername();
+        this.comment = comment.getText();
+        this.avatarUrl = comment.getUser().getAvatarUrl();
+        this.timestamp = comment.getCreated_at().toString();
+        this.replyCount = comment.getReplyCount();
+        if (comment.getReplyToComment() != null) {
+            this.usernameReplied = comment.getReplyToComment().getUser().getUsername();
+        }
+        if (comment.getRootComment() != null) {
+            this.rootCommentId = comment.getRootComment().getId().toString();
+        }
     }
 }

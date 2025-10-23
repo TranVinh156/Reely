@@ -33,13 +33,24 @@ public class CommentServiceImpl implements CommentService {
         this.videoService = videoService;
     }
 
-    public Comment addComment(CommentRequestDTO commentRequestDTO) {
+    public CommentResponseDTO addComment(CommentRequestDTO commentRequestDTO) {
         User user = userService.getUserById(commentRequestDTO.getUserId());
         Video video = videoService.getVideoById(commentRequestDTO.getVideoId());
-        Comment rootComment = commentRepository.findById(commentRequestDTO.getRootCommentId()).get();
+        Comment rootComment = null;
+        Comment replyToComment = null;
+
+        if (commentRequestDTO.getRootCommentId() != null) {
+            rootComment = getCommentById(commentRequestDTO.getRootCommentId());
+            rootComment.setReplyCount(rootComment.getReplyCount() + 1);
+        }
+
+        if (commentRequestDTO.getReplyToCommentId() != null) {
+            replyToComment = getCommentById(commentRequestDTO.getReplyToCommentId());
+        }
 
 
-        return commentRepository.save(
+
+        Comment comment =  commentRepository.save(
                 Comment.builder()
                         .user(user)
                         .video(video)
@@ -47,15 +58,19 @@ public class CommentServiceImpl implements CommentService {
                         .updated_at(Instant.now())
                         .rootComment(rootComment)
                         .text(commentRequestDTO.getText())
+                        .replyToComment(replyToComment)
+                        .replyCount(0)
                         .deleted_flag(0)
                         .build()
         );
+
+        return new  CommentResponseDTO(comment);
     }
 
-    public CommentResponseDTO getCommentById(Long commentId) {
+    public Comment getCommentById(Long commentId) {
         Optional<Comment> comment = commentRepository.findById(commentId);
         if (comment.isPresent()) {
-            return new CommentResponseDTO(comment.get());
+            return comment.get();
         } else {
             throw new RuntimeException("not found comment");
         }
@@ -65,6 +80,7 @@ public class CommentServiceImpl implements CommentService {
     public PaginationResponse<CommentResponseDTO> getCommentsByVideoId(Long videoId, int page, int size) {
         Page<Comment> commentsPage = commentRepository.findByVideo_IdAndRootCommentIsNull(videoId, PageRequest.of(page, size));
         List<Comment> comments = commentsPage.getContent();
+
 
         return new PaginationResponse<>(
                 page,

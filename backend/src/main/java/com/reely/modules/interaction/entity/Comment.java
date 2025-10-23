@@ -30,15 +30,15 @@ public class Comment {
     @JoinColumn(name = "root_comment_id" , referencedColumnName = "id")
     private Comment rootComment;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "reply_comment_id", referencedColumnName = "id")
     private Comment replyToComment;
-    
+
+    private Integer replyCount;
     private Integer deleted_flag;
     private String text;
     private Instant created_at;
     private Instant updated_at;
-
 
     @PrePersist
     public void prePersist() {

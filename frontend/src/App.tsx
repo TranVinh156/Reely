@@ -13,7 +13,7 @@ function App() {
       </div>
 
       {/* Notification Panel */}
-      <Comment />
+      <Comment videoId={2} userId={3} />
     </div>
   )
 }

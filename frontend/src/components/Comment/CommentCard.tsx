@@ -1,19 +1,26 @@
 import { Paperclip, Send, Smile, X, Ellipsis, Flag, ChevronRight} from "lucide-react";
 import React, { useState } from "react";
 import Report from "./Report";
+import axios from "axios";
+
 interface CommentCardProps {
   username?: string;
   comment?: string;
   timestamp?: string;
   avatarUrl?: string;
   isReply?: boolean;
-  showReplyInput?: boolean;
   usernameReplied?: string;
+  showReplyInput?: boolean;
   onReplyClick?: () => void;
   onReplyClose?: () => void;
   showReportMenu?: boolean;
   onReportClick?: () => void;
   onReportClose?: () => void;
+  videoId: number;
+  userId: number;
+  commentId: string;
+  rootCommentId: string;
+  onReplyAdded?: (rootCommentId: string) => void;
 }
 
 const CommentCard: React.FC<CommentCardProps> = ({
@@ -29,15 +36,33 @@ const CommentCard: React.FC<CommentCardProps> = ({
   showReportMenu = false,
   onReportClick,
   onReportClose,
+  videoId,
+  userId,
+  commentId,
+  rootCommentId,
+  onReplyAdded
 }) => {
   const [replyText, setReplyText] = useState("");
   const [showReportModal, setShowReportModal] = useState(false);
 
-  const handleSubmitReply = () => {
+  const handleSubmitReply = async () => {
     if (replyText.trim()) {
-      console.log("Reply:", replyText);
-      setReplyText("");
-      if (onReplyClose) onReplyClose();
+      try {
+        const response = await axios.post('http://localhost:8080/api/v1/comments', {
+          videoId,
+          userId, 
+          text: replyText.trim(),
+          rootCommentId: rootCommentId === null ? parseInt(commentId) : parseInt(rootCommentId),
+          replyToCommentId: rootCommentId === null ? null : parseInt(commentId)
+        });
+        const targetRootId = rootCommentId === null ? commentId : rootCommentId;
+        onReplyAdded?.(targetRootId);
+        setReplyText("");
+        if (onReplyClose) onReplyClose();
+      } catch (error) {
+        console.error("Error submitting reply:", error);
+      }
+      
     }
   };
 

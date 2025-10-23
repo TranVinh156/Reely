@@ -9,8 +9,8 @@ import com.reely.modules.interaction.entity.Comment;
 import java.util.List;
 
 public interface CommentService {
-    Comment addComment(CommentRequestDTO commentRequestDTO);
-    CommentResponseDTO getCommentById(Long commentId);
+    CommentResponseDTO addComment(CommentRequestDTO commentRequestDTO);
+    Comment getCommentById(Long commentId);
     PaginationResponse<CommentResponseDTO> getCommentsByVideoId(Long videoId, int page, int size);
     PaginationResponse<CommentResponseDTO> getRepliesByRootCommentId(Long userId, int page, int size);
     Comment updateCommentById(Long commentId, CommentRequestDTO commentRequestDTO);

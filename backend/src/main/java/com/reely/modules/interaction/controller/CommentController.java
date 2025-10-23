@@ -21,19 +21,12 @@ public class CommentController {
     }
 
     @PostMapping
-    public Comment addComment(@RequestBody CommentRequestDTO commentRequestDTO) {
+    public CommentResponseDTO addComment(@RequestBody CommentRequestDTO commentRequestDTO) {
         return commentService.addComment(commentRequestDTO);
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<CommentResponseDTO> getCommentById(@PathVariable Long id) {
-        CommentResponseDTO comment = commentService.getCommentById(id);
-        return ResponseEntity.ok(comment);
-    }
-
-
     @GetMapping("/video")
-    public ResponseEntity<PaginationResponse<CommentResponseDTO>> getRootCommentByVideoId(
+    public ResponseEntity<PaginationResponse<CommentResponseDTO>> getCommentsByVideoId(
             @RequestParam Long videoId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
@@ -42,7 +35,7 @@ public class CommentController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/rootcomment")
+    @GetMapping("/replies")
     public ResponseEntity<PaginationResponse<CommentResponseDTO>> getRepliesByRootCommentId(
             @RequestParam Long rootCommentId,
             @RequestParam(defaultValue = "0") int page,
@@ -51,4 +44,6 @@ public class CommentController {
         PaginationResponse<CommentResponseDTO> response = commentService.getRepliesByRootCommentId(rootCommentId, page, size);
         return ResponseEntity.ok(response);
     }
+
+
 }
