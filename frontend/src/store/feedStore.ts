@@ -6,6 +6,8 @@ interface FeedState {
   subtitleOn: boolean;
   liked: Record<string, boolean>;
   saved: Record<string, boolean>;
+  currentIndex: number;
+  setCurrentIndex: (i: number) => void
   toggleAutoScroll: () => void;
   toggleAutoPlay: () => void;
   toggleSubtitle: () => void;
@@ -19,6 +21,8 @@ export const useFeedStore = create<FeedState>((set) => ({
   subtitleOn: false,
   liked: {},
   saved: {},
+  currentIndex: 0,
+  setCurrentIndex: (i) => (() => ({currentIndex: i})),
   toggleAutoScroll: () => set((s) => ({ autoScroll: !s.autoScroll })),
   toggleAutoPlay: () => set((s) => ({ autoPlay: !s.autoPlay })),
   toggleSubtitle: () => set((s) => ({ subtitleOn: !s.subtitleOn })),
