@@ -1,0 +1,64 @@
+version: "3.9"
+
+services:
+  mysql:
+    image: 'mysql:latest'
+    environment:
+      - 'MYSQL_DATABASE=mydatabase'
+      - 'MYSQL_PASSWORD=secret'
+      - 'MYSQL_ROOT_PASSWORD=verysecret'
+      - 'MYSQL_USER=myuser'
+    ports:
+      - '3307:3306'
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - reely-net
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    image: reely-backend:latest
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SECRET_TOKEN: Ffbpo4qGLCKLYfbwV4a8mgmPYgNxoa8rorhEg6dn18s=
+      ACCESS_TOKEN_EXPIRATION: "3600000"
+      REFRESH_TOKEN_EXPIRATION: "604800000"
+      DB_URL: jdbc:mysql://mysql:3306/mydatabase?createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true&useSSL=false
+      DB_USERNAME: root
+      DB_PASSWORD: verysecret
+    depends_on:
+      mysql:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+    networks:
+      - reely-net
+
+  gateway:
+    build:
+      context: ./gateway
+      dockerfile: Dockerfile
+    image: reely-gateway:latest
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SERVER_PORT: "8080"
+      BACKEND_BASE_URL: http://backend:8080
+    depends_on:
+      backend:
+        condition: service_started
+    ports:
+      - "8081:8080"
+    networks:
+      - reely-net
+
+networks:
+  reely-net:
+    driver: bridge
+
+volumes:
+  mysql_data:

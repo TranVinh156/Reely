@@ -1,6 +1,7 @@
 @import "tailwindcss";
 @plugin "@iconify/tailwind4";
 
+<<<<<<< HEAD
 
 html, body, #root {
     height: 100%;
@@ -8,3 +9,13 @@ html, body, #root {
   body {
     @apply bg-neutral-900 text-white;
   }
+=======
+@theme {
+    --color-primary: #161823;
+}
+
+:root {
+    font-family: Inter, Helvetica, Arial, sans-serif;
+    margin: 0 0;
+}
+>>>>>>> origin/quang/auth
