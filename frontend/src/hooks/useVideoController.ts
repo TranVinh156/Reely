@@ -1,12 +1,14 @@
 import { useEffect, useRef, useState } from "react";
 import type { RefObject } from "react"
 import { useFeedStore } from "../store/feedStore";
+import { preloadUrl } from "./usePreloadRendition";
 
 export function useVideoController(videoRef: RefObject<HTMLVideoElement | null>, id: string) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [muted, setMuted] = useState(true);
   const [volume, setVolume] = useState(1);
   const autoPlay = useFeedStore((s) => s.autoPlay);
+  const currentIndex = useFeedStore((s) => s.currentIndex);
 
   useEffect(() => {
     const el = videoRef.current;
@@ -17,17 +19,27 @@ export function useVideoController(videoRef: RefObject<HTMLVideoElement | null>,
       el.play().then(() => setIsPlaying(true)).catch(() => {});
     }
 
-    const onPlay = () => setIsPlaying(true);
+    const onPlay = () => {
+      setIsPlaying(true);
+      const nextVideo = document.querySelectorAll("video[data-id]")[currentIndex + 1] as HTMLVideoElement;
+      if (nextVideo) {
+        preloadUrl(nextVideo.src);
+        console.log("preloading next video", nextVideo.src);
+      }
+    };
     const onPause = () => setIsPlaying(false);
+    const onEnded = () => setIsPlaying(false);
 
     el.addEventListener("play", onPlay);
     el.addEventListener("pause", onPause);
+    el.addEventListener("ended", onEnded);
 
     return () => {
       el.removeEventListener("play", onPlay);
       el.removeEventListener("pause", onPause);
+      el.removeEventListener("ended", onEnded);
     };
-  }, [videoRef, autoPlay]);
+  }, [videoRef, autoPlay, currentIndex]);
 
   const play = async () => {
     const el = videoRef.current;
