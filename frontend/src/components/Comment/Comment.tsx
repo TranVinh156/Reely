@@ -25,67 +25,7 @@ interface CommentData {
 }
 
 const Comment: React.FC<{ videoId: number, userId: number }> = ({ videoId, userId}) => {
-  // const [comments] = useState<CommentData[]>([
-  //   {
-  //     id: '1',
-  //     username: 'Nhỏ Uyenn 💙 🦀',
-  //     comment: '"Anh hát chơi chơi hơn 1 kiếp của nó đi làm" =))))',
-  //     timestamp: '23 giờ trước',
-  //     avatarUrl: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQatFGGWLmfb6aTo1tyb3OxSkjfXrYft2TTbw&s',
-  //     replyCount: 0,
-  //   },
-  //   {
-  //     id: '2',
-  //     username: 'như quỳnh 😺 😺',
-  //     comment: '😂 😂 nghe nói a tui hát 1bài 1, 2 tỷ đó hát chơi chơi hơn anti lm 1kiep là có thật',
-  //     timestamp: '23 giờ trước',
-  //     avatarUrl: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQatFGGWLmfb6aTo1tyb3OxSkjfXrYft2TTbw&s',
-  //     replyCount: 0,
-  //   },
-  //   {
-  //     id: '3',
-  //     username: 'MONO TEAM FC vn',
-  //     comment: 'JACK5TR CA SĨ SỐ 1 CAMPUCHIA NHÉ 😂 😴 😂 😂 😂 😂 😂 😂 😂 🤑 🤑 🤑 🤑',
-  //     timestamp: '17 giờ trước',
-  //     avatarUrl: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQatFGGWLmfb6aTo1tyb3OxSkjfXrYft2TTbw&s',
-  //     replyCount: 0,
-  //   },
-  //   {
-  //     id: '4',
-  //     username: 'Thành Đạt',
-  //     comment: 'Ổ 😂 😂',
-  //     timestamp: '17 giờ trước',
-  //     avatarUrl: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQatFGGWLmfb6aTo1tyb3OxSkjfXrYft2TTbw&s',
-  //     replyCount: 3,
-      
-  //   },
-  //   {
-  //     id: '5',
-  //     username: 'Phạm Anh Minh',
-  //     comment: 'Báo đạo nhạc là đời à 🤣',
-  //     timestamp: '21 giờ trước',
-  //     avatarUrl: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQatFGGWLmfb6aTo1tyb3OxSkjfXrYft2TTbw&s',
-  //     replyCount: 42,
-      
-  //   },
-  //   {
-  //     id: '6',
-  //     username: 'Tiêu Đằng',
-  //     comment: 'Giai điệu y chang cái gì 100% ngay trc hay trong đám cưới vậy',
-  //     timestamp: '23 giờ trước',
-  //     avatarUrl: 'https://example.com/avatar6.jpg',
-  //     replyCount: 8,
-      
-  //   },
-  //   {
-  //     id: '7',
-  //     username: 'haan.',
-  //     comment: 'hay quá tui sốc luôn mà=))',
-  //     timestamp: '1 ngày trước',
-  //     avatarUrl: 'https://example.com/avatar7.jpg',
-  //     replyCount: 0,
-  //   },
-  // ]);
+  
   const [comments, setComments] = useState<CommentData[]>([]);
   const [isLoadingComments, setIsLoadingComments] = useState(false);
 
