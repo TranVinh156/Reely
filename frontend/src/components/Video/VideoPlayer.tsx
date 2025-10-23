@@ -39,7 +39,9 @@ export default function VideoPlayer({
 
   return (
     <div
-      className={`relative h-full w-full overflow-hidden ${className ?? ""}`}
+      className={`relative h-full w-full overflow-hidden transition-opacity duration-300 ${
+        isPlaying ? "opacity-100" : "opacity-50"
+      } ${className ?? ""}`}
     >
       <video
         ref={ref}
@@ -48,7 +50,7 @@ export default function VideoPlayer({
         src={video.src}
         poster={video.poster}
         playsInline
-        loop
+        // loop
         muted
         className="h-full w-full object-contain"
       />
