@@ -1,6 +1,6 @@
 import { Paperclip, Send, Smile, X, Ellipsis, Flag, ChevronRight} from "lucide-react";
 import React, { useState } from "react";
-
+import Report from "./Report";
 interface CommentCardProps {
   username?: string;
   comment?: string;
@@ -31,15 +31,7 @@ const CommentCard: React.FC<CommentCardProps> = ({
   onReportClose,
 }) => {
   const [replyText, setReplyText] = useState("");
-
-  // const handleReplyClick = () => {
-  //   setShowReplyInput(true);
-  // };
-
-  // const handleCancelReply = () => {
-  //   setShowReplyInput(false);
-  //   setReplyText("");
-  // };
+  const [showReportModal, setShowReportModal] = useState(false);
 
   const handleSubmitReply = () => {
     if (replyText.trim()) {
@@ -57,9 +49,19 @@ const CommentCard: React.FC<CommentCardProps> = ({
     }
   };
 
-  const handleReport = () => {
-    console.log("Report comment:");
-    onReportClose?.(); 
+   const handleReportClick = () => {
+    setShowReportModal(true);
+    onReportClose?.(); // Đóng menu report
+  };
+
+  const handleReportClose = () => {
+    setShowReportModal(false);
+  };
+
+  const handleReportSubmit = (reason: string) => {
+    console.log("Report submitted with reason:", reason);
+    // TODO: Gọi API để gửi report lên server
+    setShowReportModal(false);
   };
 
 
@@ -165,7 +167,9 @@ const CommentCard: React.FC<CommentCardProps> = ({
             <Ellipsis className="mt-0.5"/>
           </button>
           {showReportMenu && (
-            <div className="flex absolute right-0 w-30 bg-[#2a2a2a] rounded-lg shadow-lg p-2 border border-white/10 hover:text-[#FE2C55] gap-1">
+            <div 
+            onClick={handleReportClick}
+            className="flex absolute right-0 w-30 bg-[#2a2a2a] rounded-lg shadow-lg p-2 border border-white/10 hover:text-[#FE2C55] gap-1">
               <Flag className="" size={25}/>
               <button className="flex justify-start text-center text-xl font-semibold">
                 Report
@@ -176,6 +180,14 @@ const CommentCard: React.FC<CommentCardProps> = ({
         </div>
         
       </div>
+
+      {/* Report Modal */}
+      {showReportModal && (
+        <Report 
+          onClose={handleReportClose}
+          onSubmit={handleReportSubmit}
+        />
+      )}
     </div>
   );
 };

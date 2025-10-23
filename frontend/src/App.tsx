@@ -13,7 +13,7 @@ function App() {
       </div>
 
       {/* Notification Panel */}
-      <Notification />
+      <Comment />
     </div>
   )
 }

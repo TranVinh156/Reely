@@ -92,11 +92,15 @@ const Comment: React.FC = () => {
   const [replyText, setReplyText] = useState("");
   const [activeReportId, setActiveReportId] = useState<string | null>(null);
 
+
+  const closeReportMenu = () => setActiveReportId(null);
+
   const handleSubmitComment = () => {
     if (commentText.trim()) {
       console.log("Comment:", commentText);
       setCommentText("");
     }
+    closeReportMenu();
   };
 
   // ✅ Function: Fetch replies từ API
@@ -157,11 +161,13 @@ const Comment: React.FC = () => {
 
   const hideReplies = (id: string) => {
     setShowReplies(prev => ({ ...prev, [id]: 0 }));
+    closeReportMenu();
   };
 
 
   // ✅ Handle click "View replies" button
   const handleViewReplies = async (commentId: string) => {
+    closeReportMenu();
     // Nếu chưa fetch thì fetch
     if (!repliesData[commentId]) {
       await fetchReplies(commentId);
@@ -171,12 +177,17 @@ const Comment: React.FC = () => {
     }
   };
 
+  const handleReplyClick = (commentId: string) => {
+    setActiveReplyId(commentId);
+    closeReportMenu();
+  };
+
   return (
     <div className="w-[450px] h-screen bg-[#1e1e1e] text-white flex flex-col">
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-4">
         <h2 className="text-lg font-semibold">Comment</h2>
-        <button className="p-2 hover:bg-white/10 rounded-full transition-colors">
+        <button className="p-2 hover:bg-white/10 rounded-full transition-colors" onClick={closeReportMenu}>
           <X size={20} />
         </button>
       </div>
@@ -217,11 +228,11 @@ const Comment: React.FC = () => {
                     isReply={true}
                     usernameReplied={reply.usernameReplied}
                     showReplyInput={activeReplyId === reply.id}
-                    onReplyClick={() => setActiveReplyId(reply.id)}
+                    onReplyClick={() => handleReplyClick(reply.id)}
                     onReplyClose={() => setActiveReplyId(null)}
                     showReportMenu={activeReportId === reply.id}
                     onReportClick={() => setActiveReportId(reply.id)}
-                    onReportClose={() => setActiveReportId(null)}
+                    onReportClose={closeReportMenu}
                   />
                 ))}
               </div>
@@ -284,14 +295,15 @@ const Comment: React.FC = () => {
               type="text"
               value={commentText}
               onChange={(e) => setCommentText(e.target.value)}
+              onFocus={closeReportMenu} 
               placeholder="Thêm bình luận..."
               className="flex flex-1 bg-transparent text-white text-sm outline-none placeholder:text-white/40"
             />
-            <button className="text-white hover:text-white/60 transition-colors cursor-pointer">
+            <button className="text-white hover:text-white/60 transition-colors cursor-pointer" onClick={handleSubmitComment}>
               <Smile size={20} />
             </button>
 
-            <button className="text-white hover:text-white/60 transition-colors cursor-pointer flex gap-2">
+            <button className="text-white hover:text-white/60 transition-colors cursor-pointer flex gap-2" onClick={closeReportMenu}>
               <Paperclip size={20} />
             </button>
           </div>
