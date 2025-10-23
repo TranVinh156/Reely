@@ -12,8 +12,8 @@ function App() {
         <h1>Video Player Here</h1>
       </div>
 
-      {/* Comment Panel */}
-      <Comment />
+      {/* Notification Panel */}
+      <Notification />
     </div>
   )
 }

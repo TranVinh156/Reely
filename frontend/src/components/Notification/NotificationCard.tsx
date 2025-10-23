@@ -26,9 +26,11 @@ const NotificationCard: React.FC<NotificationCardProps> = ({
 
       {/* Content */}
       <div className="flex-1 min-w-0 flex flex-col justify-center gap-y-0.5">
-        <h4 className="text-base font-semibold text-white truncate">{username || 'Unknown'}</h4>
+        <h4 className="text-base font-semibold text-white truncate">{username || 'Unknown'}
+          <span className="text-[15px] text-white/60 flex-shrink-0 whitespace-nowrap pl-1"> {timestamp || ''}</span>
+        </h4>
         <div className="flex items-end gap-2">
-          <p className="text-sm text-white line-clamp-2">{message || ''}     <span className="text-[15px] text-white/60 flex-shrink-0 whitespace-nowrap"> {timestamp || ''}</span></p>
+          <p className="text-sm text-white line-clamp-2">{message || ''}</p>
         </div>
       </div>
     </div>
