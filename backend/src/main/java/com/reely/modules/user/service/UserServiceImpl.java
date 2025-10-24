@@ -121,9 +121,17 @@ public class UserServiceImpl implements UserService {
         userDTO.setDisplayName(user.getDisplayName());
         userDTO.setBio(user.getBio());
         userDTO.setAvatarUrl(user.getAvatarUrl());
-        userDTO.setRole(user.getRole());
         userDTO.setCreatedAt(user.getCreatedAt());
         userDTO.setUpdatedAt(user.getUpdatedAt());
         return userDTO;
+    }
+
+    @Override
+    public Role getUserRole(Long id) {
+        Optional<User> userOptional = this.userRepository.findById(id);
+        if (!userOptional.isPresent()) {
+            throw new RuntimeException("User with id " + id + " not found.");
+        }
+        return userOptional.get().getRole();
     }
 }

@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jwt.JwsHeader;
 import org.springframework.security.oauth2.jwt.JwtClaimsSet;
@@ -16,6 +18,7 @@ import org.springframework.stereotype.Service;
 import com.reely.modules.auth.dto.UserClaims;
 import com.reely.modules.auth.service.AuthService;
 import com.reely.modules.user.dto.UserDTO;
+import com.reely.modules.user.service.UserService;
 
 @Service
 public class AuthServiceImpl implements AuthService {
@@ -31,8 +34,11 @@ public class AuthServiceImpl implements AuthService {
 
     private JwtEncoder jwtEncoder;
 
-    public AuthServiceImpl(JwtEncoder jwtEncoder) {
+    private UserService userService;
+
+    public AuthServiceImpl(JwtEncoder jwtEncoder, UserService userService) {
         this.jwtEncoder = jwtEncoder;
+        this.userService = userService;
     }
 
     public static final MacAlgorithm JWT_ALGORITHM = MacAlgorithm.HS256;
@@ -43,7 +49,7 @@ public class AuthServiceImpl implements AuthService {
         Instant validationTime = now.plus(this.accessTokenExpiration, ChronoUnit.SECONDS);
 
         List<String> authorities = new ArrayList<>();
-        authorities.add(user.getRole().getName().toString());
+        authorities.add(userService.getUserRole(user.getId()).getName().toString());
 
         UserClaims userClaims = UserClaims.builder()
                 .email(user.getEmail())
@@ -83,5 +89,11 @@ public class AuthServiceImpl implements AuthService {
 
         JwsHeader jwsHeader = JwsHeader.with(JWT_ALGORITHM).build();
         return this.jwtEncoder.encode(JwtEncoderParameters.from(jwsHeader, claimsSet)).getTokenValue();
+    }
+
+    @Override
+    public String getCurrentUserEmail() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return authentication.getName();
     }
 }

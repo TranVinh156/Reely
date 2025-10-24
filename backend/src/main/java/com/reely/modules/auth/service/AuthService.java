@@ -7,4 +7,5 @@ public interface AuthService {
 
     String generateRefreshToken(String email, UserDTO user);
 
+    String getCurrentUserEmail();
 }

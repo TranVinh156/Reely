@@ -2,7 +2,6 @@ package com.reely.modules.user.dto;
 
 import java.time.Instant;
 
-import com.reely.modules.user.entity.Role;
 import com.reely.modules.user.entity.User;
 
 import lombok.AllArgsConstructor;
@@ -25,8 +24,6 @@ public class UserDTO {
 
     private String avatarUrl;
 
-    private Role role;
-
     private Instant createdAt;
 
     private Instant updatedAt;
@@ -40,6 +37,5 @@ public class UserDTO {
         this.avatarUrl = user.getAvatarUrl();
         this.createdAt = user.getCreatedAt();
         this.updatedAt = user.getUpdatedAt();
-        this.role = user.getRole();
     }
 }
