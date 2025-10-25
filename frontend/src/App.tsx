@@ -11,9 +11,8 @@ function App() {
       <div className="flex-1">
         <h1>Video Player Here</h1>
       </div>
-
       {/* Notification Panel */}
-      <Comment videoId={2} currentUserId={3} />
+      <Notification userId={4}/>
     </div>
   )
 }

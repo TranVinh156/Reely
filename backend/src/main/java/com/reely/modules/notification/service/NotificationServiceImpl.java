@@ -1,8 +1,10 @@
-package com.reely.modules.notification;
+package com.reely.modules.notification.service;
 
 import com.reely.modules.notification.dto.NotificationRequestDto;
 import com.reely.modules.notification.dto.NotificationResponseDto;
 import com.reely.modules.notification.dto.PaginationResponse;
+import com.reely.modules.notification.entity.Notification;
+import com.reely.modules.notification.repository.NotificationRepository;
 import com.reely.modules.user.entity.User;
 import com.reely.modules.user.service.UserService;
 import jakarta.transaction.Transactional;

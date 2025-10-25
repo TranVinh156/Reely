@@ -1,15 +1,15 @@
-package com.reely.modules.notification;
+package com.reely.modules.notification.controller;
 
+import com.reely.modules.notification.service.NotificationService;
 import com.reely.modules.notification.dto.NotificationRequestDto;
 import com.reely.modules.notification.dto.NotificationResponseDto;
 import com.reely.modules.notification.dto.PaginationResponse;
-import jakarta.websocket.server.PathParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.bind.annotation.*;
 
-@Repository
+@RestController
 @RequestMapping("/api/v1/notifications")
 public class NotificationController {
     private final NotificationService notificationService;
@@ -25,12 +25,12 @@ public class NotificationController {
     }
 
     @GetMapping
-    public PaginationResponse<NotificationResponseDto> getNotificationById(
-            @RequestParam Long videoId,
-            @RequestParam int page,
-            @RequestParam int size
+    public PaginationResponse<NotificationResponseDto> getNotificationByUserId(
+            @RequestParam Long userId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
     ) {
-        return notificationService.getNotificationsByUserId(videoId, page, size);
+        return notificationService.getNotificationsByUserId(userId, page, size);
     }
 
     @PutMapping

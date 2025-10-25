@@ -1,7 +1,6 @@
-import React, { use, useEffect, useState } from "react";
+import React, {useEffect, useState } from "react";
 import CommentCard from "./CommentCard";
 import { X, ChevronDown, Paperclip, Smile, Send, ChevronUp } from "lucide-react";
-import axios from "axios";
 import { formatTimestamp } from "../../utils/formatTimestamp.ts";
 import axiosClient from "@/utils/axios.client.ts";
 
@@ -41,9 +40,13 @@ const Comment: React.FC<{ videoId: number, currentUserId: number }> = ({ videoId
 
   const [lastReplyAddedTo, setLastReplyAddedTo] = useState<string | null>(null);
   const [deleteCommentId, setDeleteCommentId] = useState<[string, string]>(["", ""]);
+
+  const [currentPage, setCurrentPage] = useState(0);
+  const [hasMoreComments, setHasMoreComments] = useState(true);
   
   useEffect(() => {
-    fetchComments();
+    setComments([]);
+    fetchComments(0);
   }, [videoId]
   )
 
@@ -101,11 +104,18 @@ const Comment: React.FC<{ videoId: number, currentUserId: number }> = ({ videoId
 
 
 
-  const fetchComments = async () => {
+  const fetchComments = async (page: number) => {
     setIsLoadingComments(true);
     try {
-      const response = await axiosClient.get(`/comments/video?videoId=${videoId}`)
-      setComments(response.data.data)
+      const response = await axiosClient.get(`/comments/video?videoId=${videoId}&page=${page}&size=30`);
+      const existingIds = new Set(comments.map(n => n.id));
+          const uniqueNew = response.data.data.filter(
+            (n: CommentData) => !existingIds.has(n.id)
+          );
+      setComments(prev => [...prev, ...uniqueNew])
+
+      setHasMoreComments(response.data.pageNumber < response.data.totalPages - 1);
+      setCurrentPage(page);
     } catch (error) {
       console.error('Error fetching comments:', error);
     } finally {
@@ -243,6 +253,15 @@ const Comment: React.FC<{ videoId: number, currentUserId: number }> = ({ videoId
     closeMenu();
   };
 
+
+  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const { scrollTop, scrollHeight, clientHeight } = e.currentTarget;
+    if (scrollTop + clientHeight >= scrollHeight - 50) {
+      if (hasMoreComments && !isLoadingComments) {
+        fetchComments(currentPage + 1);
+    }
+  }};
+
   return (
     <div className="w-[450px] h-screen bg-[#1e1e1e] text-white flex flex-col">
       {/* Header */}
@@ -254,7 +273,10 @@ const Comment: React.FC<{ videoId: number, currentUserId: number }> = ({ videoId
       </div>
 
       {/* Comment List */}
-      <div className="flex-1 overflow-y-auto overflow-x-hidden [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-white/20 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:hover:bg-white/30">
+      <div 
+        className="flex-1 overflow-y-auto overflow-x-hidden [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-white/20 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:hover:bg-white/30"
+        onScroll={handleScroll}
+      >
         
         {/* ✅ Loading State */}
         {isLoadingComments && (

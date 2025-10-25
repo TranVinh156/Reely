@@ -2,17 +2,13 @@ package com.reely.modules.interaction.dto;
 
 import com.reely.modules.interaction.entity.Comment;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.time.Instant;
-import java.util.List;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class CommentResponseDTO {
+public class CommentResponseDto {
     private String id;
     private String ownerId;
     private String username;
@@ -23,7 +19,7 @@ public class CommentResponseDTO {
     private String usernameReplied;
     private String rootCommentId;
 
-    public CommentResponseDTO(Comment comment) {
+    public CommentResponseDto(Comment comment) {
         this.id = comment.getId().toString();
         this.ownerId = comment.getUser().getId().toString();
         this.username = comment.getUser().getUsername();

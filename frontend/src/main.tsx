@@ -22,7 +22,7 @@ ReactDOM.createRoot(root).render(
   //     </Routes>
   //   </BrowserRouter>
   // </QueryClientProvider>,
-  <StrictMode>
+
     <App />
-  </StrictMode>,
+
 );

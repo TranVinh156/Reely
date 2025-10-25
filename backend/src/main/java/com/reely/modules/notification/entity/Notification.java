@@ -1,5 +1,6 @@
-package com.reely.modules.notification;
+package com.reely.modules.notification.entity;
 
+import com.reely.modules.notification.enums.NotificationType;
 import com.reely.modules.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

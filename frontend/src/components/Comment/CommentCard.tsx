@@ -2,7 +2,6 @@ import { Paperclip, Send, Smile, X, Ellipsis, Flag, ChevronRight} from "lucide-r
 import React, { useState } from "react";
 import Report from "./Report";
 import Delete from "./Delete";
-import axios from "axios";
 import axiosClient from "@/utils/axios.client";
 
 

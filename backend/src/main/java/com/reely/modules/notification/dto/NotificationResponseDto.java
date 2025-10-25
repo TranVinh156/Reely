@@ -1,5 +1,6 @@
-package com.reely.modules.notification;
+package com.reely.modules.notification.dto;
 
+import com.reely.modules.notification.entity.Notification;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -21,7 +22,7 @@ public class NotificationResponseDto {
         this.payload = notification.getPayload();
         this.avatarUrl = notification.getUser().getAvatarUrl();
         this.timestamp = notification.getCreatedAt().toString();
-        this.type = notification.getType().toString();
+        this.type = notification.getType().toString().toLowerCase();
     }
 
 }

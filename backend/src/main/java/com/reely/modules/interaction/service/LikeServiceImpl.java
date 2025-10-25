@@ -1,7 +1,7 @@
 package com.reely.modules.interaction.service;
 
-import com.reely.modules.interaction.dto.LikeRequestDTO;
-import com.reely.modules.interaction.dto.LikeResponseDTO;
+import com.reely.modules.interaction.dto.LikeRequestDto;
+import com.reely.modules.interaction.dto.LikeResponseDto;
 import com.reely.modules.interaction.entity.Like;
 import com.reely.modules.interaction.repository.LikeRepository;
 import com.reely.modules.user.entity.User;
@@ -11,7 +11,6 @@ import com.reely.modules.video.entity.Video;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -28,7 +27,7 @@ public class LikeServiceImpl implements LikeService{
         this.videoService = videoService;
     }
 
-    public Like addLike(LikeRequestDTO likeRequestDTO) {
+    public Like addLike(LikeRequestDto likeRequestDTO) {
         User user = userService.getUserById(likeRequestDTO.getUserId());
         Video video = videoService.getVideoById(likeRequestDTO.getVideoId());
 
@@ -44,10 +43,10 @@ public class LikeServiceImpl implements LikeService{
         );
     }
 
-    public List<LikeResponseDTO> getLikeByVideoId(Long videoId) {
+    public List<LikeResponseDto> getLikeByVideoId(Long videoId) {
         return  likeRepository.findAllByVideoId(videoId)
                 .stream()
-                .map(like -> LikeResponseDTO.builder()
+                .map(like -> LikeResponseDto.builder()
                         .id(like.getId())
                         .userId(like.getUser().getId())
                         .videoId(like.getVideo().getId())
@@ -56,10 +55,10 @@ public class LikeServiceImpl implements LikeService{
                 ).toList();
     }
 
-    public List<LikeResponseDTO> getLikeByUserId(Long userId) {
+    public List<LikeResponseDto> getLikeByUserId(Long userId) {
         return  likeRepository.findAllByVideoId(userId)
                 .stream()
-                .map(like -> LikeResponseDTO.builder()
+                .map(like -> LikeResponseDto.builder()
                         .id(like.getId())
                         .userId(like.getUser().getId())
                         .videoId(like.getVideo().getId())
@@ -68,13 +67,13 @@ public class LikeServiceImpl implements LikeService{
                 ).toList();
     }
 
-    public LikeResponseDTO getLikeByVideoIdAndUserId(Long videoId, Long userId) {
+    public LikeResponseDto getLikeByVideoIdAndUserId(Long videoId, Long userId) {
         Optional<Like> like = likeRepository.findByVideoIdAndUserId(videoId, userId);
         if(like.isEmpty()){
             throw new RuntimeException();
         }
 
-        return LikeResponseDTO.builder()
+        return LikeResponseDto.builder()
                 .id(like.get().getId())
                 .userId(userId)
                 .videoId(videoId)

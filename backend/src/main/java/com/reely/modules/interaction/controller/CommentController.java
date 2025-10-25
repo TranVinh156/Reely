@@ -1,12 +1,10 @@
 package com.reely.modules.interaction.controller;
 
-import com.reely.modules.interaction.dto.CommentRequestDTO;
-import com.reely.modules.interaction.dto.CommentResponseDTO;
+import com.reely.modules.interaction.dto.CommentRequestDto;
+import com.reely.modules.interaction.dto.CommentResponseDto;
 import com.reely.modules.interaction.dto.PaginationResponse;
-import com.reely.modules.interaction.entity.Comment;
 import com.reely.modules.interaction.service.CommentService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,27 +19,27 @@ public class CommentController {
     }
 
     @PostMapping
-    public CommentResponseDTO addComment(@RequestBody CommentRequestDTO commentRequestDTO) {
+    public CommentResponseDto addComment(@RequestBody CommentRequestDto commentRequestDTO) {
         return commentService.addComment(commentRequestDTO);
     }
 
     @GetMapping("/video")
-    public ResponseEntity<PaginationResponse<CommentResponseDTO>> getCommentsByVideoId(
+    public ResponseEntity<PaginationResponse<CommentResponseDto>> getCommentsByVideoId(
             @RequestParam Long videoId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
-        PaginationResponse<CommentResponseDTO> response = commentService.getCommentsByVideoId(videoId, page, size);
+        PaginationResponse<CommentResponseDto> response = commentService.getCommentsByVideoId(videoId, page, size);
         return ResponseEntity.ok(response);
     }
 
     @GetMapping("/replies")
-    public ResponseEntity<PaginationResponse<CommentResponseDTO>> getRepliesByRootCommentId(
+    public ResponseEntity<PaginationResponse<CommentResponseDto>> getRepliesByRootCommentId(
             @RequestParam Long rootCommentId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
-        PaginationResponse<CommentResponseDTO> response = commentService.getRepliesByRootCommentId(rootCommentId, page, size);
+        PaginationResponse<CommentResponseDto> response = commentService.getRepliesByRootCommentId(rootCommentId, page, size);
         return ResponseEntity.ok(response);
     }
 

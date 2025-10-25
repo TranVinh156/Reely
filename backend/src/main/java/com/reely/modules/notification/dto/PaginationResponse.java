@@ -1,4 +1,28 @@
 package com.reely.modules.notification.dto;
 
-public class PaginationResponse {
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.springframework.data.domain.Page;
+
+import java.util.List;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+public class PaginationResponse<T> {
+    private int pageNumber;
+    private int pageSize;
+    private int totalPages;
+    private Long totalElements;
+    private List<T> data;
+
+    public PaginationResponse(Page<T> page) {
+        this.pageSize = page.getSize();
+        this.pageNumber = page.getNumber();
+        this.totalPages = page.getTotalPages();
+        this.totalElements = page.getTotalElements();
+        this.data = page.getContent();
+    }
 }
+

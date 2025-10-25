@@ -1,7 +1,7 @@
 package com.reely.modules.interaction.service;
 
-import com.reely.modules.interaction.dto.CommentRequestDTO;
-import com.reely.modules.interaction.dto.CommentResponseDTO;
+import com.reely.modules.interaction.dto.CommentRequestDto;
+import com.reely.modules.interaction.dto.CommentResponseDto;
 import com.reely.modules.interaction.dto.PaginationResponse;
 import com.reely.modules.interaction.entity.Comment;
 import com.reely.modules.interaction.repository.CommentRepository;
@@ -13,11 +13,9 @@ import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -35,7 +33,7 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Transactional
-    public CommentResponseDTO addComment(CommentRequestDTO commentRequestDTO) {
+    public CommentResponseDto addComment(CommentRequestDto commentRequestDTO) {
         User user = userService.getUserById(commentRequestDTO.getUserId());
         Video video = videoService.getVideoById(commentRequestDTO.getVideoId());
         Comment rootComment = null;
@@ -64,7 +62,7 @@ public class CommentServiceImpl implements CommentService {
                         .build()
         );
 
-        return new  CommentResponseDTO(comment);
+        return new CommentResponseDto(comment);
     }
 
     public Comment getCommentById(Long commentId) {
@@ -77,7 +75,7 @@ public class CommentServiceImpl implements CommentService {
 
     }
 
-    public PaginationResponse<CommentResponseDTO> getCommentsByVideoId(Long videoId, int page, int size) {
+    public PaginationResponse<CommentResponseDto> getCommentsByVideoId(Long videoId, int page, int size) {
         Page<Comment> commentsPage = commentRepository.findByVideo_IdAndRootCommentIsNull(videoId, PageRequest.of(page, size));
         List<Comment> comments = commentsPage.getContent();
 
@@ -87,12 +85,12 @@ public class CommentServiceImpl implements CommentService {
                 size,
                 commentsPage.getTotalPages(),
                 commentsPage.getTotalElements(),
-                comments.stream().map(comment -> new CommentResponseDTO(comment)).toList()
+                comments.stream().map(comment -> new CommentResponseDto(comment)).toList()
         );
 
     }
 
-    public PaginationResponse<CommentResponseDTO> getRepliesByRootCommentId(Long commentId, int page, int size) {
+    public PaginationResponse<CommentResponseDto> getRepliesByRootCommentId(Long commentId, int page, int size) {
         Page<Comment> repliesPage = commentRepository.findByRootComment_Id(commentId, PageRequest.of(page, size));
         List<Comment> replies = repliesPage.getContent();
 
@@ -101,12 +99,12 @@ public class CommentServiceImpl implements CommentService {
                 size,
                 repliesPage.getTotalPages(),
                 repliesPage.getTotalElements(),
-                replies.stream().map(comment -> new CommentResponseDTO(comment)).toList()
+                replies.stream().map(comment -> new CommentResponseDto(comment)).toList()
         );
     }
 
     @Transactional
-    public Comment updateCommentById(Long commentId, CommentRequestDTO commentRequestDTO) {
+    public Comment updateCommentById(Long commentId, CommentRequestDto commentRequestDTO) {
         return commentRepository.findById(commentId)
                 .map(commentInDb -> {
                     if(commentRequestDTO.getText() != null && !commentRequestDTO.getText().isEmpty()) {

@@ -1,4 +1,4 @@
-package com.reely.modules.notification;
+package com.reely.modules.notification.enums;
 
 public enum NotificationType {
     LIKE,

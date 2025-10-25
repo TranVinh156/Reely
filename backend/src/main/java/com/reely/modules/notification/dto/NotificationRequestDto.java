@@ -1,5 +1,6 @@
-package com.reely.modules.notification;
+package com.reely.modules.notification.dto;
 
+import com.reely.modules.notification.enums.NotificationType;
 import lombok.Builder;
 import lombok.Data;
 
