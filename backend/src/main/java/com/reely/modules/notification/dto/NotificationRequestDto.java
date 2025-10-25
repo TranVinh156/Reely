@@ -1,15 +1,13 @@
 package com.reely.modules.notification;
 
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 @Builder
 @Data
-public class NotificationRequestDTO {
+public class NotificationRequestDto {
     private Long userId;
     private NotificationType type;
     private String payload;
-    private Integer readFlag;
+    private Integer readFlag = 0;
 }
