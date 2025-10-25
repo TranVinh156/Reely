@@ -14,6 +14,7 @@ import java.util.List;
 @AllArgsConstructor
 public class CommentResponseDTO {
     private String id;
+    private String ownerId;
     private String username;
     private String comment;
     private String avatarUrl;
@@ -24,6 +25,7 @@ public class CommentResponseDTO {
 
     public CommentResponseDTO(Comment comment) {
         this.id = comment.getId().toString();
+        this.ownerId = comment.getUser().getId().toString();
         this.username = comment.getUser().getUsername();
         this.comment = comment.getText();
         this.avatarUrl = comment.getUser().getAvatarUrl();

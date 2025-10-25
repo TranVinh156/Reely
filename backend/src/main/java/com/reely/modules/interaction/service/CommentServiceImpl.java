@@ -9,6 +9,7 @@ import com.reely.modules.user.entity.User;
 import com.reely.modules.user.service.UserService;
 import com.reely.modules.video.VideoService;
 import com.reely.modules.video.entity.Video;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -33,6 +34,7 @@ public class CommentServiceImpl implements CommentService {
         this.videoService = videoService;
     }
 
+    @Transactional
     public CommentResponseDTO addComment(CommentRequestDTO commentRequestDTO) {
         User user = userService.getUserById(commentRequestDTO.getUserId());
         Video video = videoService.getVideoById(commentRequestDTO.getVideoId());
@@ -47,8 +49,6 @@ public class CommentServiceImpl implements CommentService {
         if (commentRequestDTO.getReplyToCommentId() != null) {
             replyToComment = getCommentById(commentRequestDTO.getReplyToCommentId());
         }
-
-
 
         Comment comment =  commentRepository.save(
                 Comment.builder()
@@ -105,6 +105,7 @@ public class CommentServiceImpl implements CommentService {
         );
     }
 
+    @Transactional
     public Comment updateCommentById(Long commentId, CommentRequestDTO commentRequestDTO) {
         return commentRepository.findById(commentId)
                 .map(commentInDb -> {
@@ -117,8 +118,20 @@ public class CommentServiceImpl implements CommentService {
                 .orElseThrow(() ->  new RuntimeException("comment not found"));
     }
 
-
+    @Transactional
     public void deleteCommentById(Long commentId) {
+        Comment comment = getCommentById(commentId);
+        if (comment.getRootComment() != null) {
+            Comment rootComment = comment.getRootComment();
+            rootComment.setReplyCount(rootComment.getReplyCount() - 1);
+            commentRepository.save(rootComment);
+        } else {
+            List<Comment> childComments = commentRepository.findByRootComment_Id(commentId, PageRequest.of(0, 10)).getContent();
+            childComments.forEach((childComment) -> {
+                commentRepository.delete(childComment);
+            }) ;
+        }
+
         commentRepository.deleteById(commentId);
     }
 

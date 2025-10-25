@@ -1,11 +1,13 @@
-import React, { useEffect, useState } from "react";
+import React, { use, useEffect, useState } from "react";
 import CommentCard from "./CommentCard";
 import { X, ChevronDown, Paperclip, Smile, Send, ChevronUp } from "lucide-react";
 import axios from "axios";
 import { formatTimestamp } from "../../utils/formatTimestamp.ts";
+import axiosClient from "@/utils/axios.client.ts";
 
 interface Reply {
   id: string;
+  ownerId: string;
   username: string;
   comment: string;
   timestamp: string;
@@ -16,6 +18,7 @@ interface Reply {
 
 interface CommentData {
   id: string;
+  ownerId: string;
   username: string;
   comment: string;
   timestamp: string;
@@ -24,7 +27,7 @@ interface CommentData {
   rootCommentId: string;
 }
 
-const Comment: React.FC<{ videoId: number, userId: number }> = ({ videoId, userId}) => {
+const Comment: React.FC<{ videoId: number, currentUserId: number }> = ({ videoId, currentUserId }) => {
   
   const [comments, setComments] = useState<CommentData[]>([]);
   const [isLoadingComments, setIsLoadingComments] = useState(false);
@@ -34,15 +37,17 @@ const Comment: React.FC<{ videoId: number, userId: number }> = ({ videoId, userI
   const [loadingReplies, setLoadingReplies] = useState<Record<string, boolean>>({});
   const [commentText, setCommentText] = useState("");
   const [activeReplyId, setActiveReplyId] = useState<string | null>(null);
-  const [activeReportId, setActiveReportId] = useState<string | null>(null);
+  const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
 
   const [lastReplyAddedTo, setLastReplyAddedTo] = useState<string | null>(null);
-  useEffect( () => {
+  const [deleteCommentId, setDeleteCommentId] = useState<[string, string]>(["", ""]);
+  
+  useEffect(() => {
     fetchComments();
   }, [videoId]
   )
 
-   useEffect(() => {
+  useEffect(() => {
     if (lastReplyAddedTo) {
       // Re-fetch replies của comment đó
       refetchReplies(lastReplyAddedTo);
@@ -51,10 +56,55 @@ const Comment: React.FC<{ videoId: number, userId: number }> = ({ videoId, userI
     }
   }, [lastReplyAddedTo]);
 
+  useEffect(() => {
+    if (deleteCommentId[1]) {
+      // Xóa reply khỏi repliesData
+      setRepliesData(prev => ({
+        ...prev,
+        [deleteCommentId[1]]: prev[deleteCommentId[1]]?.filter(r => r.id !== deleteCommentId[0]) || []
+      }));
+
+      setComments(prev => 
+        prev.map(c => 
+          c.id === deleteCommentId[1] 
+            ? { ...c, replyCount: Math.max(0, (c.replyCount || 0) - 1) }
+            : c
+        )
+      );
+
+      // Cập nhật showReplies
+      setShowReplies(prev => ({
+        ...prev,
+        [deleteCommentId[1]]: Math.max(0, (prev[deleteCommentId[1]] || 0) - 1)
+      }));
+
+  } else {
+      // Xoá comment khỏi danh sách
+      setComments(prev => prev.filter(c => c.id !== deleteCommentId[0]));
+
+      // Xóa replies data của comment đó (nếu có)
+      setRepliesData(prev => {
+        const newData = { ...prev };
+        delete newData[deleteCommentId[0]];
+        return newData;
+      });
+    
+      // Xóa showReplies của comment đó
+      setShowReplies(prev => {
+        const newState = { ...prev };
+        delete newState[deleteCommentId[0]];
+        return newState;
+      });
+      
+    }
+  }, [deleteCommentId]);
+
+
+
   const fetchComments = async () => {
     setIsLoadingComments(true);
     try {
-      const response = await axios.get(`http://localhost:8080/api/v1/comments/video?videoId=${videoId}`)
+      const response = await axiosClient.get(`/comments/video?videoId=${videoId}`)
       setComments(response.data.data)
     } catch (error) {
       console.error('Error fetching comments:', error);
@@ -68,7 +118,7 @@ const Comment: React.FC<{ videoId: number, userId: number }> = ({ videoId, userI
     setLoadingReplies(prev => ({ ...prev, [commentId]: true }));
 
     try {
-      const response = await axios.get(`http://localhost:8080/api/v1/comments/replies?rootCommentId=${commentId}`);
+      const response = await axiosClient.get(`/comments/replies?rootCommentId=${commentId}`);
       const replies: Reply[] = response.data.data;
       
       // Update repliesData
@@ -103,16 +153,18 @@ const Comment: React.FC<{ videoId: number, userId: number }> = ({ videoId, userI
     setLastReplyAddedTo(rootCommentId);
   };
 
+  const handleDeleteComment = (commentId: string, rootCommentId: string) => {
+    setDeleteCommentId([commentId, rootCommentId]);
+  };
 
-
-  const closeReportMenu = () => setActiveReportId(null);
+  const closeMenu = () => setActiveMenuId(null);
 
   const handleSubmitComment = async() => {
     if (commentText.trim()) {
       try {
-        const response = await axios.post('http://localhost:8080/api/v1/comments', {
+        const response = await axiosClient.post('/comments', {
           videoId,
-          userId: userId,
+          userId: currentUserId,
           text: commentText.trim()
         });
         console.log('Comment submitted:', response.data.data);
@@ -122,7 +174,7 @@ const Comment: React.FC<{ videoId: number, userId: number }> = ({ videoId, userI
         console.error('Error submitting comment:', error);
       }   
     }
-    closeReportMenu();
+    closeMenu();
   };
 
   // ✅ Function: Fetch replies từ API
@@ -131,11 +183,10 @@ const Comment: React.FC<{ videoId: number, userId: number }> = ({ videoId, userI
     if (repliesData[commentId]) {
       return;
     }
-
     setLoadingReplies(prev => ({ ...prev, [commentId]: true }));
 
     try {
-      const response = await axios.get(`http://localhost:8080/api/v1/comments/replies?rootCommentId=${commentId}`);
+      const response = await axiosClient.get(`/comments/replies?rootCommentId=${commentId}`);
       
       const replies: Reply[] = response.data.data;
       
@@ -171,13 +222,13 @@ const Comment: React.FC<{ videoId: number, userId: number }> = ({ videoId, userI
 
   const hideReplies = (id: string) => {
     setShowReplies(prev => ({ ...prev, [id]: 0 }));
-    closeReportMenu();
+    closeMenu();
   };
 
 
   // ✅ Handle click "View replies" button
   const handleViewReplies = async (commentId: string) => {
-    closeReportMenu();
+    closeMenu();
     // Nếu chưa fetch thì fetch
     if (!repliesData[commentId]) {
       await fetchReplies(commentId);
@@ -189,7 +240,7 @@ const Comment: React.FC<{ videoId: number, userId: number }> = ({ videoId, userI
 
   const handleReplyClick = (commentId: string) => {
     setActiveReplyId(commentId);
-    closeReportMenu();
+    closeMenu();
   };
 
   return (
@@ -197,7 +248,7 @@ const Comment: React.FC<{ videoId: number, userId: number }> = ({ videoId, userI
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-4">
         <h2 className="text-lg font-semibold">Comment</h2>
-        <button className="p-2 hover:bg-white/10 rounded-full transition-colors" onClick={closeReportMenu}>
+        <button className="p-2 hover:bg-white/10 rounded-full transition-colors" onClick={closeMenu}>
           <X size={20} />
         </button>
       </div>
@@ -224,11 +275,11 @@ const Comment: React.FC<{ videoId: number, userId: number }> = ({ videoId, userI
           const showCount = showReplies[comment.id] || 0;
           const isLoading = loadingReplies[comment.id] || false;
 
-          
           return (
           <div key={comment.id}>
             {/* Main Comment */}
             <CommentCard
+              ownerId={comment.ownerId}
               username={comment.username}
               comment={comment.comment}
               timestamp={formatTimestamp(comment.timestamp)}
@@ -236,14 +287,15 @@ const Comment: React.FC<{ videoId: number, userId: number }> = ({ videoId, userI
               showReplyInput={activeReplyId === comment.id}
               onReplyClick={() => setActiveReplyId(comment.id)}
               onReplyClose={() => setActiveReplyId(null)}
-              showReportMenu={activeReportId === comment.id}
-              onReportClick={() => setActiveReportId(comment.id)}
-              onReportClose={() => setActiveReportId(null)}
+              showMenu={activeMenuId === comment.id}
+              onMenuClick={() => setActiveMenuId(comment.id)}
+              onMenuClose={() => setActiveMenuId(null)}
               videoId={videoId}
-              userId={userId}
+              currentUserId={currentUserId}
               commentId={comment.id}
               rootCommentId={comment.rootCommentId}
               onReplyAdded={handleReplyAdded}
+              onDelete={handleDeleteComment}
             />
             
             {/* Nested Replies */}
@@ -252,6 +304,7 @@ const Comment: React.FC<{ videoId: number, userId: number }> = ({ videoId, userI
                 {replies.slice(0, showCount).map((reply) => (
                   <CommentCard
                     key={reply.id}
+                    ownerId={reply.ownerId}
                     username={reply.username}
                     comment={reply.comment}
                     timestamp={formatTimestamp(reply.timestamp)}
@@ -261,14 +314,15 @@ const Comment: React.FC<{ videoId: number, userId: number }> = ({ videoId, userI
                     showReplyInput={activeReplyId === reply.id}
                     onReplyClick={() => handleReplyClick(reply.id)}
                     onReplyClose={() => setActiveReplyId(null)}
-                    showReportMenu={activeReportId === reply.id}
-                    onReportClick={() => setActiveReportId(reply.id)}
-                    onReportClose={closeReportMenu}
+                    showMenu={activeMenuId === reply.id}
+                    onMenuClick={() => setActiveMenuId(reply.id)}
+                    onMenuClose={closeMenu}
                     videoId={videoId}
-                    userId={userId}
+                    currentUserId={currentUserId}
                     commentId={reply.id}
                     rootCommentId={reply.rootCommentId}
                     onReplyAdded={handleReplyAdded}
+                    onDelete={handleDeleteComment}
                   />
                 ))}
               </div>
@@ -332,15 +386,15 @@ const Comment: React.FC<{ videoId: number, userId: number }> = ({ videoId, userI
               type="text"
               value={commentText}
               onChange={(e) => setCommentText(e.target.value)}
-              onFocus={closeReportMenu} 
+              onFocus={closeMenu}
               placeholder="Thêm bình luận..."
               className="flex flex-1 bg-transparent text-white text-sm outline-none placeholder:text-white/40"
             />
-            <button className="text-white hover:text-white/60 transition-colors cursor-pointer" onClick={closeReportMenu}>
+            <button className="text-white hover:text-white/60 transition-colors cursor-pointer" onClick={closeMenu}>
               <Smile size={20} />
             </button>
 
-            <button className="text-white hover:text-white/60 transition-colors cursor-pointer flex gap-2" onClick={closeReportMenu}>
+            <button className="text-white hover:text-white/60 transition-colors cursor-pointer flex gap-2" onClick={closeMenu}>
               <Paperclip size={20} />
             </button>
           </div>

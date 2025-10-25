@@ -1,9 +1,13 @@
 import { Paperclip, Send, Smile, X, Ellipsis, Flag, ChevronRight} from "lucide-react";
 import React, { useState } from "react";
 import Report from "./Report";
+import Delete from "./Delete";
 import axios from "axios";
+import axiosClient from "@/utils/axios.client";
+
 
 interface CommentCardProps {
+  ownerId?: string;
   username?: string;
   comment?: string;
   timestamp?: string;
@@ -13,17 +17,19 @@ interface CommentCardProps {
   showReplyInput?: boolean;
   onReplyClick?: () => void;
   onReplyClose?: () => void;
-  showReportMenu?: boolean;
-  onReportClick?: () => void;
-  onReportClose?: () => void;
+  showMenu?: boolean;
+  onMenuClick?: () => void;
+  onMenuClose?: () => void;
   videoId: number;
-  userId: number;
+  currentUserId: number;
   commentId: string;
   rootCommentId: string;
   onReplyAdded?: (rootCommentId: string) => void;
+  onDelete?: (CommentId: string, rootCommentId: string) => void;
 }
 
 const CommentCard: React.FC<CommentCardProps> = ({
+  ownerId,
   username,
   comment,
   timestamp,
@@ -33,24 +39,26 @@ const CommentCard: React.FC<CommentCardProps> = ({
   usernameReplied,
   onReplyClick,
   onReplyClose,
-  showReportMenu = false,
-  onReportClick,
-  onReportClose,
+  showMenu = false,
+  onMenuClick,
+  onMenuClose,
   videoId,
-  userId,
+  currentUserId,
   commentId,
   rootCommentId,
-  onReplyAdded
+  onReplyAdded,
+  onDelete
 }) => {
   const [replyText, setReplyText] = useState("");
   const [showReportModal, setShowReportModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   const handleSubmitReply = async () => {
     if (replyText.trim()) {
       try {
-        const response = await axios.post('http://localhost:8080/api/v1/comments', {
+        const response = await axiosClient.post('/comments', {
           videoId,
-          userId, 
+          userId: currentUserId,
           text: replyText.trim(),
           rootCommentId: rootCommentId === null ? parseInt(commentId) : parseInt(rootCommentId),
           replyToCommentId: rootCommentId === null ? null : parseInt(commentId)
@@ -66,17 +74,17 @@ const CommentCard: React.FC<CommentCardProps> = ({
     }
   };
 
-  const handleViewReport = () => {
-    if (showReportMenu) {
-      onReportClose?.(); 
+  const handleViewMenu = () => {
+    if (showMenu) {
+      onMenuClose?.(); 
     } else {
-      onReportClick?.();
+      onMenuClick?.();
     }
   };
 
    const handleReportClick = () => {
     setShowReportModal(true);
-    onReportClose?.(); // Đóng menu report
+    onMenuClose?.(); // Đóng menu report
   };
 
   const handleReportClose = () => {
@@ -89,6 +97,20 @@ const CommentCard: React.FC<CommentCardProps> = ({
     setShowReportModal(false);
   };
 
+  const handleDeleteClick = () => {
+    setShowDeleteModal(true);
+    onMenuClose?.(); // Đóng menu delete
+  };
+
+  const handleDeleteConfirm = async () => {
+    try {
+      await axiosClient.delete(`/comments/${commentId}`);
+      onDelete?.(commentId, rootCommentId);
+      setShowDeleteModal(false);
+    } catch (error) {
+      console.error("Error deleting comment:", error);
+    }
+  };
 
   const avatarSize = isReply ? "w-8 h-8" : "w-12 h-12";
 
@@ -187,24 +209,39 @@ const CommentCard: React.FC<CommentCardProps> = ({
 
         <div className="h-20 relative"> 
           <button
-          onClick={handleViewReport}
-          className={`flex justify-start cursor-pointer text-white/60 hover:text-white ${showReportMenu ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
+          onClick={handleViewMenu}
+          className={`flex justify-start cursor-pointer text-white/60 hover:text-white ${showMenu ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
             <Ellipsis className="mt-0.5"/>
           </button>
-          {showReportMenu && (
+          {showMenu && `${currentUserId}` !== ownerId && (
             <div 
             onClick={handleReportClick}
-            className="flex absolute right-0 w-30 bg-[#2a2a2a] rounded-lg shadow-lg p-2 border border-white/10 hover:text-[#FE2C55] gap-1">
-              <Flag className="" size={25}/>
-              <button className="flex justify-start text-center text-xl font-semibold">
+            className="flex absolute right-0 w-25 bg-[#2a2a2a] rounded-lg shadow-lg p-2 border border-white/10 hover:text-[#FE2C55] gap-1 justify-center">
+              <Flag className="" size={20}/>
+              <button className="flex justify-start text-center text-sm font-semibold">
                 Report
               </button>
             </div>
           )}
-          
+
+          {showMenu && `${currentUserId}` === ownerId && (
+            <div 
+            onClick={handleDeleteClick}
+            className="flex absolute right-0 w-25 bg-[#2a2a2a] rounded-lg shadow-lg p-2 border border-white/10 hover:text-[#FE2C55] gap-1 justify-center">
+              <button className="flex justify-start text-center text-sm font-semibold">
+                Delete
+              </button>
+            </div>
+          )}
         </div>
         
       </div>
+      {showDeleteModal && (
+        <Delete
+          onClose={() => setShowDeleteModal(false)}
+          onConfirm={handleDeleteConfirm}
+        />
+      )}
 
       {/* Report Modal */}
       {showReportModal && (
