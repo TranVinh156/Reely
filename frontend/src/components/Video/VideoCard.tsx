@@ -97,10 +97,10 @@ export default function VideoCard({ video }: Props) {
           video={video}
           onOrientationChange={handleOrientationChange}
         />
-        <div className="absolute bottom-3 left-3 text-white drop-shadow-md">
+        {/* <div className="absolute bottom-5 left-5 text-white drop-shadow-md">
           <p className="font-semibold">@{video.user.username}</p>
           <p className="max-w-[70%] text-sm opacity-80">{video.description}</p>
-        </div>
+        </div> */}
         {isSmallScreen ? <ActionButton video={video} /> : ""}
       </div>
       {/* Right action column */}
