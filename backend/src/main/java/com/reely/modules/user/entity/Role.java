@@ -3,6 +3,7 @@ package com.reely.modules.user.entity;
 import java.time.Instant;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.reely.modules.user.entity.enums.RoleName;
 
 import jakarta.persistence.Entity;
@@ -32,6 +33,7 @@ public class Role {
 
     private Instant updatedAt;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "role")
     private List<User> users;
 

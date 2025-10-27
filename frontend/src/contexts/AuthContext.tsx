@@ -7,6 +7,7 @@ import { getCurrentUser, logout as logoutApi, refreshToken } from '../api/auth';
 interface AuthContextType extends AuthState {
     login: (accessToken: string, user: User) => void;
     logout: () => Promise<void>;
+    isLoading: boolean;
 }
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -21,6 +22,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         token: "",
         user: null,
     });
+    const [isLoading, setIsLoading] = useState(true);
 
     const initializeAuth = async () => {
         const accessToken = localStorage.getItem('accessToken');
@@ -60,6 +62,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
                 user: null,
             });
         }
+        setIsLoading(false);
     };
 
     useEffect(() => {
@@ -68,6 +71,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
     const login = useCallback((accessToken: string, user: User) => {
         localStorage.setItem('accessToken', accessToken);
+        console.log(accessToken, user);
         setAuthState({
             isAuthenticated: true,
             token: accessToken,
@@ -95,7 +99,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
             value={{
                 ...authState,
                 login,
-                logout
+                logout,
+                isAuthenticated: !!authState.token && !!authState.user,
+                isLoading
             }}
         >
             {children}

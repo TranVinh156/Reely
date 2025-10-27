@@ -62,7 +62,7 @@ public class AuthController {
                 String refreshToken = this.authService.generateRefreshToken(userDTO.getEmail(), userDTO);
 
                 userService.updateRefreshToken(userDTO.getId(), refreshToken);
-                LoginResponse response = new LoginResponse(accessToken);
+                LoginResponse response = new LoginResponse(accessToken, userDTO);
 
                 ResponseCookie cookies = ResponseCookie
                                 .from("refresh_token", refreshToken)
@@ -91,7 +91,7 @@ public class AuthController {
 
                 this.userService.updateRefreshToken(userDTO.getId(), newRefreshToken);
 
-                LoginResponse response = new LoginResponse(accessToken);
+                LoginResponse response = new LoginResponse(accessToken, userDTO);
 
                 ResponseCookie cookies = ResponseCookie
                                 .from("refresh_token", newRefreshToken)

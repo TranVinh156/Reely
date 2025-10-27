@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import com.reely.modules.auth.dto.PaginationResponse;
 import com.reely.modules.auth.dto.RegistrationRequest;
+import com.reely.modules.user.dto.UpdateUserRequest;
 import com.reely.modules.user.dto.UserDTO;
 import com.reely.modules.user.entity.Role;
 import com.reely.modules.user.entity.User;
@@ -34,6 +35,15 @@ public class UserServiceImpl implements UserService {
             throw new UsernameNotFoundException(email);
         }
         return convertToDto(user.get());
+    }
+
+    @Override
+    public User getUserEntityByEmail(String email) {
+        Optional<User> user = this.userRepository.findByEmail(email);
+        if (!user.isPresent()) {
+            throw new UsernameNotFoundException(email);
+        }
+        return user.get();
     }
 
     @Override
@@ -71,24 +81,24 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDTO updateUser(Long id, UserDTO userDTO) {
+    public UserDTO updateUser(Long id, UpdateUserRequest request) {
         Optional<User> userOptional = this.userRepository.findById(id);
         User user = userOptional.orElseThrow(() -> new RuntimeException("User with id " + id + " not found."));
 
-        if (userDTO.getAvatarUrl() != null) {
-            user.setAvatarUrl(userDTO.getAvatarUrl());
+        if (request.getAvatarUrl() != null) {
+            user.setAvatarUrl(request.getAvatarUrl());
         }
-        if (userDTO.getBio() != null) {
-            user.setBio(userDTO.getBio());
+        if (request.getBio() != null) {
+            user.setBio(request.getBio());
         }
-        if (userDTO.getDisplayName() != null) {
-            user.setDisplayName(userDTO.getDisplayName());
+        if (request.getDisplayName() != null) {
+            user.setDisplayName(request.getDisplayName());
         }
-        if (userDTO.getUsername() != null) {
-            user.setUsername(userDTO.getUsername());
+        if (request.getUsername() != null) {
+            user.setUsername(request.getUsername());
         }
-        if (userDTO.getEmail() != null) {
-            user.setEmail(userDTO.getEmail());
+        if (request.getEmail() != null) {
+            user.setEmail(request.getEmail());
         }
         this.userRepository.save(user);
         return new UserDTO(user);
@@ -123,6 +133,7 @@ public class UserServiceImpl implements UserService {
         userDTO.setAvatarUrl(user.getAvatarUrl());
         userDTO.setCreatedAt(user.getCreatedAt());
         userDTO.setUpdatedAt(user.getUpdatedAt());
+        userDTO.setRole(user.getRole());
         return userDTO;
     }
 

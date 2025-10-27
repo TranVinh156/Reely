@@ -7,6 +7,9 @@ import "./index.css";
 import RegisterPage from "./pages/RegisterPage";
 import App from "./App";
 import AuthGuard from "./components/auth/AuthGuard";
+import RoleBasedGuard from "./components/auth/RoleBasedGuard";
+import AdminPage from "./pages/AdminPage";
+import GuestGuard from "./components/auth/GuestGuard";
 
 const queryClient = new QueryClient();
 
@@ -19,16 +22,28 @@ ReactDOM.createRoot(root).render(
     <AuthProvider>
       <BrowserRouter>
         <Routes>
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/register" element={<RegisterPage />} />
+          <Route path="/login" element={
+            <GuestGuard>
+              <LoginPage />
+            </GuestGuard>
+          } />
+
+          <Route path="/register" element={
+            <GuestGuard>
+              <RegisterPage />
+            </GuestGuard>
+          } />
 
           <Route
-            path="/"
+            path="/admin"
             element={
-              <AuthGuard>
-                <App />
-              </AuthGuard>
+              <RoleBasedGuard accessibleRoles={["SUPER_ADMIN", "ADMIN"]}>
+                <AdminPage />
+              </RoleBasedGuard>
             }
+          />
+
+          <Route path="/" element={<App />}
           />
         </Routes>
       </BrowserRouter>

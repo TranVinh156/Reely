@@ -10,7 +10,7 @@ export interface LoginCredentials {
 
 export interface LoginResponse {
     accessToken: string;
-    user: User;
+    userDTO: User;
 }
 
 const useLogin = () => {
@@ -21,7 +21,7 @@ const useLogin = () => {
             return await login(credentials.email, credentials.password);
         },
         onSuccess: (data: LoginResponse) => {
-            authLogin(data.accessToken, data.user);
+            authLogin(data.accessToken, data.userDTO);
         },
         onError: (error: Error) => {
             localStorage.removeItem("accessToken");
