@@ -5,7 +5,7 @@ import axiosClient from '../utils/axios.client';
 
 interface RefreshTokenResponse {
     accessToken: string;
-    user: any;
+    user: User;
 }
 
 export const login = async (email: string, password: string): Promise<LoginResponse> => {
@@ -30,3 +30,8 @@ export const register = async (data: RegisterCredentials): Promise<User> => {
     const response = await axiosClient.post('/auth/register', data);
     return response.data;
 };
+
+export const getCurrentUser = async (): Promise<User> => {
+    const response = await axiosClient.get('/auth/me');
+    return response.data
+}

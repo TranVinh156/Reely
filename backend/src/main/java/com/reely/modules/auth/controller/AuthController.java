@@ -8,7 +8,6 @@ import com.reely.modules.auth.dto.LoginResponse;
 import com.reely.modules.auth.dto.RegistrationRequest;
 import com.reely.modules.auth.service.AuthService;
 import com.reely.modules.user.dto.UserDTO;
-import com.reely.modules.user.entity.User;
 import com.reely.modules.user.service.UserService;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -20,10 +19,11 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @RestController
 @RequestMapping("/auth")
@@ -56,8 +56,7 @@ public class AuthController {
                 SecurityContextHolder.getContext().setAuthentication(authentication);
 
                 String email = loginRequest.getEmail();
-                User user = this.userService.getUserByEmail(email);
-                UserDTO userDTO = new UserDTO(user);
+                UserDTO userDTO = this.userService.getUserByEmail(email);
 
                 String accessToken = this.authService.generateAccessToken(userDTO.getEmail(), userDTO);
                 String refreshToken = this.authService.generateRefreshToken(userDTO.getEmail(), userDTO);
@@ -85,16 +84,7 @@ public class AuthController {
                         throw new RuntimeException("Refresh token not found.");
                 }
 
-                Jwt decodedJwt = this.authService.checkValidRefreshToken(refreshToken);
-
-                String email = decodedJwt.getSubject();
-                User user = this.userService.getUserByEmail(email);
-
-                if (!user.getRefreshToken().equals(refreshToken)) {
-                        throw new RuntimeException("User with this refresh token is not existed!");
-                }
-
-                UserDTO userDTO = new UserDTO(user);
+                UserDTO userDTO = this.userService.getUserByRefreshToken(refreshToken);
 
                 String accessToken = this.authService.generateAccessToken(userDTO.getEmail(), userDTO);
                 String newRefreshToken = this.authService.generateRefreshToken(userDTO.getEmail(), userDTO);
@@ -104,7 +94,7 @@ public class AuthController {
                 LoginResponse response = new LoginResponse(accessToken, userDTO);
 
                 ResponseCookie cookies = ResponseCookie
-                                .from("refresh_token", refreshToken)
+                                .from("refresh_token", newRefreshToken)
                                 .path("/")
                                 .maxAge(refreshTokenExpiration)
                                 .secure(true)
@@ -137,4 +127,12 @@ public class AuthController {
                 UserDTO userDTO = this.userService.createUser(request);
                 return ResponseEntity.ok(userDTO);
         }
+
+        @GetMapping("/me")
+        public ResponseEntity<UserDTO> getCurrentUserLogin() {
+                String email = this.authService.getCurrentUserEmail();
+                UserDTO userDTO = this.userService.getUserByEmail(email);
+                return ResponseEntity.ok(userDTO);
+        }
+
 }

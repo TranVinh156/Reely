@@ -2,13 +2,15 @@ package com.reely.modules.auth.service.impl;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jwt.JwsHeader;
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtClaimsSet;
-import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import org.springframework.stereotype.Service;
@@ -16,6 +18,7 @@ import org.springframework.stereotype.Service;
 import com.reely.modules.auth.dto.UserClaims;
 import com.reely.modules.auth.service.AuthService;
 import com.reely.modules.user.dto.UserDTO;
+import com.reely.modules.user.service.UserService;
 
 @Service
 public class AuthServiceImpl implements AuthService {
@@ -31,11 +34,11 @@ public class AuthServiceImpl implements AuthService {
 
     private JwtEncoder jwtEncoder;
 
-    private JwtDecoder jwtDecoder;
+    private UserService userService;
 
-    public AuthServiceImpl(JwtEncoder jwtEncoder, JwtDecoder jwtDecoder) {
+    public AuthServiceImpl(JwtEncoder jwtEncoder, UserService userService) {
         this.jwtEncoder = jwtEncoder;
-        this.jwtDecoder = jwtDecoder;
+        this.userService = userService;
     }
 
     public static final MacAlgorithm JWT_ALGORITHM = MacAlgorithm.HS256;
@@ -44,6 +47,9 @@ public class AuthServiceImpl implements AuthService {
     public String generateAccessToken(String email, UserDTO user) {
         Instant now = Instant.now();
         Instant validationTime = now.plus(this.accessTokenExpiration, ChronoUnit.SECONDS);
+
+        List<String> authorities = new ArrayList<>();
+        authorities.add(userService.getUserRole(user.getId()).getName().toString());
 
         UserClaims userClaims = UserClaims.builder()
                 .email(user.getEmail())
@@ -57,6 +63,7 @@ public class AuthServiceImpl implements AuthService {
                 .expiresAt(validationTime)
                 .issuer(email)
                 .claim("user", userClaims)
+                .claim("authorities", authorities)
                 .build();
 
         JwsHeader jwsHeader = JwsHeader.with(JWT_ALGORITHM).build();
@@ -85,11 +92,8 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public Jwt checkValidRefreshToken(String refreshToken) {
-        try {
-            return jwtDecoder.decode(refreshToken);
-        } catch (Exception e) {
-            throw e;
-        }
+    public String getCurrentUserEmail() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return authentication.getName();
     }
 }

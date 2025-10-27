@@ -1,4 +1,4 @@
-export function formatTimeSeconds(sec: number) {
+export default function formatTimeSeconds(sec: number) {
   if (!Number.isFinite(sec)) return "0:00";
   const s = Math.floor(sec % 60)
     .toString()
