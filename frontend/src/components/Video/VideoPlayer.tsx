@@ -1,6 +1,11 @@
-import React, { useRef, useEffect } from "react";
+import React, { useRef, useEffect, use } from "react";
 import type { Video } from "../../types/video";
 import { useVideoController } from "../../hooks/useVideoController";
+import { ProgressBar } from "./ProgressBar";
+import { useVideoProgress } from "../../hooks/useVideoProgress";
+import VideoControls from "./VideoControls";
+import VideoInfo from "./VideoInfo";
+import { motion } from "framer-motion";
 
 export type VideoOrientation = "portrait" | "landscape" | "square";
 
@@ -16,7 +21,9 @@ export default function VideoPlayer({
   onOrientationChange,
 }: Props) {
   const ref = useRef<HTMLVideoElement>(null);
-  const { isPlaying, togglePlay } = useVideoController(ref, video.id);
+  // const { isPlaying, togglePlay } = useVideoController(ref, video.id);
+  const { togglePlay, isPlaying, muted, toggleMute, volume, setVol } =
+    useVideoController(ref, video.id);
 
   useEffect(() => {
     // ensure metadata preloaded
@@ -37,8 +44,11 @@ export default function VideoPlayer({
     }
   };
 
+  const { progress, duration, isSeeking, currentTime, setIsSeeking, seekTo } =
+    useVideoProgress(ref);
+
   return (
-    <div
+    <motion.div
       className={`relative h-full w-full overflow-hidden transition-opacity duration-300 ${
         isPlaying ? "opacity-100" : "opacity-50"
       } ${className ?? ""}`}
@@ -51,20 +61,48 @@ export default function VideoPlayer({
         poster={video.poster}
         playsInline
         // loop
-        muted
+        // muted
         className="h-full w-full object-contain"
       />
+      {/* <VideoInfo username={video.user.username} description={video.description} /> */}
+      <VideoControls
+        username={video.user.username}
+        description={video.description}
+        isPlaying={isPlaying}
+        currentTime={currentTime}
+        duration={duration}
+        progress={progress}
+        muted={muted}
+        volume={volume}
+        togglePlay={togglePlay}
+        toggleMute={toggleMute}
+        setVol={setVol}
+        onSeek={seekTo}
+        onSeekStart={() => setIsSeeking(true)}
+        onSeekEnd={() => setIsSeeking(false)}
+      />
+
       {/* simple overlay: click to toggle */}
-      <button
+      {/* <button
         aria-label="Toggle play"
         onClick={togglePlay}
         className="absolute inset-0 flex items-center justify-center"
-      >
+      > */}
         {/* Visual feedback minimal: show a faint play/pause icon when toggled via CSS or later framer-motion */}
-        <div className="pointer-events-none text-4xl text-white opacity-0">
-          {isPlaying ? "⏸" : "▶"}
-        </div>
-      </button>
-    </div>
+        {/* <div
+          className={`w-18 h-18 bg-red pointer-events-none text-4xl opacity-100 ${isPlaying ? "" : "icon-[solar--play-bold]"}`}
+        ></div>
+      </button> */}
+      {/* <div className="absolute right-0 bottom-0 left-0 px-3 pb-3">
+        <ProgressBar
+          progress={progress}
+          duration={duration}
+          currentTime={currentTime}
+          onSeek={seekTo}
+          onSeekStart={() => setIsSeeking(true)}
+          onSeekEnd={() => setIsSeeking(false)}
+        />
+      </div> */}
+    </motion.div>
   );
 }
