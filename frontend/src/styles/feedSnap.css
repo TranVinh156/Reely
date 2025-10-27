@@ -1,0 +1,13 @@
+/* Scroll snap container for feed */
+.feed-snap {
+  height: 100vh;
+  overflow-y: auto;
+  scroll-snap-type: y mandatory;
+  scroll-behavior: smooth;
+}
+
+/* Each feed item snaps to center; do not force height to allow flexible layouts */
+.feed-item {
+  scroll-snap-align: center;
+  scroll-snap-stop: always;
+}
