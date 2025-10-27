@@ -42,7 +42,7 @@ public class Role {
         this.createdAt = Instant.now();
     }
 
-    @PostUpdate
+    @PreUpdate
     public void handleAfterUpdate() {
         this.updatedAt = Instant.now();
     }
