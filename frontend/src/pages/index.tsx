@@ -1,7 +1,6 @@
-import React from "react";
 import FeedList from "../features/feed/FeedList";
-import Topbar from "../components/Layout/Topbar";
 import Sidebar from "../components/Layout/Sidebar";
+import "@/styles/feedSnap.css";
 
 export default function IndexPage() {
   return (
@@ -9,7 +8,10 @@ export default function IndexPage() {
       <div className="flex gap-6">
         <Sidebar />
         <main className="flex-1">
-          <FeedList />
+          {/* Scroll container for feed with CSS scroll-snap */}
+          <div className="feed-snap" data-feed-scroller>
+            <FeedList />
+          </div>
         </main>
       </div>
     </div>

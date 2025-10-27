@@ -1,7 +1,8 @@
 import React, { useState } from 'react'
-import FormInput from '../components/FormInput'
+import FormInput from '../components/auth/FormInput'
 import useLogin, { type LoginCredentials } from '../hooks/auth/useLogin'
 import backgroundImage from '../assets/background.png'
+import { useNavigate, Link } from 'react-router'
 
 const GOOGLE_LOGO = 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/768px-Google_%22G%22_logo.svg.png'
 
@@ -10,6 +11,7 @@ const LoginPage: React.FC = () => {
     const [errorMessage, setErrorMessage] = useState<string>('')
 
     const { mutateAsync: loginMutation, isPending, error } = useLogin()
+    const navigate = useNavigate()
 
     const handleChange = (field: keyof LoginCredentials) => (value: string) => {
         setFormData((prev) => ({ ...prev, [field]: value }))
@@ -25,6 +27,7 @@ const LoginPage: React.FC = () => {
             return
         }
         await loginMutation(formData)
+        navigate('/')
     }
 
     return (
@@ -72,7 +75,7 @@ const LoginPage: React.FC = () => {
                     </button>
 
                     <div className="text-center mt-4">
-                        Need an account? <a href="#" className="text-blue-600 underline">Create one</a>
+                        Need an account? <Link to="/register" className="text-blue-600 underline">Create one</Link>
                     </div>
                 </div>
             </section>

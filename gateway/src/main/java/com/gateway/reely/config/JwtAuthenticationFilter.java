@@ -41,10 +41,24 @@ public class JwtAuthenticationFilter implements WebFilter {
             Claims claims = jwtUtil.validateAndGetClaims(token);
             String username = claims.getSubject();
 
+            Object authoritiesObj = claims.get("authorities");
+            String role = "";
+            if (authoritiesObj instanceof List<?>) {
+                List<?> authoritiesList = (List<?>) authoritiesObj;
+                if (!authoritiesList.isEmpty()) {
+                    role = authoritiesList.get(0).toString();
+                }
+            }
+
             List<SimpleGrantedAuthority> authorities = List.of();
 
             Authentication auth = new UsernamePasswordAuthenticationToken(username, null, authorities);
 
+            ServerHttpRequest requestModified = exchange.getRequest().mutate()
+                    .header("X-Username", username)
+                    .header("X-Role", role)
+                    .build();
+            exchange = exchange.mutate().request(requestModified).build();
             return chain.filter(exchange)
                     .contextWrite(ReactiveSecurityContextHolder.withAuthentication(auth));
 

@@ -1,3 +1,11 @@
+export interface Role {
+    id: number;
+    name: string;
+    description: string;
+    createdAt?: string;
+    updatedAt?: string;
+}
+
 export interface User {
     id: number;
     username: string;
@@ -5,6 +13,7 @@ export interface User {
     displayName: string;
     bio: string;
     avatarUrl: string;
+    role?: Role;
     createdAt?: string;
     updatedAt?: string;
 }
