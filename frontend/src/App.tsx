@@ -1,13 +1,19 @@
 import { useState } from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
-import './App.css'
+import Comment from './components/Comment/Comment'
 
 function App() {
   return (
-    <>
-      <FeedPage/>
-    </>
+    <div className="flex min-h-screen bg-gray-900">
+      {/* Main content */}
+      <div className="flex-1">
+        <h1>Video Player Here</h1>
+      </div>
+
+      {/* Comment Panel */}
+      <Comment videoId={2} currentUserId={3}/>
+    </div>
   )
 }
 

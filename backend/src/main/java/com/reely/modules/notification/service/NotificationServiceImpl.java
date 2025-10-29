@@ -1,42 +1,53 @@
 package com.reely.modules.notification.service;
 
+import com.reely.config.RabbitMQConfig;
 import com.reely.modules.notification.dto.NotificationRequestDto;
 import com.reely.modules.notification.dto.NotificationResponseDto;
 import com.reely.modules.notification.dto.PaginationResponse;
 import com.reely.modules.notification.entity.Notification;
 import com.reely.modules.notification.repository.NotificationRepository;
 import com.reely.modules.user.entity.User;
+import com.reely.modules.user.repository.UserRepository;
 import com.reely.modules.user.service.UserService;
 import jakarta.transaction.Transactional;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.actuate.endpoint.invoke.ParameterValueMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class NotificationServiceImpl implements NotificationService {
     private final NotificationRepository notificationRepository;
-    private final UserService userService;
+    private final UserRepository userRepository;
+    private final ParameterValueMapper parameterValueMapper;
 
-    @Autowired
-    public NotificationServiceImpl(NotificationRepository notificationRepository, UserService userService) {
+    public NotificationServiceImpl(NotificationRepository notificationRepository, UserRepository userRepository, ParameterValueMapper parameterValueMapper) {
         this.notificationRepository = notificationRepository;
-        this.userService = userService;
+        this.userRepository = userRepository;
+        this.parameterValueMapper = parameterValueMapper;
     }
 
     @Transactional
     public NotificationResponseDto addNotification(NotificationRequestDto notificationRequestDTO) {
-        User user = userService.getUserById(notificationRequestDTO.getUserId());
-        Notification notification = Notification.builder()
-                .user(user)
-                .type(notificationRequestDTO.getType())
-                .payload(notificationRequestDTO.getPayload())
-                .build();
-        notificationRepository.save(notification);
+        Optional<User> user = userRepository.findById(notificationRequestDTO.getUserId());
+        if(user.isPresent()) {
+            Notification notification = Notification.builder()
+                    .user(user.get())
+                    .type(notificationRequestDTO.getType())
+                    .payload(notificationRequestDTO.getPayload())
+                    .build();
+            notificationRepository.save(notification);
 
-        return new NotificationResponseDto(notification);
+            return new NotificationResponseDto(notification);
+        } else {
+            throw new RuntimeException("Invalid request");
+        }
+
     }
 
     @Transactional
@@ -87,6 +98,26 @@ public class NotificationServiceImpl implements NotificationService {
             notificationRepository.deleteById(notificationId);
         } catch (RuntimeException e) {
             throw new RuntimeException("Delete notification failed");
+        }
+    }
+
+    @RabbitListener(queues = RabbitMQConfig.COMMENT_QUEUE)
+    @Transactional
+    public void handleCommentNotification(NotificationRequestDto notificationRequestDto) {
+        try {
+            addNotification(notificationRequestDto);
+        } catch (Exception e) {
+            System.out.println("Error in handle comment notification");
+        }
+    }
+
+    @RabbitListener(queues = RabbitMQConfig.LIKE_QUEUE)
+    @Transactional
+    public void handleLikeNotification(NotificationRequestDto notificationRequestDto) {
+        try {
+            addNotification(notificationRequestDto);
+        } catch (Exception e) {
+            System.out.println("Error in handle like notification");
         }
     }
 }
