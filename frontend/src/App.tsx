@@ -2,6 +2,7 @@ import { useState } from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import Comment from './components/Comment/Comment'
+import Notification from './components/Notification/Notification'
 
 function App() {
   return (
@@ -12,7 +13,9 @@ function App() {
       </div>
 
       {/* Comment Panel */}
-      <Comment videoId={2} currentUserId={3}/>
+      <Comment currentUserId={3} videoId={2}/>
+
+      <Notification userId={2} />
     </div>
   )
 }

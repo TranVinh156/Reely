@@ -171,7 +171,7 @@ public class CommentServiceImpl implements CommentService {
 
             NotificationRequestDto notificationRequestDto = NotificationRequestDto.builder()
                     .type(NotificationType.COMMENT)
-                    .userId(user.getId())
+                    .userId(video.getUserId())
                     .readFlag(0)
                     .payload(payload)
                     .build();

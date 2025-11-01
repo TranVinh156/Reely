@@ -12,24 +12,43 @@ import com.reely.modules.user.service.UserService;
 import jakarta.transaction.Transactional;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.actuate.endpoint.invoke.ParameterValueMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.web.context.request.async.DeferredResult;
 
+import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 @Service
 public class NotificationServiceImpl implements NotificationService {
     private final NotificationRepository notificationRepository;
     private final UserRepository userRepository;
-    private final ParameterValueMapper parameterValueMapper;
+    private final Map<Long, List<PendingRequest>> pendingRequests = new ConcurrentHashMap<>();
 
-    public NotificationServiceImpl(NotificationRepository notificationRepository, UserRepository userRepository, ParameterValueMapper parameterValueMapper) {
+    private static class PendingRequest {
+        final Long lastNotificationId;
+        final DeferredResult<ResponseEntity<List<NotificationResponseDto>>> deferredResult;
+        final Instant timestamp;
+
+        PendingRequest(Long lastNotificationId,
+                       DeferredResult<ResponseEntity<List<NotificationResponseDto>>> deferredResult) {
+            this.lastNotificationId = lastNotificationId;
+            this.deferredResult = deferredResult;
+            this.timestamp = Instant.now();
+        }
+    }
+
+    public NotificationServiceImpl(NotificationRepository notificationRepository, UserRepository userRepository) {
         this.notificationRepository = notificationRepository;
         this.userRepository = userRepository;
-        this.parameterValueMapper = parameterValueMapper;
     }
 
     @Transactional
@@ -47,7 +66,6 @@ public class NotificationServiceImpl implements NotificationService {
         } else {
             throw new RuntimeException("Invalid request");
         }
-
     }
 
     @Transactional
@@ -105,7 +123,8 @@ public class NotificationServiceImpl implements NotificationService {
     @Transactional
     public void handleCommentNotification(NotificationRequestDto notificationRequestDto) {
         try {
-            addNotification(notificationRequestDto);
+            NotificationResponseDto response = addNotification(notificationRequestDto);
+            notifyPendingRequests(notificationRequestDto.getUserId(), response);
         } catch (Exception e) {
             System.out.println("Error in handle comment notification");
         }
@@ -115,9 +134,81 @@ public class NotificationServiceImpl implements NotificationService {
     @Transactional
     public void handleLikeNotification(NotificationRequestDto notificationRequestDto) {
         try {
-            addNotification(notificationRequestDto);
+            NotificationResponseDto response = addNotification(notificationRequestDto);
+            notifyPendingRequests(notificationRequestDto.getUserId(), response);
         } catch (Exception e) {
             System.out.println("Error in handle like notification");
         }
     }
+
+    @Transactional
+    public void addPollingRequest(Long userId, Long lastNotificationId, DeferredResult<ResponseEntity<List<NotificationResponseDto>>> deferredResult) {
+        List<Notification> newNotifications = getNewNotifications(userId, lastNotificationId);
+
+        if (!newNotifications.isEmpty()) {
+            List<NotificationResponseDto> dtos = newNotifications.stream().map(notification -> new NotificationResponseDto(notification)).toList();
+            deferredResult.setResult(ResponseEntity.ok(dtos));
+        } else {
+            PendingRequest pendingRequest = new PendingRequest(lastNotificationId, deferredResult);
+
+            List<PendingRequest> userPendingRequests = pendingRequests.get(userId);
+            if (userPendingRequests == null) {
+                userPendingRequests = new CopyOnWriteArrayList<>();
+                pendingRequests.put(userId, userPendingRequests);
+            }
+            userPendingRequests.add(pendingRequest);
+
+            deferredResult.onCompletion(() -> {
+                removePendingRequest(userId, pendingRequest);
+            });
+        }
+    }
+
+
+
+    private List<Notification> getNewNotifications(Long userId, Long lastNotificationId) {
+        if (lastNotificationId != null) {
+            return notificationRepository.findByUser_IdAndIdGreaterThanOrderByCreatedAtDesc(
+                    userId, lastNotificationId
+            );
+        }
+
+        return List.of();
+    }
+
+    @Async
+    public void notifyPendingRequests(Long userId, NotificationResponseDto notificationResponseDto) {
+        List<PendingRequest> requests = pendingRequests.get(userId);
+
+        if (requests == null || requests.isEmpty()) {
+            return;
+        }
+
+        requests.forEach(pendingRequest -> {
+            if (pendingRequest.lastNotificationId == null ||
+                Long.parseLong(notificationResponseDto.getId()) > pendingRequest.lastNotificationId) {
+
+                pendingRequest.deferredResult.setResult(
+                        ResponseEntity.ok(List.of(notificationResponseDto)));
+            }
+        });
+        pendingRequests.remove(userId);
+    }
+
+    private void removePendingRequest(Long userId, PendingRequest pendingRequest) {
+        List<PendingRequest> requests = pendingRequests.get(userId);
+        if (requests != null) {
+            requests.remove(pendingRequest);
+            if (requests.isEmpty()) {
+                pendingRequests.remove(userId);
+            }
+        }
+    }
+
+    private NotificationResponseDto mapToDto(Notification notification) {
+        return new NotificationResponseDto(notification);
+    }
+
+
+
 }

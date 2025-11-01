@@ -3,6 +3,7 @@ import NotificationCard from "./NotificationCard";
 import { X } from "lucide-react";
 import axiosClient from "@/utils/axios.client";
 import { formatTimestamp } from "@/utils/formatTimestamp";
+import { useLongPolling } from "@/hooks/notification/useLongPolling";
 
 
 interface NotificationItem {
@@ -14,15 +15,15 @@ interface NotificationItem {
   type?: 'system' | 'like' | 'comment' | 'follow';
 }
 
-interface NotificationPayload {
-  actorId: number;
-  actorUsername: string;
-  actorAvatar: string;
-  message: string;
-  videoId?: number;
-  commentId?: number;
-  parentCommentId?: number;
-}
+// interface NotificationPayload {
+//   actorId: number;
+//   actorUsername: string;
+//   actorAvatar: string;
+//   message: string;
+//   videoId?: number;
+//   commentId?: number;
+//   parentCommentId?: number;
+// }
 
 
 const Notification: React.FC<{ userId: number }> = ({ userId }) => {
@@ -32,11 +33,40 @@ const Notification: React.FC<{ userId: number }> = ({ userId }) => {
   const [currentPage, setCurrentPage] = useState<number>(0);
   const [hasMore, setHasMore] = useState<boolean>(true);
 
+
+  const { 
+    notifications: liveNotifications, 
+    hasNewNotifications,
+    clearNewIndicator 
+  } = useLongPolling(userId);
+
+
   useEffect(() => {
     // Fetch notifications from API
     setNotifications([]);
     fetchNotifications(0);
   }, [userId]);
+
+
+  useEffect(() => {
+    if (liveNotifications.length > 0) {
+      setNotifications((prev) => {
+        // Get existing IDs
+        const existingIds = new Set(prev.map(n => n.id));
+        
+        // Filter out duplicates from live notifications
+        const newOnes = liveNotifications.filter(n => !existingIds.has(n.id));
+        
+        // Merge: live notifications first, then existing
+        return [...newOnes, ...prev];
+      });
+      
+      // Clear new indicator after 3 seconds
+      setTimeout(() => clearNewIndicator(), 3000);
+    }
+  }, [liveNotifications]);
+
+
 
   const fetchNotifications = async(page: number) => {
     setIsLoading(true);
@@ -64,20 +94,20 @@ const Notification: React.FC<{ userId: number }> = ({ userId }) => {
     }
   }
 
-  const parsePayloadMessage = (payloadString: string): string => {
-    const payload = JSON.parse(payloadString);
-    if (payload) {
-      if (payload.videoId) {
-        return `${payload.message} on video ID ${payload.videoId}`;
-      }
-      else if (payload.commentId) {
-        return `${payload.message} on comment ID ${payload.commentId}`;
-      } else {
-        return payload.message;
-      }
-    }
-    return '';
-  };
+  // const parsePayloadMessage = (payloadString: string): string => {
+  //   const payload = JSON.parse(payloadString);
+  //   if (payload) {
+  //     if (payload.videoId) {
+  //       return `${payload.message} on video ID ${payload.videoId}`;
+  //     }
+  //     else if (payload.commentId) {
+  //       return `${payload.message} on comment ID ${payload.commentId}`;
+  //     } else {
+  //       return payload.message;
+  //     }
+  //   }
+  //   return '';
+  // };
   
 
   const tabs = [
@@ -97,6 +127,13 @@ const Notification: React.FC<{ userId: number }> = ({ userId }) => {
       {/* Header */}
       <div className="flex items-center justify-between px-6 py-4 border-b border-gray-800">
         <h1 className="text-2xl font-bold">Thông báo</h1>
+        {/* 🔥 New Notification Indicator */}
+        {hasNewNotifications && (
+          <div className="flex items-center gap-1 text-xs text-blue-500 animate-pulse">
+            <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
+            <span>Mới</span>
+          </div>
+        )}
         <button className="p-2 hover:bg-gray-800 rounded-full transition-colors">
           <X size={24} />
         </button>
@@ -159,6 +196,13 @@ const Notification: React.FC<{ userId: number }> = ({ userId }) => {
               />
             </div>
           ))}
+
+          {/* Loading more indicator */}
+          {isLoading && notifications.length > 0 && (
+            <div className="flex items-center justify-center py-4">
+              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
+            </div>
+          )}
         </div>
       )}
       

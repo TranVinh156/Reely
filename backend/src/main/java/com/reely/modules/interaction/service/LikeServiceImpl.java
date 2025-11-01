@@ -128,7 +128,7 @@ public class LikeServiceImpl implements LikeService{
             String payload = objectMapper.writeValueAsString(payloadMap);
 
             NotificationRequestDto notificationRequestDto = NotificationRequestDto.builder()
-                    .userId(user.getId())
+                    .userId(video.getUserId())
                     .type(NotificationType.LIKE)
                     .payload(payload)
                     .readFlag(0)
