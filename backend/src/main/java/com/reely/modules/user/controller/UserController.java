@@ -16,7 +16,7 @@ import com.reely.modules.user.dto.UserDTO;
 import com.reely.modules.user.service.UserService;
 
 @RestController
-@RequestMapping("/users")
+@RequestMapping("/api/v1/users")
 public class UserController {
 
     private final UserService userService;

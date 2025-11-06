@@ -1,4 +1,4 @@
-package com.reely.modules.user.service;
+package com.reely.modules.user.service.impl;
 
 import java.util.Optional;
 
@@ -17,6 +17,7 @@ import com.reely.modules.user.entity.User;
 import com.reely.modules.user.entity.enums.RoleName;
 import com.reely.modules.user.repository.RoleRepository;
 import com.reely.modules.user.repository.UserRepository;
+import com.reely.modules.user.service.UserService;
 
 @Service
 public class UserServiceImpl implements UserService {
