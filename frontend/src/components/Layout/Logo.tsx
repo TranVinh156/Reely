@@ -3,9 +3,9 @@ import LogoImage from '@/assets/logo.png'
 
 const Logo = () => {
     return (
-        <div className='flex items-center pl-14 gap-2'>
-            <img className="w-10" src={LogoImage} alt="logo" />
-            <p className='font-bold text-2xl text-white'>Reely</p>
+        <div className='flex items-center gap-2'>
+            <img className="w-10 h-auto" src={LogoImage} alt="logo" />
+            <p className='font-bold hidden sm:flex text-2xl text-white'>Reely</p>
         </div>
     )
 }

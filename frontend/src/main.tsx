@@ -8,6 +8,7 @@ import RegisterPage from "./pages/RegisterPage";
 import App from "./App";
 import AuthGuard from "./components/Auth/AuthGuard";
 import GuestGuard from "./components/Auth/GuestGuard";
+import UserProfile from "./pages/UserProfile";
 
 const queryClient = new QueryClient();
 
@@ -43,6 +44,13 @@ ReactDOM.createRoot(root).render(
                             <AuthGuard>
                                 <App />
                             </AuthGuard>
+                        }
+                    />
+
+                    <Route
+                        path="/profile/"
+                        element={
+                            <UserProfile/>
                         }
                     />
                 </Routes>

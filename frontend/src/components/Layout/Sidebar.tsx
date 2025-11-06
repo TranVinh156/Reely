@@ -45,11 +45,11 @@ export default function Sidebar() {
   }, [user?.id])
 
   return (
-    <aside className="w-75 bg-primary p-6 text-white">
+    <aside className="max-w-75 bg-primary p-6 text-white">
       <Logo />
 
       <div className="flex flex-col -between w-full mt-16">
-        <div className="relative">
+        <div className="relative hidden sm:flex">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-600" size={18} />
           <input
             type="text"
@@ -61,16 +61,16 @@ export default function Sidebar() {
         <div className="nav-items mt-4">
           {NAV_ITEMS.map((item) => {
             return (
-              <NavLink to={item.link} className="flex gap-4 py-3 pl-8 mt-1 hover:text-red-500 hover:bg-primary-hover hover:rounded-xl">
+              <NavLink to={item.link} className="flex gap-4 py-3 justify-center sm:justify-normal sm:pl-8 mt-1 hover:text-red-500 hover:bg-primary-hover hover:rounded-xl">
                 {item.icon}
-                <p className="font-semibold">{item.text}</p>
+                <p className="hidden sm:flex font-semibold">{item.text}</p>
               </NavLink>
             )
           })}
         </div>
 
         {isAuthenticated &&
-          <div className="following mt-6">
+          <div className="hidden sm:block following mt-6">
             <p className="font-semibold text-md mb-2">Following accounts</p>
             {following.map(follower => {
               return <FollowingCard follower={follower} />
