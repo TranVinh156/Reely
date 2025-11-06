@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import FormInput from '../components/auth/FormInput'
+import FormInput from '../components/Auth/FormInput'
 import useLogin, { type LoginCredentials } from '../hooks/auth/useLogin'
 import backgroundImage from '../assets/background.png'
 import { useNavigate, Link } from 'react-router'

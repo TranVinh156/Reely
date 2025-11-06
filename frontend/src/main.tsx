@@ -6,8 +6,8 @@ import LoginPage from "./pages/LoginPage";
 import "./index.css";
 import RegisterPage from "./pages/RegisterPage";
 import App from "./App";
-import AuthGuard from "./components/auth/AuthGuard";
-import GuestGuard from "./components/auth/GuestGuard";
+import AuthGuard from "./components/Auth/AuthGuard";
+import GuestGuard from "./components/Auth/GuestGuard";
 
 const queryClient = new QueryClient();
 
