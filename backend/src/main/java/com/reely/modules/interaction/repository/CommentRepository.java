@@ -13,5 +13,5 @@ import java.util.List;
 public interface CommentRepository extends JpaRepository<Comment, Long> {
     List<Comment> findByVideo_Id(Long videoId);
     Page<Comment> findByVideo_IdAndRootCommentIsNull(Long videoId, Pageable pageable);
-    Page<Comment> findByRootComment_Id(Long rootCommentId, Pageable pageable);
+    Page<Comment> findByRootComment_IdOrderByCreatedAtDesc(Long rootCommentId, Pageable pageable);
 }

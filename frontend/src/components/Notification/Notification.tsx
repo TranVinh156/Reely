@@ -15,6 +15,11 @@ interface NotificationItem {
   type?: 'system' | 'like' | 'comment' | 'follow';
 }
 
+interface NotificationProps {
+  userId: number;
+  onClose?: () => void;
+}
+
 // interface NotificationPayload {
 //   actorId: number;
 //   actorUsername: string;
@@ -26,7 +31,7 @@ interface NotificationItem {
 // }
 
 
-const Notification: React.FC<{ userId: number }> = ({ userId }) => {
+const Notification: React.FC<NotificationProps> = ({ userId, onClose }) => {
   const [activeTab, setActiveTab] = useState<string>('all');
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -123,7 +128,7 @@ const Notification: React.FC<{ userId: number }> = ({ userId }) => {
     : notifications.filter(n => n.type === activeTab);
 
   return (
-    <div className="w-[450px] h-screen bg-black text-white flex flex-col">
+    <div className="w-[450px] h-screen bg-black text-white flex flex-col border-l border-gray-800">
       {/* Header */}
       <div className="flex items-center justify-between px-6 py-4 border-b border-gray-800">
         <h1 className="text-2xl font-bold">Thông báo</h1>
@@ -134,7 +139,8 @@ const Notification: React.FC<{ userId: number }> = ({ userId }) => {
             <span>Mới</span>
           </div>
         )}
-        <button className="p-2 hover:bg-gray-800 rounded-full transition-colors">
+        <button className="p-2 hover:bg-gray-800 rounded-full transition-colors"
+          onClick={onClose}>
           <X size={24} />
         </button>
       </div>
