@@ -57,4 +57,14 @@ public class UserFollowImpl implements UserFollowService {
                 .map(UserDTO::new)
                 .toList();
     }
+
+    @Override
+    public long getFollowersCount(long userId) {
+        return this.userFollowRepository.countByFollowingId(userId);
+    }
+
+    @Override
+    public long getFollowingCount(long userId) {
+        return this.userFollowRepository.countByFollowerId(userId);
+    }
 }

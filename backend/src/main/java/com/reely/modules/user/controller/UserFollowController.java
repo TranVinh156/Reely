@@ -44,4 +44,14 @@ public class UserFollowController {
     public ResponseEntity<List<UserDTO>> getFollowing(@PathVariable Long id) {
         return ResponseEntity.ok(userFollowService.getFollowing(id));
     }
+
+    @GetMapping("/{id}/followers/count")
+    public ResponseEntity<Long> getFollowersCount(@PathVariable Long id) {
+        return ResponseEntity.ok(userFollowService.getFollowersCount(id));
+    }
+
+    @GetMapping("/{id}/following/count")
+    public ResponseEntity<Long> getFollowingCount(@PathVariable Long id) {
+        return ResponseEntity.ok(userFollowService.getFollowingCount(id));
+    }
 }
