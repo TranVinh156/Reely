@@ -55,7 +55,7 @@ const LoginPage: React.FC = () => {
 
                         <button
                             type="submit"
-                            className="py-3 px-4 bg-primary rounded-md text-white font-bold disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="py-3 px-4 bg-black rounded-md text-white font-bold disabled:opacity-50 disabled:cursor-not-allowed"
                             aria-label="Sign in"
                             disabled={isPending}
                         >

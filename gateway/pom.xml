@@ -9,9 +9,9 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.gateway</groupId>
-	<artifactId>reely</artifactId>
+	<artifactId>gateway</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>reely</name>
+	<name>gateway</name>
 	<description>Gateway</description>
 	<url/>
 	<licenses>

@@ -9,18 +9,6 @@ services:
     ports:
       - "3308:3306"
 
-  postgres:
-    image: postgres:13
-    container_name: kong-postgres
-    environment:
-      POSTGRES_USER: kong
-      POSTGRES_DB: kong
-      POSTGRES_PASSWORD: kongpass
-    volumes:
-      - kong_data:/var/lib/postgresql/data
-    networks:
-      - kong-net
-
   rabbitmq:
     image: rabbitmq:3-management-alpine
     container_name: reely-rabbitmq
