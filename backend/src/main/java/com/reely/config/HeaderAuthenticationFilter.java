@@ -23,6 +23,7 @@ public class HeaderAuthenticationFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
         String username = request.getHeader("X-Username");
         String role = request.getHeader("X-Role");
+        
         if (username != null && !username.isEmpty() && role != null && !role.isEmpty()) {
             List<GrantedAuthority> authorities = new ArrayList<>();
             authorities.add(new SimpleGrantedAuthority(role));

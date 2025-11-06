@@ -22,7 +22,7 @@ public class SecurityConfig {
         return http
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)
                 .authorizeExchange(ex -> ex
-                        .pathMatchers("/auth/**").permitAll()
+                        .pathMatchers("/api/v1/auth/**").permitAll()
                         .anyExchange().authenticated())
                 .addFilterAt(jwtAuthFilter, SecurityWebFiltersOrder.AUTHENTICATION)
                 .build();
