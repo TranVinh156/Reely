@@ -147,7 +147,7 @@ public class NotificationServiceImpl implements NotificationService {
         try {
             NotificationResponseDto response = addNotification(notificationRequestDto);
             notifyPendingRequests(notificationRequestDto.getUserId(), response);
-            channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
+            channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);   
         } catch (Exception e) {
             try {
                 handleFailure(message, RabbitMQConfig.LIKE_RETRY_ROUTING_KEY, RabbitMQConfig.LIKE_DLQ_ROUTING_KEY, channel, e);

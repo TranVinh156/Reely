@@ -1,5 +1,5 @@
 import React from "react";
-import { useVideoProgress } from "../../hooks/useVideoProgress";
+import { useVideoProgress } from "../../hooks/feed/useVideoProgress";
 import formatTime from "../../utils/formatTime";
 import { useRef, useState } from "react";
 // import { on } from "events";

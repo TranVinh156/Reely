@@ -1,8 +1,8 @@
 import React, { useRef, useEffect, use } from "react";
 import type { Video } from "../../types/video";
-import { useVideoController } from "../../hooks/useVideoController";
+import { useVideoController } from "../../hooks/feed/useVideoController";
 import { ProgressBar } from "./ProgressBar";
-import { useVideoProgress } from "../../hooks/useVideoProgress";
+import { useVideoProgress } from "../../hooks/feed/useVideoProgress";
 import VideoControls from "./VideoControls";
 import VideoInfo from "./VideoInfo";
 import { motion } from "framer-motion";
