@@ -7,8 +7,10 @@ import java.beans.Visibility;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name= "videos")
-@Getter @Setter @Builder
+@Table(name = "videos")
+@Getter
+@Setter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class Video {
