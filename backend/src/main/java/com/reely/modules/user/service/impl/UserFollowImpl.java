@@ -11,6 +11,8 @@ import com.reely.modules.user.repository.UserFollowRepository;
 import com.reely.modules.user.repository.UserRepository;
 import com.reely.modules.user.service.UserFollowService;
 
+import jakarta.transaction.Transactional;
+
 @Service
 public class UserFollowImpl implements UserFollowService {
     private final UserRepository userRepository;
@@ -34,6 +36,7 @@ public class UserFollowImpl implements UserFollowService {
     }
 
     @Override
+    @Transactional
     public void unfollowUser(long followerId, long followingId) {
         userFollowRepository.deleteByFollowerIdAndFollowingId(followerId, followingId);
     }
@@ -67,4 +70,10 @@ public class UserFollowImpl implements UserFollowService {
     public long getFollowingCount(long userId) {
         return this.userFollowRepository.countByFollowerId(userId);
     }
+
+    @Override
+    public boolean isFollowing(long followerId, long followingId) {
+        return this.userFollowRepository.existsByFollowerIdAndFollowingId(followerId, followingId);
+    }
+
 }

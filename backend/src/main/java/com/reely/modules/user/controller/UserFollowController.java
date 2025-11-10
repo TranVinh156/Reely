@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @RestController
 @RequestMapping("/api/v1/users")
@@ -45,6 +46,11 @@ public class UserFollowController {
         return ResponseEntity.ok(userFollowService.getFollowing(id));
     }
 
+    @GetMapping("/{id}/following/{targetId}")
+    public ResponseEntity<Boolean> isFollowing(@PathVariable Long id, @PathVariable Long targetId) {
+        return ResponseEntity.ok(userFollowService.isFollowing(id, targetId));
+    }
+
     @GetMapping("/{id}/followers/count")
     public ResponseEntity<Long> getFollowersCount(@PathVariable Long id) {
         return ResponseEntity.ok(userFollowService.getFollowersCount(id));
@@ -54,4 +60,5 @@ public class UserFollowController {
     public ResponseEntity<Long> getFollowingCount(@PathVariable Long id) {
         return ResponseEntity.ok(userFollowService.getFollowingCount(id));
     }
+
 }

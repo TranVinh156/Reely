@@ -48,11 +48,13 @@ ReactDOM.createRoot(root).render(
                     />
 
                     <Route
-                        path="/profile/"
+                        path="/users/:username"
                         element={
                             <UserProfile/>
                         }
                     />
+
+
                 </Routes>
             </BrowserRouter>
         </AuthProvider>

@@ -33,6 +33,12 @@ public class UserController {
         return ResponseEntity.ok().body(response);
     }
 
+    @GetMapping("/search")
+    public ResponseEntity<UserDTO> getUserByUsername(@RequestParam String username) {
+        UserDTO userDTO = this.userService.getUserByUsername(username);
+        return ResponseEntity.ok().body(userDTO);
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<UserDTO> getUserById(@PathVariable Long id) {
         UserDTO userDTO = this.userService.getUserById(id);

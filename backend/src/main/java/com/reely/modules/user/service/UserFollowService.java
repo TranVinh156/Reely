@@ -16,4 +16,7 @@ public interface UserFollowService {
     long getFollowersCount(long userId);
 
     long getFollowingCount(long userId);
+
+    boolean isFollowing(long followerId, long followingId);
+
 }

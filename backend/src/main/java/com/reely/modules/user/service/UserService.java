@@ -16,6 +16,8 @@ public interface UserService {
 
     UserDTO getUserById(Long id);
 
+    UserDTO getUserByUsername(String username);
+
     PaginationResponse<UserDTO> getAllUser(int page, int pageSize);
 
     UserDTO updateUser(Long id, UpdateUserRequest request);
@@ -29,4 +31,5 @@ public interface UserService {
     UserDTO convertToDto(User user);
 
     Role getUserRole(Long id);
+
 }

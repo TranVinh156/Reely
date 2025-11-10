@@ -1,5 +1,6 @@
 package com.reely.modules.user.service.impl;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
@@ -145,5 +146,14 @@ public class UserServiceImpl implements UserService {
             throw new RuntimeException("User with id " + id + " not found.");
         }
         return userOptional.get().getRole();
+    }
+
+    @Override
+    public UserDTO getUserByUsername(String username) {
+        List<User> user = this.userRepository.findByUsername(username);
+        if (user.size() == 0) {
+            throw new RuntimeException("User with username " + username + " not found.");
+        }
+        return this.convertToDto(user.get(0));
     }
 }

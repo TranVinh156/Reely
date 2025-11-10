@@ -20,3 +20,16 @@ export const getFollowingCount = async (id: number): Promise<number> => {
     const response = await axiosClient.get(`/users/${id}/following/count`);
     return response.data;
 }
+
+export const follow = async (followerId: number, followingId: number): Promise<void> => {
+    await axiosClient.post(`/users/${followerId}/follow/${followingId}`);
+}
+
+export const unfollow = async (followerId: number, followingId: number): Promise<void> => {
+    await axiosClient.delete(`/users/${followerId}/unfollow/${followingId}`);
+}
+
+export const isFollowing = async (followerId: number, followingId: number): Promise<boolean> => {
+    const response = await axiosClient.get(`/users/${followerId}/following/${followingId}`);
+    return response.data;
+}
