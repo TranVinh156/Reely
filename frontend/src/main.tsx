@@ -6,7 +6,9 @@ import LoginPage from "./pages/LoginPage";
 import "./index.css";
 import RegisterPage from "./pages/RegisterPage";
 import App from "./App";
-import UploadPage from "./pages/UploadPage";
+import AuthGuard from "./components/Auth/AuthGuard";
+import GuestGuard from "./components/Auth/GuestGuard";
+import UserProfile from "./pages/UserProfile";
 
 const queryClient = new QueryClient();
 
@@ -20,17 +22,38 @@ ReactDOM.createRoot(root).render(
             <BrowserRouter>
                 <Routes>
                     <Route
-                        path="/"
+                        path="/login"
                         element={
-                            <App/>
+                            <GuestGuard>
+                                <LoginPage />
+                            </GuestGuard>
                         }
                     />
                     <Route
-                        path="/upload"
+                        path="/register"
                         element={
-                            <UploadPage/>
+                            <GuestGuard>
+                                <RegisterPage />
+                            </GuestGuard>
                         }
                     />
+
+                    <Route
+                        path="/"
+                        element={
+                            <AuthGuard>
+                                <App />
+                            </AuthGuard>
+                        }
+                    />
+
+                    <Route
+                        path="/users/:username"
+                        element={
+                            <UserProfile />
+                        }
+                    />
+
 
                 </Routes>
             </BrowserRouter>

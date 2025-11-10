@@ -1,5 +1,5 @@
 import { useState } from "react"
-import FormInput from "../components/auth/FormInput"
+import FormInput from "../components/Auth/FormInput"
 import useRegister from "../hooks/auth/useRegister"
 
 const GOOGLE_LOGO = 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/768px-Google_%22G%22_logo.svg.png'

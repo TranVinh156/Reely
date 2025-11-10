@@ -1,8 +1,8 @@
 package com.reely.modules.interaction.entity;
 
+import com.reely.modules.feed.entity.Video;
 import com.reely.modules.user.dto.UserDTO;
 import com.reely.modules.user.entity.User;
-import com.reely.modules.video.entity.Video;
 import jakarta.persistence.*;
 import lombok.*;
 import org.w3c.dom.Text;
