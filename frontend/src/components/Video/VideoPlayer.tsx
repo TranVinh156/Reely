@@ -6,6 +6,7 @@ import { useVideoProgress } from "../../hooks/useVideoProgress";
 import VideoControls from "./VideoControls";
 import VideoInfo from "./VideoInfo";
 import { motion } from "framer-motion";
+import { useVideoHotkeys } from "@/hooks/useVideoHotkeys";
 
 export type VideoOrientation = "portrait" | "landscape" | "square";
 
@@ -24,6 +25,8 @@ export default function VideoPlayer({
   // const { isPlaying, togglePlay } = useVideoController(ref, video.id);
   const { togglePlay, isPlaying, muted, toggleMute, volume, setVol } =
     useVideoController(ref, video.id);
+
+  useVideoHotkeys(ref);
 
   useEffect(() => {
     // ensure metadata preloaded
@@ -65,6 +68,17 @@ export default function VideoPlayer({
         className="h-full w-full object-contain"
       />
       {/* <VideoInfo username={video.user.username} description={video.description} /> */}
+
+      {/* <button
+        aria-label="Toggle play"
+        onClick={togglePlay}
+        className="absolute inset-0 flex items-center justify-center"
+      >
+        <div
+          className={`bg-red pointer-events-none h-18 w-18 text-4xl opacity-100 ${isPlaying ? "" : "icon-[solar--play-bold]"}`}
+        ></div>
+      </button> */}
+      
       <VideoControls
         username={video.user.username}
         description={video.description}
@@ -83,13 +97,16 @@ export default function VideoPlayer({
       />
 
       {/* simple overlay: click to toggle */}
+      
+
+      {/* simple overlay: click to toggle */}
       {/* <button
         aria-label="Toggle play"
         onClick={togglePlay}
         className="absolute inset-0 flex items-center justify-center"
       > */}
-        {/* Visual feedback minimal: show a faint play/pause icon when toggled via CSS or later framer-motion */}
-        {/* <div
+      {/* Visual feedback minimal: show a faint play/pause icon when toggled via CSS or later framer-motion */}
+      {/* <div
           className={`w-18 h-18 bg-red pointer-events-none text-4xl opacity-100 ${isPlaying ? "" : "icon-[solar--play-bold]"}`}
         ></div>
       </button> */}

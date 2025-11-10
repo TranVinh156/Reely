@@ -46,6 +46,7 @@ export default function VideoControls({
     // <div className="pointer-events-auto absolute right-0 bottom-0 left-0 p-2">
     //   {/* Placeholder: we'll implement ProgressBar, Volume, etc. in Phase2 */}
     // </div>
+
     <div className="pointer-events-none absolute inset-0 flex flex-col justify-between select-none">
       {/* Overlay Play/Pause Animation */}
       <AnimatePresence>
@@ -62,7 +63,6 @@ export default function VideoControls({
           </motion.div>
         )}
       </AnimatePresence>
-
       {/* Bottom Controls */}
       <div className="pointer-events-auto absolute right-0 bottom-0 left-0 px-3 pb-3">
         <div className="flex flex-col gap-2">
@@ -77,19 +77,23 @@ export default function VideoControls({
           />
         </div>
 
+        
+
         <div className="mt-2 flex items-center justify-between">
-          <VolumeControl
-            volume={volume}
-            muted={muted}
-            setVol={setVol}
-            toggleMute={toggleMute}
-          />
           {/* <div className="flex items-center gap-3">
             <ActionButtons />
             <OptionsMenu />
           </div> */}
         </div>
       </div>
+      <div className="pointer-events-auto absolute left-0 top-0">
+          <VolumeControl
+            muted={muted}
+            volume={volume}
+            setVol={setVol}
+            toggleMute={toggleMute}
+          />
+        </div>
     </div>
   );
 }
