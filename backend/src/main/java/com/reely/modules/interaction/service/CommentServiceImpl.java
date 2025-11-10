@@ -2,6 +2,8 @@ package com.reely.modules.interaction.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.reely.config.RabbitMQConfig;
+import com.reely.modules.feed.entity.Video;
+import com.reely.modules.feed.repository.VideoRepository;
 import com.reely.modules.interaction.dto.CommentRequestDto;
 import com.reely.modules.interaction.dto.CommentResponseDto;
 import com.reely.modules.interaction.dto.PaginationResponse;
@@ -11,8 +13,6 @@ import com.reely.modules.notification.dto.NotificationRequestDto;
 import com.reely.modules.notification.enums.NotificationType;
 import com.reely.modules.user.entity.User;
 import com.reely.modules.user.repository.UserRepository;
-import com.reely.modules.video.VideoRepository;
-import com.reely.modules.video.entity.Video;
 import jakarta.transaction.Transactional;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.data.domain.Page;
