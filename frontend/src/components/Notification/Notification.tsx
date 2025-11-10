@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import NotificationCard from "./NotificationCard";
+import NotificationCard from "./NotificationCard";  
 import { X } from "lucide-react";
 import axiosClient from "@/utils/axios.client";
 import { formatTimestamp } from "@/utils/formatTimestamp";

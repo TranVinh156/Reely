@@ -9,6 +9,7 @@ import App from "./App";
 import AuthGuard from "./components/Auth/AuthGuard";
 import GuestGuard from "./components/Auth/GuestGuard";
 import UserProfile from "./pages/UserProfile";
+import UploadPage from "./pages/UploadPage";
 
 const queryClient = new QueryClient();
 
@@ -53,6 +54,13 @@ ReactDOM.createRoot(root).render(
                             <UserProfile />
                         }
                     />
+
+                    <Route path="/upload"
+                        element={
+                               <UploadPage />
+                        }
+                    />
+
 
 
                 </Routes>
