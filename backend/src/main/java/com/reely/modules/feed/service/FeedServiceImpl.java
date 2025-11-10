@@ -4,6 +4,12 @@ import com.reely.modules.feed.dto.*;
 import com.reely.modules.feed.entity.*;
 import com.reely.modules.feed.mapper.FeedMapper;
 import com.reely.modules.feed.repository.*;
+import com.reely.modules.interaction.repository.CommentRepository;
+import com.reely.modules.interaction.repository.LikeRepository;
+import com.reely.modules.user.entity.User;
+import com.reely.modules.user.repository.UserFollowRepository;
+import com.reely.modules.user.repository.UserRepository;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
@@ -16,13 +22,14 @@ public class FeedServiceImpl implements FeedService {
 
     private final VideoRepository videoRepository;
     private final UserRepository userRepository;
-    private final FollowRepository followRepository;
+    private final UserFollowRepository userFollowRepository;
     private final LikeRepository likeRepository;
     private final CommentRepository commentRepository;
     private final FeedMapper feedMapper;
 
     /**
      * Public Feed
+     * 
      * @param pageable
      * @return
      */
@@ -35,14 +42,19 @@ public class FeedServiceImpl implements FeedService {
 
     /**
      * Personalized Feed
+     * 
      * @param userId
      * @param pageable
      * @return
      */
     @Override
     public FeedResponse getPersonalizedFeed(Long userId, Pageable pageable) {
-        List<Long> followeeIds = followRepository.findFolloweeIdsByUserId(userId);
-        if (followeeIds.isEmpty()) return getPublicFeed(pageable);
+        List<Long> followeeIds = userFollowRepository.findByFollowerId(userId)
+                .stream()
+                .map(userFollow -> userFollow.getFollowing().getId())
+                .collect(Collectors.toList());
+        if (followeeIds.isEmpty())
+            return getPublicFeed(pageable);
 
         Page<Video> page = videoRepository.findFollowedFeed(followeeIds, pageable);
         List<FeedVideoDTO> content = mapVideosToDTO(page.getContent(), userId);
@@ -51,6 +63,7 @@ public class FeedServiceImpl implements FeedService {
 
     /**
      * Trending Feed
+     * 
      * @param pageable
      * @return
      */
@@ -63,6 +76,7 @@ public class FeedServiceImpl implements FeedService {
 
     /**
      * User Feed
+     * 
      * @param userId
      * @param pageable
      * @return
@@ -76,6 +90,7 @@ public class FeedServiceImpl implements FeedService {
 
     /**
      * Video Detail
+     * 
      * @param videoId
      * @param viewerId
      * @return
@@ -88,15 +103,16 @@ public class FeedServiceImpl implements FeedService {
         User user = userRepository.findById(video.getUserId())
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-//        List<Comment> comments = commentRepository.findByVideoIdOrderByCreatedAtAsc(videoId);
-//        List<CommentDTO> commentDTOs = comments.stream()
-//                .map(c -> CommentDTO.builder()
-//                        .commentId(c.getId())
-//                        .userId(c.getUserId())
-//                        .text(c.getText())
-//                        .createdAt(c.getCreatedAt())
-//                        .build())
-//                .collect(Collectors.toList());
+        // List<Comment> comments =
+        // commentRepository.findByVideoIdOrderByCreatedAtAsc(videoId);
+        // List<CommentDTO> commentDTOs = comments.stream()
+        // .map(c -> CommentDTO.builder()
+        // .commentId(c.getId())
+        // .userId(c.getUserId())
+        // .text(c.getText())
+        // .createdAt(c.getCreatedAt())
+        // .build())
+        // .collect(Collectors.toList());
 
         return VideoDetailDTO.builder()
                 .videoId(video.getId())
@@ -109,12 +125,13 @@ public class FeedServiceImpl implements FeedService {
                 .likeCount(video.getLikeCount())
                 .commentCount(video.getCommentCount())
                 .createdAt(video.getCreatedAt())
-//                .comments(commentDTOs)
+                // .comments(commentDTOs)
                 .build();
     }
 
     /**
      * Utility mapping methods
+     * 
      * @param videos
      * @param viewerId
      * @return
@@ -126,8 +143,8 @@ public class FeedServiceImpl implements FeedService {
 
             if (viewerId != null) {
                 dto.setIsLiked(likeRepository.existsByVideoIdAndUserId(video.getId(), viewerId));
-                dto.setIsFollowed(followRepository.findFolloweeIdsByUserId(viewerId)
-                        .contains(video.getUserId()));
+                dto.setIsFollowed(userFollowRepository.findByFollowingId(viewerId).stream()
+                        .anyMatch(uf -> uf.getFollowing().getId().equals(video.getUserId())));
             }
             return dto;
         }).collect(Collectors.toList());

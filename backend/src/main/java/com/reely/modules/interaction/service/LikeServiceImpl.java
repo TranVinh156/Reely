@@ -2,6 +2,8 @@ package com.reely.modules.interaction.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.reely.config.RabbitMQConfig;
+import com.reely.modules.feed.entity.Video;
+import com.reely.modules.feed.repository.VideoRepository;
 import com.reely.modules.interaction.dto.LikeRequestDto;
 import com.reely.modules.interaction.dto.LikeResponseDto;
 import com.reely.modules.interaction.entity.Likes;
@@ -12,8 +14,6 @@ import com.reely.modules.notification.enums.NotificationType;
 import com.reely.modules.user.entity.User;
 import com.reely.modules.user.repository.UserRepository;
 import com.reely.modules.user.service.UserService;
-import com.reely.modules.video.VideoRepository;
-import com.reely.modules.video.entity.Video;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
