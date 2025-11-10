@@ -17,9 +17,9 @@ const UploadPreview: React.FC<Props> = ({ file, handleCancel, thumbnail }) => {
             <div className="flex justify-between p-5 bg-[#181C32] items-center">
                 <div className="flex ">
                     <img src={thumbnail} alt="" className="w-25 h-35 rounded-sm"/>
-                    <div className="flex flex-col justify-center ml-6">
-                        <p className="text-lg font-semibold mb-2 text-white">{file?.name}</p>
-                        <p className="text-white/60"> {
+                    <div className="flex flex-col justify-center items-start ml-6">
+                        <p className="text-base sm:text-lg font-semibold mb-2 text-white truncate">{file?.name}</p>
+                        <p className="text-sm sm:text-base text-white/60"> {
                             file ? (<span>Size: {(file.size / (1024 * 1024)).toFixed(2)} MB</span>) : "No file selected"
                         }</p>
                     </div>
@@ -27,7 +27,7 @@ const UploadPreview: React.FC<Props> = ({ file, handleCancel, thumbnail }) => {
 
                 <button 
                 onClick={handleCancel}
-                className="flex items-center cursor-pointer hover:bg-gray-500/20 p-2 rounded-full h-10 w-10">
+                className="flex items-center cursor-pointer hover:bg-gray-500/20 p-2 rounded-full h-10 w-10 self-start sm:self-auto">
                     <X className="text-white" />
                 </button>
             </div>
@@ -62,7 +62,7 @@ const UploadPreview: React.FC<Props> = ({ file, handleCancel, thumbnail }) => {
                     <p className="text-xs text-gray-500 mt-1">{description.length}/2000</p>
                 </div>
 
-                <div className="flex justify-end gap-4 mt-6">
+                <div className="flex flex-col sm:flex-row justify-end gap-4 mt-6">
                     <button className="bg-[#FE2C55] cursor-pointer hover:bg-[#FE2C55]/80 text-white font-semibold py-2 px-4 rounded flex-1">
                         Publish Video
                     </button>

@@ -2,7 +2,7 @@ import { useState } from 'react'
 import Comment from './components/Comment/Comment'
 import Notification from './components/Notification/Notification'
 import { Bell, Upload } from 'lucide-react'
-import UploadVideo from './components/UploadVideo/UploadVideo';
+import UploadVideo from './pages/UploadPage';
 import UploadDropZone from './components/UploadVideo/UploadDropZone';
 import { Navigate } from 'react-router-dom';
 import NavigateBarUpload from './components/UploadVideo/NavigateBarUpload';
@@ -76,7 +76,8 @@ function App() {
     // </div>
 
     <div>
-      <UploadVideo/>
+      {/* <UploadVideo/> */}
+      <h1>Home</h1>
     </div>
   )
 }
