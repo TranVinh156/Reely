@@ -1,10 +1,6 @@
 @import "tailwindcss";
-@plugin "@iconify/tailwind4";
 
-
-html, body, #root {
-    height: 100%;
-  }
-  body {
-    @apply bg-neutral-900 text-white;
-  }
+@theme {
+    --color-primary: #161823;
+    --color-primary-hover: #2B304C;
+}
