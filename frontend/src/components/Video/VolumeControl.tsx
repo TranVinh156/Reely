@@ -17,12 +17,12 @@ const VolumeControl: React.FC<VolumeControlProps> = ({
 
   return (
     <div
-      className="relative flex items-center"
+      className="relative flex items-center flex-col"
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
     >
       <i
-        className={`ri-volume-${muted ? "mute" : "up"}-fill cursor-pointer text-xl text-white icon-[mdi--mute]`}
+        className={`ri-volume-${muted ? "mute" : "up"}-fill cursor-pointer text-xl ${muted ? "icon-[mdi--mute]" : "icon-[mdi--volume-high]"} text-white`}
         onClick={toggleMute}
       />
       {hover && (
@@ -33,7 +33,7 @@ const VolumeControl: React.FC<VolumeControlProps> = ({
           step={0.01}
           value={volume}
           onChange={(e) => setVol(Number(e.target.value))}
-          className="absolute -top-16 w-24 rotate-[-90deg] cursor-pointer accent-red-500"
+          className="w-24 rotate-[-90deg] cursor-pointer accent-red-500 absolute top-15"
         />
       )}
     </div>
