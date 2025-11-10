@@ -26,7 +26,7 @@ interface CommentData {
   rootCommentId: string;
 }
 
-const Comment: React.FC<{ videoId: number, currentUserId: number }> = ({ videoId, currentUserId }) => {
+const Comment: React.FC<{ videoId: number, currentUserId: number, onClose: () => void }> = ({ videoId, currentUserId, onClose }) => {
   
   const [comments, setComments] = useState<CommentData[]>([]);
   const [isLoadingComments, setIsLoadingComments] = useState(false);
@@ -267,7 +267,7 @@ const Comment: React.FC<{ videoId: number, currentUserId: number }> = ({ videoId
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-4">
         <h2 className="text-lg font-semibold">Comment</h2>
-        <button className="p-2 hover:bg-white/10 rounded-full transition-colors" onClick={closeMenu}>
+        <button className="p-2 hover:bg-white/10 rounded-full transition-colors" onClick={onClose}>
           <X size={20} />
         </button>
       </div>

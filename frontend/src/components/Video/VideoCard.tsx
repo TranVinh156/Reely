@@ -2,7 +2,7 @@ import React from "react";
 import { useState } from "react";
 import type { Video } from "../../types/video";
 import VideoPlayer, { type VideoOrientation } from "./VideoPlayer";
-import { useMediaQuery } from "../../hooks/useMediaQuery";
+import { useMediaQuery } from "../../hooks/feed/useMediaQuery";
 interface Props {
   video: Video;
 }

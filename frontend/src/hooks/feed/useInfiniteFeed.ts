@@ -46,8 +46,8 @@
 // }
 
 import { useEffect, useState, useRef, useCallback } from "react";
-import type { Video } from "../types/video";
-import { fetchFeed } from "../api/feed";
+import type { Video } from "../../types/video";
+import { fetchFeed } from "../../api/feed";
 
 export function useInfiniteFeed(pageSize = 5) {
   const [videos, setVideos] = useState<Video[]>([]);
