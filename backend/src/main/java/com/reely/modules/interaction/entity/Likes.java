@@ -9,7 +9,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
 
 
 @Entity
@@ -17,7 +16,8 @@ import java.time.LocalDateTime;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class Like {
+@Table(name = "likes")
+public class Likes {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;

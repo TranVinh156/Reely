@@ -16,7 +16,7 @@ import com.reely.modules.user.dto.UserDTO;
 import com.reely.modules.user.service.UserService;
 
 @RestController
-@RequestMapping("/users")
+@RequestMapping("/api/v1/users")
 public class UserController {
 
     private final UserService userService;
@@ -31,6 +31,12 @@ public class UserController {
             @RequestParam(defaultValue = "15") int pageSize) {
         PaginationResponse<UserDTO> response = this.userService.getAllUser(page, pageSize);
         return ResponseEntity.ok().body(response);
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<UserDTO> getUserByUsername(@RequestParam String username) {
+        UserDTO userDTO = this.userService.getUserByUsername(username);
+        return ResponseEntity.ok().body(userDTO);
     }
 
     @GetMapping("/{id}")

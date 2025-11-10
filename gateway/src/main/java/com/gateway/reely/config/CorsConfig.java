@@ -17,8 +17,10 @@ public class CorsConfig {
         config.setAllowCredentials(true);
         config.setAllowedOrigins(Arrays.asList("http://localhost:5173"));
         config.setAllowedHeaders(Arrays.asList("*"));
-        config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "HEAD"));
-        config.setExposedHeaders(Arrays.asList("Authorization", "Content-Type", "Set-Cookie"));
+        config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH",
+                "DELETE", "OPTIONS", "HEAD"));
+        config.setExposedHeaders(Arrays.asList("Authorization", "Content-Type",
+                "Set-Cookie"));
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
         return new CorsWebFilter(source);
