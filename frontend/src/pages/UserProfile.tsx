@@ -11,6 +11,9 @@ import { Link } from "react-router-dom"
 import { UserIcon } from "lucide-react"
 import { useState } from "react"
 import { useParams } from "react-router-dom"
+import "react-circular-progressbar/dist/styles.css";
+import {useUpload } from "@/hooks/upload/useUploadVideo"
+import CircularProgress from "@/components/UploadVideo/CircularProgress"
 
 type ModalTab = 'followers' | 'following' | null
 
@@ -32,6 +35,7 @@ const UserProfile = () => {
 
     const { mutate: followUser, isPending: isFollowing } = useFollow()
     const { mutate: unfollowUser, isPending: isUnfollowing } = useUnfollow()
+    const { uploading, progress } = useUpload();
 
     const handleFollowToggle = () => {
         if (!currentUser || !user) return
@@ -148,6 +152,22 @@ const UserProfile = () => {
                 onClose={() => setModalTab(null)}
                 defaultTab={modalTab || 'following'}
             />
+            <div className="text-black">Quan {progress}</div>
+
+            {uploading && (
+                <div>
+                    
+                    <p className="text-black">Uploading... {progress}%</p>
+                </div>
+            )}
+
+            <CircularProgress progress={progress} size={120} strokeWidth={6}/>
+
+            
+            
+            
+            
+            
         </div>
     )
 }

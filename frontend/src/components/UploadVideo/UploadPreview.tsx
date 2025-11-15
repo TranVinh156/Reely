@@ -1,5 +1,9 @@
-import React from "react";
+import React, { useContext } from "react";
 import { X } from "lucide-react";
+import { NavLink } from "react-router-dom";
+import { useAuth } from "@/hooks/auth/useAuth";
+import { UploadContext, useUpload } from "@/hooks/upload/useUploadVideo";
+
 
 interface Props {
     file?: File;
@@ -7,11 +11,23 @@ interface Props {
     thumbnail?: string;
 }
 
-const UploadPreview: React.FC<Props> = ({ file, handleCancel, thumbnail }) => {
+const UploadPreview: React.FC<Props> = ({file, handleCancel, thumbnail }) => {
 
     const [title, setTitle] = React.useState("");
     const [description, setDescription] = React.useState("");
+    const {user} = useAuth();
 
+    const {uploadVideo} = useUpload();
+    const handlePublish = async () => {
+        if (!file) return;
+
+        try {
+            const result = await uploadVideo(user?.id, title.trim(), description.trim(), file);
+            handleCancel();
+        } catch (err) {
+            console.error('Upload failed:', err);
+        } 
+    }
     return (
         <div className="text-center rounded-xl m-auto max-w-screen-xl text-white gap-y-10 flex flex-col">
             <div className="flex justify-between p-5 bg-[#181C32] items-center">
@@ -63,9 +79,13 @@ const UploadPreview: React.FC<Props> = ({ file, handleCancel, thumbnail }) => {
                 </div>
 
                 <div className="flex flex-col sm:flex-row justify-end gap-4 mt-6">
-                    <button className="bg-[#FE2C55] cursor-pointer hover:bg-[#FE2C55]/80 text-white font-semibold py-2 px-4 rounded flex-1">
+                    <NavLink to={`/users/${user?.username}`} 
+                        onClick={handlePublish}
+                        className="bg-[#FE2C55] cursor-pointer hover:bg-[#FE2C55]/80 text-white font-semibold py-2 px-4 rounded flex-1">
                         Publish Video
-                    </button>
+                    </NavLink>
+
+                    <div></div>
                     <button 
                     onClick={handleCancel}
                     className="bg-gray-600 cursor-pointer hover:bg-gray-700 text-white font-semibold py-2 px-4 rounded flex-1" >
