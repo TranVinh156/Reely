@@ -33,7 +33,7 @@ const CircularProgress = ({progress, size = 80, strokeWidth = 6}: Props) => {
             stroke="#ef4444"
             strokeLinecap="round"
             strokeDasharray={circumference}
-            strokeDashoffset={circumference - 200}
+            strokeDashoffset={offset}
             style={{ transition: "stroke-dashoffset 0.2s ease",
                     transform: "rotate(-90deg)",
                     transformOrigin: "50% 50%"

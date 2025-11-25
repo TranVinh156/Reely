@@ -156,12 +156,12 @@ const UserProfile = () => {
 
             {uploading && (
                 <div>
-                    
+                    <CircularProgress progress={progress} size={120} strokeWidth={6}/>
                     <p className="text-black">Uploading... {progress}%</p>
                 </div>
             )}
 
-            <CircularProgress progress={progress} size={120} strokeWidth={6}/>
+            
 
             
             
