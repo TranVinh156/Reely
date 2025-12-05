@@ -4,6 +4,7 @@ import { X } from "lucide-react";
 import axiosClient from "@/utils/axios.client";
 import { formatTimestamp } from "@/utils/formatTimestamp";
 import { useLongPolling } from "@/hooks/notification/useLongPolling";
+import { useAuth } from "@/hooks/auth/useAuth";
 
 
 interface NotificationItem {
@@ -16,7 +17,6 @@ interface NotificationItem {
 }
 
 interface NotificationProps {
-  userId: number;
   onClose?: () => void;
 }
 
@@ -31,26 +31,26 @@ interface NotificationProps {
 // }
 
 
-const Notification: React.FC<NotificationProps> = ({ userId, onClose }) => {
+const Notification: React.FC<NotificationProps> = ({ onClose }) => {
   const [activeTab, setActiveTab] = useState<string>('all');
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [currentPage, setCurrentPage] = useState<number>(0);
   const [hasMore, setHasMore] = useState<boolean>(true);
-
+  const {user} = useAuth();
 
   const { 
     notifications: liveNotifications, 
     hasNewNotifications,
     clearNewIndicator 
-  } = useLongPolling(userId);
+  } = useLongPolling(user?.id);
 
 
   useEffect(() => {
     // Fetch notifications from API
     setNotifications([]);
     fetchNotifications(0);
-  }, [userId]);
+  }, [user?.id]);
 
 
   useEffect(() => {
@@ -76,7 +76,7 @@ const Notification: React.FC<NotificationProps> = ({ userId, onClose }) => {
   const fetchNotifications = async(page: number) => {
     setIsLoading(true);
     try {
-      const response = await axiosClient.get(`/notifications?userId=${userId}&page=${page}&size=30`);
+      const response = await axiosClient.get(`/notifications?userId=${user?.id}&page=${page}&size=30`);
       const existingIds = new Set(notifications.map(n => n.id));
       const uniqueNew = response.data.data.filter((n: NotificationItem) => {
           return !existingIds.has(n.id)

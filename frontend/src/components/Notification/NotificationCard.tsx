@@ -15,8 +15,6 @@ const NotificationCard: React.FC<NotificationCardProps> = ({
   avatarUrl
 }) => {
   
-
-
   return (
     <div className="flex gap-3 px-3 py-2 w-full min-h-18 max-h-70 bg-black">
       {/* Avatar */}

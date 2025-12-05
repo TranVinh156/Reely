@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import Report from "./Report";
 import Delete from "./Delete";
 import axiosClient from "@/utils/axios.client";
+import { useAuth } from "@/hooks/auth/useAuth";
 
 
 interface CommentCardProps {
@@ -20,7 +21,6 @@ interface CommentCardProps {
   onMenuClick?: () => void;
   onMenuClose?: () => void;
   videoId: number;
-  currentUserId: number;
   commentId: string;
   rootCommentId: string;
   onReplyAdded?: (rootCommentId: string) => void;
@@ -42,7 +42,6 @@ const CommentCard: React.FC<CommentCardProps> = ({
   onMenuClick,
   onMenuClose,
   videoId,
-  currentUserId,
   commentId,
   rootCommentId,
   onReplyAdded,
@@ -52,12 +51,15 @@ const CommentCard: React.FC<CommentCardProps> = ({
   const [showReportModal, setShowReportModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
+  const {user} = useAuth();
+
+
   const handleSubmitReply = async () => {
     if (replyText.trim()) {
       try {
         const response = await axiosClient.post('/comments', {
           videoId,
-          userId: currentUserId,
+          userId: user?.id,
           text: replyText.trim(),
           rootCommentId: rootCommentId === null ? parseInt(commentId) : parseInt(rootCommentId),
           replyToCommentId: rootCommentId === null ? null : parseInt(commentId)
@@ -212,7 +214,7 @@ const CommentCard: React.FC<CommentCardProps> = ({
           className={`flex justify-start cursor-pointer text-white/60 hover:text-white ${showMenu ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
             <Ellipsis className="mt-0.5"/>
           </button>
-          {showMenu && `${currentUserId}` !== ownerId && (
+          {showMenu && `${user?.id}` !== ownerId && (
             <div 
             onClick={handleReportClick}
             className="flex absolute right-0 w-25 bg-[#2a2a2a] rounded-lg shadow-lg p-2 border border-white/10 hover:text-[#FE2C55] gap-1 justify-center">
@@ -223,7 +225,7 @@ const CommentCard: React.FC<CommentCardProps> = ({
             </div>
           )}
 
-          {showMenu && `${currentUserId}` === ownerId && (
+          {showMenu && `${user?.id}` === ownerId && (
             <div 
             onClick={handleDeleteClick}
             className="flex absolute right-0 w-25 bg-[#2a2a2a] rounded-lg shadow-lg p-2 border border-white/10 hover:text-[#FE2C55] gap-1 justify-center">

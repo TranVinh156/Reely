@@ -10,7 +10,7 @@ interface NotificationItem {
   type?: 'system' | 'like' | 'comment' | 'follow';
 }
 
-export const useLongPolling = (userId: number | null) => {
+export const useLongPolling = (userId: number | undefined) => {
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [hasNewNotifications, setHasNewNotifications] = useState(false);
   
