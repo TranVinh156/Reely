@@ -12,6 +12,8 @@ import UserProfile from "./pages/UserProfile";
 import UploadPage from "./pages/UploadPage";
 import Notification from "./components/Notification/Notification";
 import { UploadProvider } from "./hooks/upload/useUploadVideo";
+import IndexPage from "./pages";
+import Comment from "./components/Comment/Comment";
 
 const queryClient = new QueryClient();
 
@@ -64,7 +66,17 @@ ReactDOM.createRoot(root).render(
                         }
                     />
 
+                    {/* <Route path="/index"
+                        element={
+                               <IndexPage/>
+                        }
+                    />
 
+                    <Route path="/comment"
+                        element={
+                               <Comment videoId={1} onClose={() => {}} />
+                        }
+                    /> */}
 
                 </Routes>
             </BrowserRouter>
