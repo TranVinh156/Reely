@@ -69,7 +69,7 @@ const CommentCard: React.FC<CommentCardProps> = ({
         setReplyText("");
         if (onReplyClose) onReplyClose();
       } catch (error) {
-        console.error("Error submitting reply:", error);
+          console.error("Error submitting reply:", error);
       }
       
     }
@@ -92,11 +92,7 @@ const CommentCard: React.FC<CommentCardProps> = ({
     setShowReportModal(false);
   };
 
-  const handleReportSubmit = (reason: string) => {
-    console.log("Report submitted with reason:", reason);
-    // TODO: Gọi API để gửi report lên server
-    setShowReportModal(false);
-  };
+  
 
   const handleDeleteClick = () => {
     setShowDeleteModal(true);
@@ -247,8 +243,10 @@ const CommentCard: React.FC<CommentCardProps> = ({
       {/* Report Modal */}
       {showReportModal && (
         <Report 
+          reporterId={user?.id}
+          targetType="COMMENT"
+          targetId={parseInt(commentId)}
           onClose={handleReportClose}
-          onSubmit={handleReportSubmit}
         />
       )}
     </div>

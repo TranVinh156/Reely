@@ -66,7 +66,7 @@ ReactDOM.createRoot(root).render(
                         }
                     />
 
-                    {/* <Route path="/index"
+                    <Route path="/index"
                         element={
                                <IndexPage/>
                         }
@@ -76,7 +76,7 @@ ReactDOM.createRoot(root).render(
                         element={
                                <Comment videoId={1} onClose={() => {}} />
                         }
-                    /> */}
+                    />
 
                 </Routes>
             </BrowserRouter>
