@@ -11,9 +11,7 @@ import { Link } from "react-router-dom"
 import { UserIcon } from "lucide-react"
 import { useState } from "react"
 import { useParams } from "react-router-dom"
-import "react-circular-progressbar/dist/styles.css";
-import {useUpload } from "@/hooks/upload/useUploadVideo"
-import CircularProgress from "@/components/UploadVideo/CircularProgress"
+import EditProfileModal from "@/components/Profile/EditProfileModal"
 
 type ModalTab = 'followers' | 'following' | null
 
@@ -21,6 +19,7 @@ const UserProfile = () => {
     let params = useParams()
     const { user: currentUser } = useAuth()
     const [modalTab, setModalTab] = useState<ModalTab>(null)
+    const [isEditProfileOpen, setIsEditProfileOpen] = useState(false)
 
     const { data: user, error, isLoading, isError } = useGetUserByUsername(params.username || "")
     const { data: followingCount = 0 } = useGetFollowingCount(user?.id || 0)
@@ -91,8 +90,8 @@ const UserProfile = () => {
                                     onClick={handleFollowToggle}
                                     disabled={isFollowing || isUnfollowing}
                                     className={`px-8 py-2 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${isFollowingUser
-                                            ? 'bg-gray-600 hover:bg-gray-700'
-                                            : 'bg-red-600 hover:bg-red-700'
+                                        ? 'bg-gray-600 hover:bg-gray-700'
+                                        : 'bg-red-600 hover:bg-red-700'
                                         }`}
                                 >
                                     {isFollowing || isUnfollowing
@@ -108,7 +107,7 @@ const UserProfile = () => {
                                 </button>
                             </> :
                             <>
-                                <button className="bg-red-600 px-8 py-2 rounded-lg">
+                                <button onClick={() => setIsEditProfileOpen(true)} className="bg-red-600 px-8 py-2 rounded-lg">
                                     Edit Profile
                                 </button>
                             </>
@@ -152,22 +151,8 @@ const UserProfile = () => {
                 onClose={() => setModalTab(null)}
                 defaultTab={modalTab || 'following'}
             />
-            <div className="text-black">Quan {progress}</div>
 
-            {uploading && (
-                <div>
-                    <CircularProgress progress={progress} size={120} strokeWidth={6}/>
-                    <p className="text-black">Uploading... {progress}%</p>
-                </div>
-            )}
-
-            
-
-            
-            
-            
-            
-            
+            <EditProfileModal isOpen={isEditProfileOpen} onClose={() => setIsEditProfileOpen(false)} />
         </div>
     )
 }

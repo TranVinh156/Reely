@@ -60,24 +60,6 @@ ReactDOM.createRoot(root).render(
                         }
                     />
 
-                    <Route path="/upload"
-                        element={
-                               <UploadPage />
-                        }
-                    />
-
-                    {/* <Route path="/index"
-                        element={
-                               <IndexPage/>
-                        }
-                    />
-
-                    <Route path="/comment"
-                        element={
-                               <Comment videoId={1} onClose={() => {}} />
-                        }
-                    /> */}
-
                 </Routes>
             </BrowserRouter>
             </UploadProvider>

@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.reely.modules.auth.dto.PaginationResponse;
+import com.reely.modules.user.dto.UpdateProfileRequest;
 import com.reely.modules.user.dto.UpdateUserRequest;
 import com.reely.modules.user.dto.UserDTO;
 import com.reely.modules.user.service.UserService;
@@ -55,5 +56,11 @@ public class UserController {
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
         this.userService.deleteUser(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/me")
+    public ResponseEntity<UserDTO> updateUserProfile(@RequestBody UpdateProfileRequest request) {
+        UserDTO userDTO = this.userService.updateUserProfile(request);
+        return ResponseEntity.ok(userDTO);
     }
 }
