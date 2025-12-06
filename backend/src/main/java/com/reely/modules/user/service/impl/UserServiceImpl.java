@@ -2,6 +2,7 @@ package com.reely.modules.user.service.impl;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -23,14 +24,21 @@ import com.reely.modules.user.repository.RoleRepository;
 import com.reely.modules.user.repository.UserRepository;
 import com.reely.modules.user.service.UserService;
 
+import io.minio.GetPresignedObjectUrlArgs;
+import io.minio.MinioClient;
+import io.minio.http.Method;
+
 @Service
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
+    private final MinioClient minioClient;
+    private final String bucketName = "avatar";
 
-    public UserServiceImpl(UserRepository userRepository, RoleRepository roleRepository) {
+    public UserServiceImpl(MinioClient minioClient, UserRepository userRepository, RoleRepository roleRepository) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
+        this.minioClient = minioClient;
     }
 
     @Override
@@ -168,6 +176,7 @@ public class UserServiceImpl implements UserService {
         String email = authentication.getName();
         User user = this.userRepository.findByEmail(email).get();
 
+        user.setAvatarUrl(request.getAvatarUrl());
         user.setUsername(request.getUsername());
         user.setDisplayName(request.getDisplayName());
         user.setBio(request.getBio());
