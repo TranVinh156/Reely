@@ -2,6 +2,8 @@ package com.reely.modules.interaction.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.reely.config.RabbitMQConfig;
+import com.reely.modules.feed.entity.Video;
+import com.reely.modules.feed.repository.VideoRepository;
 import com.reely.modules.interaction.dto.CommentRequestDto;
 import com.reely.modules.interaction.dto.CommentResponseDto;
 import com.reely.modules.interaction.dto.PaginationResponse;
@@ -11,8 +13,6 @@ import com.reely.modules.notification.dto.NotificationRequestDto;
 import com.reely.modules.notification.enums.NotificationType;
 import com.reely.modules.user.entity.User;
 import com.reely.modules.user.repository.UserRepository;
-import com.reely.modules.video.VideoRepository;
-import com.reely.modules.video.entity.Video;
 import jakarta.transaction.Transactional;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.data.domain.Page;
@@ -59,13 +59,13 @@ public class CommentServiceImpl implements CommentService {
                     Comment.builder()
                             .user(user.get())
                             .video(video.get())
-                            .created_at(Instant.now())
-                            .updated_at(Instant.now())
+                            .createdAt(Instant.now())
+                            .updatedAt(Instant.now())
                             .rootComment(rootComment)
                             .text(commentRequestDTO.getText())
                             .replyToComment(replyToComment)
                             .replyCount(0)
-                            .deleted_flag(0)
+                            .deletedFlag(0)
                             .build()
 
             );
@@ -104,7 +104,7 @@ public class CommentServiceImpl implements CommentService {
     }
 
     public PaginationResponse<CommentResponseDto> getRepliesByRootCommentId(Long commentId, int page, int size) {
-        Page<Comment> repliesPage = commentRepository.findByRootComment_Id(commentId, PageRequest.of(page, size));
+        Page<Comment> repliesPage = commentRepository.findByRootComment_IdOrderByCreatedAtDesc(commentId, PageRequest.of(page, size));
         List<Comment> replies = repliesPage.getContent();
 
         return new PaginationResponse<>(
@@ -122,7 +122,7 @@ public class CommentServiceImpl implements CommentService {
                 .map(commentInDb -> {
                     if(commentRequestDTO.getText() != null && !commentRequestDTO.getText().isEmpty()) {
                         commentInDb.setText(commentRequestDTO.getText());
-                        commentInDb.setUpdated_at(Instant.now());
+                        commentInDb.setUpdatedAt(Instant.now());
                     }
                     return  commentRepository.save(commentInDb);
                 })
@@ -137,7 +137,7 @@ public class CommentServiceImpl implements CommentService {
             rootComment.setReplyCount(rootComment.getReplyCount() - 1);
             commentRepository.save(rootComment);
         } else {
-            List<Comment> childComments = commentRepository.findByRootComment_Id(commentId, PageRequest.of(0, 10)).getContent();
+            List<Comment> childComments = commentRepository.findByRootComment_IdOrderByCreatedAtDesc(commentId, PageRequest.of(0, 10)).getContent();
             childComments.forEach((childComment) -> {
                 commentRepository.delete(childComment);
             }) ;

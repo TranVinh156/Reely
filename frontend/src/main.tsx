@@ -9,6 +9,11 @@ import App from "./App";
 import AuthGuard from "./components/Auth/AuthGuard";
 import GuestGuard from "./components/Auth/GuestGuard";
 import UserProfile from "./pages/UserProfile";
+import UploadPage from "./pages/UploadPage";
+import Notification from "./components/Notification/Notification";
+import { UploadProvider } from "./hooks/upload/useUploadVideo";
+import IndexPage from "./pages";
+import Comment from "./components/Comment/Comment";
 
 const queryClient = new QueryClient();
 
@@ -19,6 +24,7 @@ if (!root) throw new Error("Root element not found");
 ReactDOM.createRoot(root).render(
     <QueryClientProvider client={queryClient}>
         <AuthProvider>
+             <UploadProvider>
             <BrowserRouter>
                 <Routes>
                     <Route
@@ -56,6 +62,7 @@ ReactDOM.createRoot(root).render(
 
                 </Routes>
             </BrowserRouter>
+            </UploadProvider>
         </AuthProvider>
     </QueryClientProvider>,
 );

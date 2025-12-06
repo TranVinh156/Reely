@@ -1,8 +1,8 @@
 package com.reely.modules.interaction.entity;
 
+import com.reely.modules.feed.entity.Video;
 import com.reely.modules.user.dto.UserDTO;
 import com.reely.modules.user.entity.User;
-import com.reely.modules.video.entity.Video;
 import jakarta.persistence.*;
 import lombok.*;
 import org.w3c.dom.Text;
@@ -36,20 +36,20 @@ public class Comment {
     private Comment replyToComment;
 
     private Integer replyCount;
-    private Integer deleted_flag;
+    private Integer deletedFlag;
     private String text;
-    private Instant created_at;
-    private Instant updated_at;
+    private Instant createdAt;
+    private Instant updatedAt;
 
     @PrePersist
     public void prePersist() {
-        created_at = Instant.now();
-        updated_at = Instant.now();
+        createdAt = Instant.now();
+        updatedAt = Instant.now();
     }
 
     @PreUpdate
     public void preUpdate() {
-        updated_at = Instant.now();
+        updatedAt = Instant.now();
     }
 
 }

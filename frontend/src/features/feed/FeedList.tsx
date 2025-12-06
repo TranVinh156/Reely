@@ -1,6 +1,6 @@
 import VideoCard from "../../components/Video/VideoCard.tsx";
-import { useInfiniteFeed } from "../../hooks/useInfiniteFeed.ts";
-import { useFeedAutoPause } from "../../hooks/useFeedAutoPause.ts"; // implemented below
+import { useInfiniteFeed } from "../../hooks/feed/useInfiniteFeed.ts";
+import { useFeedAutoPause } from "../../hooks/feed/useFeedAutoPause.ts"; // implemented below
 
 export default function FeedList() {
   const { videos, loaderRef, isLoading } = useInfiniteFeed();
