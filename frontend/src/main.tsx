@@ -50,10 +50,9 @@ ReactDOM.createRoot(root).render(
                     <Route
                         path="/users/:username"
                         element={
-                            <UserProfile/>
+                            <UserProfile />
                         }
                     />
-
 
                 </Routes>
             </BrowserRouter>
