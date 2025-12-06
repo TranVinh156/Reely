@@ -4,7 +4,8 @@ import axiosClient from "@/utils/axios.client"
 interface UpdateProfileRequest {
     username: string,
     displayName: string,
-    bio: string
+    bio: string,
+    avatarUrl?: string
 }
 
 export const getUserByUsername = async (username: string): Promise<User> => {

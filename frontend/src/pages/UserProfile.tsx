@@ -7,6 +7,7 @@ import useGetUserByUsername from "@/hooks/user/useGetUserByUsername"
 import useFollow from "@/hooks/follow/useFollow"
 import useUnfollow from "@/hooks/follow/useUnfollow"
 import useIsFollowing from "@/hooks/follow/useIsFollowing"
+import { useUpload } from "@/hooks/upload/useUploadVideo"
 import { Link } from "react-router-dom"
 import { UserIcon } from "lucide-react"
 import { useState } from "react"
@@ -20,6 +21,7 @@ const UserProfile = () => {
     const { user: currentUser } = useAuth()
     const [modalTab, setModalTab] = useState<ModalTab>(null)
     const [isEditProfileOpen, setIsEditProfileOpen] = useState(false)
+    const storageUrl = 'http://localhost:9000'
 
     const { data: user, error, isLoading, isError } = useGetUserByUsername(params.username || "")
     const { data: followingCount = 0 } = useGetFollowingCount(user?.id || 0)
@@ -73,11 +75,15 @@ const UserProfile = () => {
     } else {
         content = (
             <div className="user-info flex gap-6">
-                {!user?.avatarUrl &&
-                    <div className="bg-white w-35 h-35 rounded-full flex items-center justify-center">
-                        <UserIcon className="text-black" size={80} />
-                    </div>
-                }
+                <div className="w-35 h-35">
+                    {!user?.avatarUrl ?
+                        <div className="bg-white w-full h-full rounded-full flex items-center justify-center">
+                            <UserIcon className="text-black" size={80} />
+                        </div>
+                    :
+                        <img src={`${storageUrl}/${user?.avatarUrl}`} alt={user?.username} className="w-full h-full rounded-full object-cover" />
+                    }
+                </div>
                 <div>
                     <div className="flex gap-4 items-center">
                         <p className="font-bold text-xl">@{user?.username}</p>

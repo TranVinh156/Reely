@@ -24,44 +24,51 @@ if (!root) throw new Error("Root element not found");
 ReactDOM.createRoot(root).render(
     <QueryClientProvider client={queryClient}>
         <AuthProvider>
-             <UploadProvider>
-            <BrowserRouter>
-                <Routes>
-                    <Route
-                        path="/login"
-                        element={
-                            <GuestGuard>
-                                <LoginPage />
-                            </GuestGuard>
-                        }
-                    />
-                    <Route
-                        path="/register"
-                        element={
-                            <GuestGuard>
-                                <RegisterPage />
-                            </GuestGuard>
-                        }
-                    />
+            <UploadProvider>
+                <BrowserRouter>
+                    <Routes>
+                        <Route
+                            path="/login"
+                            element={
+                                <GuestGuard>
+                                    <LoginPage />
+                                </GuestGuard>
+                            }
+                        />
+                        <Route
+                            path="/register"
+                            element={
+                                <GuestGuard>
+                                    <RegisterPage />
+                                </GuestGuard>
+                            }
+                        />
 
-                    <Route
-                        path="/"
-                        element={
-                            <AuthGuard>
+                        <Route
+                            path="/"
+                            element={
                                 <App />
-                            </AuthGuard>
-                        }
-                    />
+                            }
+                        />
 
-                    <Route
-                        path="/users/:username"
-                        element={
-                            <UserProfile />
-                        }
-                    />
+                        <Route
+                            path="/upload"
+                            element={
+                                <AuthGuard>
+                                    <UploadPage />
+                                </AuthGuard>
+                            }
+                        />
 
-                </Routes>
-            </BrowserRouter>
+                        <Route
+                            path="/users/:username"
+                            element={
+                                <UserProfile />
+                            }
+                        />
+
+                    </Routes>
+                </BrowserRouter>
             </UploadProvider>
         </AuthProvider>
     </QueryClientProvider>,
