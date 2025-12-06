@@ -48,7 +48,7 @@ public class UploadServiceImpl implements UploadService {
                             .expiry(EXPIRY_TIME)
                             .build());
 
-            String fileUrl = String.format("%s/%s/%s", minioUrl, bucketName, objectName);
+            String fileUrl = String.format("%s/%s", bucketName, objectName);
 
             return PresignedUrlResponse.builder()
                     .uploadUrl(uploadUrl)
