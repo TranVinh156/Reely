@@ -30,12 +30,11 @@ services:
       MINIO_ROOT_USER: admin
       MINIO_ROOT_PASSWORD: verysecret
     volumes:
-      - D:/minio_data:/data
+      - minio_data:/data
     ports:
       - "9000:9000"
       - "9001:9001"
     command: server /data --console-address ":9001"
-
 
 networks:
   reely-network:
@@ -43,3 +42,4 @@ networks:
 
 volumes:
   rabbitmq_data:
+  minio_data:
