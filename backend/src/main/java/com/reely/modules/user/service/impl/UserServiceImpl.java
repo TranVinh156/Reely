@@ -6,11 +6,14 @@ import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import com.reely.modules.auth.dto.PaginationResponse;
 import com.reely.modules.auth.dto.RegistrationRequest;
+import com.reely.modules.user.dto.UpdateProfileRequest;
 import com.reely.modules.user.dto.UpdateUserRequest;
 import com.reely.modules.user.dto.UserDTO;
 import com.reely.modules.user.entity.Role;
@@ -59,6 +62,7 @@ public class UserServiceImpl implements UserService {
         User user = new User();
         user.setEmail(request.getEmail());
         user.setUsername(request.getUsername());
+        user.setDisplayName(request.getDisplayName());
         user.setPasswordHash(request.getPassword());
         user.setRole(role);
 
@@ -155,5 +159,20 @@ public class UserServiceImpl implements UserService {
             throw new RuntimeException("User with username " + username + " not found.");
         }
         return this.convertToDto(user.get(0));
+    }
+
+    @Override
+    public UserDTO updateUserProfile(UpdateProfileRequest request) {
+        // TODO Auto-generated method stub
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = authentication.getName();
+        User user = this.userRepository.findByEmail(email).get();
+
+        user.setUsername(request.getUsername());
+        user.setDisplayName(request.getDisplayName());
+        user.setBio(request.getBio());
+
+        this.userRepository.save(user);
+        return this.convertToDto(user);
     }
 }

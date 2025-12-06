@@ -2,6 +2,7 @@ package com.reely.modules.user.service;
 
 import com.reely.modules.auth.dto.PaginationResponse;
 import com.reely.modules.auth.dto.RegistrationRequest;
+import com.reely.modules.user.dto.UpdateProfileRequest;
 import com.reely.modules.user.dto.UpdateUserRequest;
 import com.reely.modules.user.dto.UserDTO;
 import com.reely.modules.user.entity.Role;
@@ -31,5 +32,7 @@ public interface UserService {
     UserDTO convertToDto(User user);
 
     Role getUserRole(Long id);
+
+    UserDTO updateUserProfile(UpdateProfileRequest request);
 
 }
