@@ -5,17 +5,12 @@ import io.minio.MakeBucketArgs;
 import io.minio.MinioClient;
 import io.minio.SetBucketPolicyArgs;
 import jakarta.annotation.PostConstruct;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
 public class MinioBucketInitializer {
 
-
     private final MinioClient minioClient;
-
-    @Value("${minio.bucket-name}")
-    private String bucketName;
 
     public MinioBucketInitializer(MinioClient minioClient) {
         this.minioClient = minioClient;
@@ -23,10 +18,14 @@ public class MinioBucketInitializer {
 
     @PostConstruct
     public void init() {
+        createBucket("avatars");
+        createBucket("videos");
+    }
+
+    private void createBucket(String bucketName) {
         try {
             boolean exists = minioClient.bucketExists(
-                    BucketExistsArgs.builder().bucket(bucketName).build()
-            );
+                    BucketExistsArgs.builder().bucket(bucketName).build());
 
             if (!exists) {
                 minioClient.makeBucket(
@@ -35,34 +34,32 @@ public class MinioBucketInitializer {
                                 .build());
 
                 String policy = """
-                {
-                  "Version": "2012-10-17",
-                  "Statement": [
-                    {
-                      "Effect": "Allow",
-                      "Principal": {"AWS": ["*"]},
-                      "Action": ["s3:GetObject"],
-                      "Resource": ["arn:aws:s3:::%s/*"]
-                    }
-                  ]
-                }
-                """.formatted(bucketName);
+                        {
+                          "Version": "2012-10-17",
+                          "Statement": [
+                            {
+                              "Effect": "Allow",
+                              "Principal": {"AWS": ["*"]},
+                              "Action": ["s3:GetObject"],
+                              "Resource": ["arn:aws:s3:::%s/*"]
+                            }
+                          ]
+                        }
+                        """.formatted(bucketName);
 
                 minioClient.setBucketPolicy(
                         SetBucketPolicyArgs.builder()
                                 .bucket(bucketName)
                                 .config(policy)
-                                .build()
-                );
-            
-                System.out.println("Bucket '" + bucketName + "' đã được tạo!");
+                                .build());
+
+                System.out.println("Bucket '" + bucketName + "' created successfully!");
             } else {
-                System.out.println("Bucket '" + bucketName + "' đã tồn tại.");
+                System.out.println("Bucket '" + bucketName + "' already exists.");
             }
         } catch (Exception e) {
             e.printStackTrace();
-            throw new RuntimeException("Lỗi khi khởi tạo bucket MinIO", e);
+            throw new RuntimeException("Error initializing MinIO bucket: " + bucketName, e);
         }
     }
 }
-

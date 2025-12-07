@@ -28,18 +28,21 @@ public class ReelyApplication {
 				.route("api-service", p -> p
 						.path("/hello")
 						.uri(backendUrl))
-                .route("api-service", p -> p
-                        .path("/api/v1/notifications/**")
-                        .uri(backendUrl))
-                .route("api-service", p -> p
-                        .path("/api/v1/comments/**")
-                        .uri(backendUrl))
-                .route("api-service", p -> p
-                        .path("/api/v1/videos/**")
-                        .uri(backendUrl))
-                .route("api-service", p -> p
-                        .path("/api/v1/reports/**")
-                        .uri(backendUrl))
+				.route("api-service", p -> p
+						.path("/api/v1/notifications/**")
+						.uri(backendUrl))
+				.route("api-service", p -> p
+						.path("/api/v1/comments/**")
+						.uri(backendUrl))
+				.route("api-service", p -> p
+						.path("/api/v1/videos/**")
+						.uri(backendUrl))
+				.route("api-service", p -> p
+						.path("/api/v1/reports/**")
+						.uri(backendUrl))
+				.route("upload-service", p -> p
+						.path("/api/v1/upload/**")
+						.uri(backendUrl))
 				.build();
 	}
 }

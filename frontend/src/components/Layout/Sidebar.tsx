@@ -1,4 +1,4 @@
-import { Bell, Compass, MessageCircle, Search, Sparkle, User as UserIcon, UserRoundPlus, Users } from "lucide-react";
+import { Bell, Upload, Compass, MessageCircle, Search, Sparkle, User as UserIcon, UserRoundPlus, Users } from "lucide-react";
 import Logo from "./Logo";
 import { NavLink } from "react-router-dom";
 import type { User } from "@/types/user";
@@ -31,7 +31,8 @@ const NAV_ITEMS: NavItem[] = [
   { icon: <UserRoundPlus />, text: "Following", link: "/" },
   { icon: <Users />, text: "Friend", link: "/" },
   { icon: <MessageCircle />, text: "Message", link: "/" },
-  { icon: <Bell />, text: "Notification", link: "/" }
+  { icon: <Bell />, text: "Notification", link: "/" },
+  { icon: <Upload />, text: "Upload", link: "/upload"}
 ]
 export default function Sidebar() {
   const { user, isAuthenticated } = useAuth()
