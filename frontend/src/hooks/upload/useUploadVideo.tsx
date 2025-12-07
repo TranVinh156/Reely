@@ -19,9 +19,10 @@ export const UploadProvider = ({ children }: { children: React.ReactNode }) => {
 
         setUploading(true);
         try {
-            const urlResponse = await axiosClient.post(`/videos/presigned-url?videoname=${file.name}`, {
+            const url = await axiosClient.get(`/upload/video?fileName=${file.name}`, {
             }).then(res => res.data);
 
+            const urlResponse = url.uploadUrl;
             console.log("Presigned URL:", urlResponse);
 
             await axios.put(urlResponse, file, {

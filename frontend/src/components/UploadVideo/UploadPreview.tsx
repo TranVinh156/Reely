@@ -32,7 +32,13 @@ const UploadPreview: React.FC<Props> = ({file, handleCancel, thumbnail }) => {
         <div className="text-center rounded-xl m-auto max-w-screen-xl text-white gap-y-10 flex flex-col">
             <div className="flex justify-between p-5 bg-[#181C32] items-center">
                 <div className="flex ">
-                    <img src={thumbnail} alt="" className="w-25 h-35 rounded-sm"/>
+                    <div className="w-25 h-35 bg-black rounded-sm overflow-hidden flex items-center justify-center">
+                        <img 
+                            src={thumbnail} 
+                            alt="" 
+                            className="w-full h-full object-cover"
+                        />
+                    </div>
                     <div className="flex flex-col justify-center items-start ml-6">
                         <p className="text-base sm:text-lg font-semibold mb-2 text-white truncate">{file?.name}</p>
                         <p className="text-sm sm:text-base text-white/60"> {
