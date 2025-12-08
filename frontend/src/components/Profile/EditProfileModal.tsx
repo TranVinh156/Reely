@@ -87,7 +87,7 @@ const EditProfileModal = ({ isOpen, onClose }: EditProfileModalProps) => {
 
     return (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-            <div className="bg-primary-hover w-full max-w-2xl rounded-2xl overflow-hidden shadow-xl flex flex-col max-h-[90vh]">
+            <div className="bg-primary w-full max-w-2xl rounded-2xl overflow-hidden shadow-xl flex flex-col max-h-[90vh]">
                 <div className="p-6 border-b border-gray-800 flex justify-between items-center">
                     <h2 className="text-xl font-bold text-white">Edit Profile</h2>
                     <button onClick={onClose} className="text-gray-400 hover:text-white transition-colors">
