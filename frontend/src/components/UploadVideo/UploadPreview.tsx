@@ -1,8 +1,9 @@
 import React, { useContext } from "react";
 import { X } from "lucide-react";
-import { NavLink } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/auth/useAuth";
 import { UploadContext, useUpload } from "@/hooks/upload/useUploadVideo";
+import CircularProgress from "./CircularProgress";
 
 
 interface Props {
@@ -16,20 +17,31 @@ const UploadPreview: React.FC<Props> = ({file, handleCancel, thumbnail }) => {
     const [title, setTitle] = React.useState("");
     const [description, setDescription] = React.useState("");
     const {user} = useAuth();
+    const navigate = useNavigate();
 
-    const {uploadVideo} = useUpload();
+    const {uploadVideo, uploading, progress} = useUpload();
     const handlePublish = async () => {
         if (!file) return;
 
         try {
-            const result = await uploadVideo(user?.id, title.trim(), description.trim(), file);
+            await uploadVideo(user?.id, title.trim(), description.trim(), file);
             handleCancel();
+            navigate(`/users/${user?.username}`);
         } catch (err) {
             console.error('Upload failed:', err);
         } 
     }
     return (
         <div className="text-center rounded-xl m-auto max-w-screen-xl text-white gap-y-10 flex flex-col">
+            {uploading && (
+                <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
+                    <div className="flex flex-col items-center gap-4">
+                        <CircularProgress progress={progress} size={100} strokeWidth={8} />
+                        <p className="text-white text-lg font-semibold">Uploading... {progress}%</p>
+                    </div>
+                </div>
+            )}
+            
             <div className="flex justify-between p-5 bg-[#181C32] items-center">
                 <div className="flex ">
                     <div className="w-25 h-35 bg-black rounded-sm overflow-hidden flex items-center justify-center">
@@ -85,16 +97,18 @@ const UploadPreview: React.FC<Props> = ({file, handleCancel, thumbnail }) => {
                 </div>
 
                 <div className="flex flex-col sm:flex-row justify-end gap-4 mt-6">
-                    <NavLink to={`/users/${user?.username}`} 
+                    <button
                         onClick={handlePublish}
-                        className="bg-[#FE2C55] cursor-pointer hover:bg-[#FE2C55]/80 text-white font-semibold py-2 px-4 rounded flex-1">
+                        disabled={uploading || !title.trim()}
+                        className="bg-[#FE2C55] cursor-pointer hover:bg-[#FE2C55]/80 text-white font-semibold py-2 px-4 rounded flex-1 disabled:opacity-50 disabled:cursor-not-allowed">
                         Publish Video
-                    </NavLink>
+                    </button>
 
                     <div></div>
                     <button 
                     onClick={handleCancel}
-                    className="bg-gray-600 cursor-pointer hover:bg-gray-700 text-white font-semibold py-2 px-4 rounded flex-1" >
+                    disabled={uploading}
+                    className="bg-gray-600 cursor-pointer hover:bg-gray-700 text-white font-semibold py-2 px-4 rounded flex-1 disabled:opacity-50 disabled:cursor-not-allowed" >
                     Cancel
                     </button>
                     
