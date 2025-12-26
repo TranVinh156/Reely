@@ -9,7 +9,6 @@ const NavigateBarUpload: React.FC = () => {
     const { user } = useAuth();
     const storageUrl = 'http://localhost:9000'
 
-
     return (
         <nav className="flex items-center justify-between p-4 bg-[#181C32] text-white ">
             <div className="flex items-center justify-between w-full px-2">
