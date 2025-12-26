@@ -15,6 +15,7 @@ import { UploadProvider } from "./hooks/upload/useUploadVideo";
 import IndexPage from "./pages/FeedPage";
 import Comment from "./components/Comment/Comment";
 import FeedPage from "./pages/FeedPage";
+import ForgetPasswordPage from "./pages/ForgetPasswordPage";
 
 const queryClient = new QueryClient();
 
@@ -68,7 +69,12 @@ ReactDOM.createRoot(root).render(
                             }
                         />
 
-
+                        <Route
+                            path="/password/reset"
+                            element={
+                                <ForgetPasswordPage />
+                            }
+                        />
                     </Routes>
                 </BrowserRouter>
             </UploadProvider>
