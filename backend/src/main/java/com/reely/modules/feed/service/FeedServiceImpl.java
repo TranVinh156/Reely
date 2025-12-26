@@ -56,7 +56,7 @@ public class FeedServiceImpl implements FeedService {
         if (followeeIds.isEmpty())
             return getPublicFeed(pageable);
 
-        Page<Video> page = videoRepository.findFollowedFeed(followeeIds, pageable);
+        Page<Video> page = videoRepository.findFeedForUser(followeeIds, pageable);
         List<FeedVideoDTO> content = mapVideosToDTO(page.getContent(), userId);
         return buildFeedResponse(page, content);
     }

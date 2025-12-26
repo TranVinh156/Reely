@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import type { RefObject } from "react"
-import { useFeedStore } from "../store/feedStore";
+import { useFeedStore } from "../../store/feedStore";
 import { preloadUrl } from "./usePreloadRendition";
 
 export function useVideoController(videoRef: RefObject<HTMLVideoElement | null>, id: string) {

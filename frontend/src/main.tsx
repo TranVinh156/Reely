@@ -9,6 +9,12 @@ import App from "./App";
 import AuthGuard from "./components/Auth/AuthGuard";
 import GuestGuard from "./components/Auth/GuestGuard";
 import UserProfile from "./pages/UserProfile";
+import UploadPage from "./pages/UploadPage";
+import Notification from "./components/Notification/Notification";
+import { UploadProvider } from "./hooks/upload/useUploadVideo";
+import IndexPage from "./pages/FeedPage";
+import Comment from "./components/Comment/Comment";
+import FeedPage from "./pages/FeedPage";
 
 const queryClient = new QueryClient();
 
@@ -19,44 +25,53 @@ if (!root) throw new Error("Root element not found");
 ReactDOM.createRoot(root).render(
     <QueryClientProvider client={queryClient}>
         <AuthProvider>
-            <BrowserRouter>
-                <Routes>
-                    <Route
-                        path="/login"
-                        element={
-                            <GuestGuard>
-                                <LoginPage />
-                            </GuestGuard>
-                        }
-                    />
-                    <Route
-                        path="/register"
-                        element={
-                            <GuestGuard>
-                                <RegisterPage />
-                            </GuestGuard>
-                        }
-                    />
+            <UploadProvider>
+                <BrowserRouter>
+                    <Routes>
+                        <Route
+                            path="/login"
+                            element={
+                                <GuestGuard>
+                                    <LoginPage />
+                                </GuestGuard>
+                            }
+                        />
+                        <Route
+                            path="/register"
+                            element={
+                                <GuestGuard>
+                                    <RegisterPage />
+                                </GuestGuard>
+                            }
+                        />
 
-                    <Route
-                        path="/"
-                        element={
-                            <AuthGuard>
-                                <App />
-                            </AuthGuard>
-                        }
-                    />
+                        <Route
+                            path="/"
+                            element={
+                                <FeedPage />
+                            }
+                        />
 
-                    <Route
-                        path="/users/:username"
-                        element={
-                            <UserProfile/>
-                        }
-                    />
+                        <Route
+                            path="/upload"
+                            element={
+                                <AuthGuard>
+                                    <UploadPage />
+                                </AuthGuard>
+                            }
+                        />
+
+                        <Route
+                            path="/users/:username"
+                            element={
+                                <UserProfile />
+                            }
+                        />
 
 
-                </Routes>
-            </BrowserRouter>
+                    </Routes>
+                </BrowserRouter>
+            </UploadProvider>
         </AuthProvider>
     </QueryClientProvider>,
 );

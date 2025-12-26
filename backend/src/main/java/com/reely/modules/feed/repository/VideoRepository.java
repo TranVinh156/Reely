@@ -8,32 +8,34 @@ import org.springframework.stereotype.Repository;
 import java.util.*;
 
 @Repository
-public interface VideoRepository  extends JpaRepository<Video, Long> {
+public interface VideoRepository extends JpaRepository<Video, Long> {
 
-    // Feed public
-    @Query("SELECT v FROM Video v WHERE v.visibility = 'PUBLIC' ORDER BY v.createdAt DESC")
-    Page<Video> findPublicFeed(Pageable pageable);
+       // Feed public
+       @Query("SELECT v FROM Video v WHERE v.visibility = 'PUBLIC' ORDER BY v.createdAt DESC")
+       Page<Video> findPublicFeed(Pageable pageable);
 
-    // Feed follower
-    @Query("""
-           SELECT v FROM Video v
-           WHERE v.userId IN :followeeIds
-           AND v.visibility = 'PUBLIC'
-           ORDER BY v.createdAt DESC
-           """)
-    Page<Video> findFollowedFeed(@Param("followeeIds") List<Long> followeeIds, Pageable pageable);
+       // Feed follower
+       @Query("""
+                     SELECT v FROM Video v
+                     WHERE v.userId IN :followeeIds
+                     AND (v.visibility = 'PUBLIC' OR v.visibility = 'FOLLOWERS')
+                     ORDER BY v.createdAt DESC
+                     """)
+       Page<Video> findFeedForUser(@Param("followeeIds") List<Long> followeeIds, Pageable pageable);
 
-    // Feed Trending
-    @Query("""
-           SELECT v FROM Video v
-           WHERE v.visibility = 'PUBLIC'
-           ORDER BY (v.likeCount * 2 + v.viewCount * 0.5 + v.commentCount) DESC
-           """)
-    Page<Video> findTrendingFeed(Pageable pageable);
+       Page<Video> findByUserIdOrderByCreatedAtDesc(Long userId, Pageable pageable);
 
-    // Feed User cu the
-    @Query("SELECT v FROM Video v WHERE v.userId = :userId AND v.visibility = 'PUBLIC' ORDER BY v.createdAt DESC")
-    Page<Video> findByUserId(@Param("userId") Long userId, Pageable pageable);
+       // Feed Trending
+       @Query("""
+                     SELECT v FROM Video v
+                     WHERE v.visibility = 'PUBLIC'
+                     ORDER BY (v.likeCount * 2 + v.viewCount * 0.5 + v.commentCount) DESC
+                     """)
+       Page<Video> findTrendingFeed(Pageable pageable);
 
-    // Feed cá nhân hóa
+       // Feed User cu the
+       @Query("SELECT v FROM Video v WHERE v.userId = :userId AND v.visibility = 'PUBLIC' ORDER BY v.createdAt DESC")
+       Page<Video> findByUserId(@Param("userId") Long userId, Pageable pageable);
+
+       // Feed cá nhân hóa
 }

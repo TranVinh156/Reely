@@ -1,9 +1,9 @@
-import { Bell, Compass, MessageCircle, Search, Sparkle, User as UserIcon, UserRoundPlus, Users } from "lucide-react";
+import { Bell, Upload, Compass, MessageCircle, Search, Sparkle, UserRoundPlus, Users, User2, UserIcon } from "lucide-react";
 import Logo from "./Logo";
 import { NavLink } from "react-router-dom";
-import type { User } from "@/types/user";
 import { useAuth } from "@/hooks/auth/useAuth";
 import useGetFollowing from "@/hooks/follow/useGetFollowing";
+import type { User } from "@/types/user";
 
 interface NavItem {
   icon: any
@@ -25,17 +25,18 @@ const FollowingCard = ({ follower }: { follower: User }) => {
   )
 }
 
-const NAV_ITEMS: NavItem[] = [
-  { icon: <Sparkle />, text: "For You", link: "/" },
-  { icon: <Compass />, text: "Explore", link: "/" },
-  { icon: <UserRoundPlus />, text: "Following", link: "/" },
-  { icon: <Users />, text: "Friend", link: "/" },
-  { icon: <MessageCircle />, text: "Message", link: "/" },
-  { icon: <Bell />, text: "Notification", link: "/" }
-]
 export default function Sidebar() {
   const { user, isAuthenticated } = useAuth()
   const { data: following = [] } = useGetFollowing(user?.id || 0)
+
+  const NAV_ITEMS: NavItem[] = [
+    { icon: <Sparkle />, text: "For You", link: "/" },
+    { icon: <Compass />, text: "Explore", link: "/" },
+    { icon: <UserRoundPlus />, text: "Following", link: "/" },
+    { icon: <User2 />, text: "Profile", link: user ? `/users/${user.username}` : "/login" },
+    { icon: <Bell />, text: "Notification", link: "/" },
+    { icon: <Upload />, text: "Upload", link: "/upload" }
+  ]
 
   return (
     <aside className="max-w-75 bg-primary p-4 md:p-6 text-white">
