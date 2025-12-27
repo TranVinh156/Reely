@@ -22,7 +22,7 @@ export const useFeedStore = create<FeedState>((set) => ({
   liked: {},
   saved: {},
   currentIndex: 0,
-  setCurrentIndex: (i) => (() => ({currentIndex: i})),
+  setCurrentIndex: (i) => set(() => ({ currentIndex: i })),
   toggleAutoScroll: () => set((s) => ({ autoScroll: !s.autoScroll })),
   toggleAutoPlay: () => set((s) => ({ autoPlay: !s.autoPlay })),
   toggleSubtitle: () => set((s) => ({ subtitleOn: !s.subtitleOn })),

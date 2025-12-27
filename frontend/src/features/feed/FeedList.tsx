@@ -8,15 +8,19 @@ export default function FeedList() {
   useFeedAutoPause();
 
   if (isLoading) {
-    return (
-      <LoadingPage />
-    )
+    return <LoadingPage />;
   }
 
   return (
-    <div className="flex flex-col items-center w-full">
-      {videos.map((v) => (
-        <div key={v.id} className="feed-item w-full">
+    <div className="flex w-full flex-col items-center">
+      {videos.map((v, idx) => (
+        <div
+          key={v.id}
+          className="feed-item w-full"
+          data-feed-item
+          data-video-id={v.id}
+          data-feed-index={idx}
+        >
           <VideoCard video={v} />
         </div>
       ))}

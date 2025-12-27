@@ -26,12 +26,17 @@ export default function VideoPlayer({
   const { togglePlay, isPlaying, muted, toggleMute, volume, setVol } =
     useVideoController(ref, video.id);
 
-  useVideoHotkeys(ref);
+  useVideoHotkeys();
 
   useEffect(() => {
     // ensure metadata preloaded
     if (ref.current) ref.current.preload = "metadata";
   }, []);
+
+  // useEffect(() => {
+  //   if (!ref.current) return;
+  //   ref.current.dataset.seeking = isSeeking ? "1" : "0";
+  // }, [isSeeking]);
 
   const handleLoadedMetadata = () => {
     if (ref.current && onOrientationChange) {
@@ -55,11 +60,14 @@ export default function VideoPlayer({
       className={`relative h-full w-full overflow-hidden transition-opacity duration-300 ${
         isPlaying ? "opacity-100" : "opacity-50"
       } ${className ?? ""}`}
+      onClick={() => togglePlay()}
     >
       <video
         ref={ref}
         onLoadedMetadata={handleLoadedMetadata}
         data-id={video.id}
+        data-video-el
+        data-video-id={video.id}
         src={video.src}
         poster={video.poster}
         playsInline
@@ -78,7 +86,7 @@ export default function VideoPlayer({
           className={`bg-red pointer-events-none h-18 w-18 text-4xl opacity-100 ${isPlaying ? "" : "icon-[solar--play-bold]"}`}
         ></div>
       </button> */}
-      
+
       <VideoControls
         username={video.user.username}
         description={video.description}
@@ -97,7 +105,6 @@ export default function VideoPlayer({
       />
 
       {/* simple overlay: click to toggle */}
-      
 
       {/* simple overlay: click to toggle */}
       {/* <button

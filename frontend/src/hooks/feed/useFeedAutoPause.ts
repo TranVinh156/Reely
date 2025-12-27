@@ -1,173 +1,165 @@
+import { useEffect, useRef } from "react";
 import { useFeedStore } from "@/store/feedStore";
-import { useEffect } from "react";
-import { animate } from "framer-motion";
 
-/**
- * This hook finds the video element closest to the center of viewport and plays it.
- * Others are paused. It's placed in shared hooks so it can be reused by other pages.
- */
+const ACTIVE_RATIO = 2 / 3; // 0.666...
+
 export function useFeedAutoPause() {
+  const autoPlay = useFeedStore((s) => s.autoPlay);
   const autoScroll = useFeedStore((s) => s.autoScroll);
   const setCurrentIndex = useFeedStore((s) => s.setCurrentIndex);
 
+  const activeRef = useRef<HTMLVideoElement | null>(null);
+  const endedBoundRef = useRef<WeakSet<HTMLVideoElement>>(new WeakSet());
+
   useEffect(() => {
-    let raf = 0;
-    let scrollRaf = 0;
-    const scroller = document.querySelector(
-      "[data-feed-scroller]"
-    ) as HTMLElement | null;
+    const scroller = document.querySelector("[data-feed-scroller]") as HTMLElement | null;
 
-    // Smoothly scroll the scroller (or window) so that `el` lands at the visual center.
-    const smoothScrollToCenter = (
-      el: HTMLElement,
-      container: HTMLElement | null,
-      opts: { duration?: number; easing?: (t: number) => number } = {},
-    ) => {
-      const duration = opts.duration ?? 650; // ms
-      const easing =
-        opts.easing ??
-        ((t: number) =>
-          // easeInOutCubic
-          t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+    const getVideos = () =>
+      Array.from(
+        document.querySelectorAll<HTMLVideoElement>(
+          'video[data-video-el][data-video-id], video[data-id]'
+        )
+      );
 
-      const startTime = performance.now();
+    const getKey = (v: HTMLVideoElement) =>
+      v.getAttribute("data-video-id") ?? v.getAttribute("data-id") ?? "";
 
-      if (container) {
-        const start = container.scrollTop;
-        const contRect = container.getBoundingClientRect();
-        const elRect = el.getBoundingClientRect();
-        const centerOffset =
-          (elRect.top - contRect.top) + elRect.height / 2 - container.clientHeight / 2;
-        const target = start + centerOffset;
+    const pauseAll = () => {
+      for (const v of getVideos()) {
+        try {
+          v.pause();
+        } catch {}
+        v.dataset.active = "0";
+      }
+      activeRef.current = null;
+    };
 
-        // Temporarily disable scroll-snap to avoid fighting the animation
-        const prevSnap = container.style.scrollSnapType;
-        container.style.scrollSnapType = "none";
-
-        const step = (now: number) => {
-          const t = Math.min(1, (now - startTime) / duration);
-          const p = easing(t);
-          const value = start + (target - start) * p;
-          container.scrollTop = value;
-          if (t < 1) {
-            scrollRaf = requestAnimationFrame(step);
-          } else {
-            // restore snapping
-            container.style.scrollSnapType = prevSnap;
-          }
-        };
-        if (scrollRaf) cancelAnimationFrame(scrollRaf);
-        scrollRaf = requestAnimationFrame(step);
-      } else {
-        const start = window.scrollY || document.documentElement.scrollTop || 0;
-        const elRect = el.getBoundingClientRect();
-        const centerOffset = elRect.top + elRect.height / 2 - window.innerHeight / 2;
-        const target = start + centerOffset;
-
-        const step = (now: number) => {
-          const t = Math.min(1, (now - startTime) / duration);
-          const p = easing(t);
-          const value = start + (target - start) * p;
-          window.scrollTo({ top: value, behavior: "auto" });
-          if (t < 1) {
-            scrollRaf = requestAnimationFrame(step);
-          }
-        };
-        if (scrollRaf) cancelAnimationFrame(scrollRaf);
-        scrollRaf = requestAnimationFrame(step);
+    const pauseOthers = (active: HTMLVideoElement) => {
+      for (const v of getVideos()) {
+        if (v === active) continue;
+        try {
+          v.pause();
+        } catch {}
+        v.dataset.active = "0";
       }
     };
 
-    const handle = () => {
-      // throttle via rAF
-      if (raf) cancelAnimationFrame(raf);
-      raf = requestAnimationFrame(() => {
-        const videos = Array.from(
-          document.querySelectorAll("video[data-id]"),
-        ) as HTMLVideoElement[];
-        if (videos.length === 0) return;
+    const tryPlay = async (v: HTMLVideoElement) => {
+      if (!autoPlay) return;
+      try {
+        if (v.paused) await v.play();
+      } catch {
+        // autoplay blocked -> ignore
+      }
+    };
 
-        videos.forEach((v, index) => {
-          v.onended = async () => {
-            if (autoScroll) {
-              const next = videos[index + 1];
+    const smoothScrollToNext = (active: HTMLVideoElement) => {
+      const item = active.closest("[data-feed-item]") as HTMLElement | null;
+      const next = item?.nextElementSibling as HTMLElement | null;
+      if (!next) return;
 
-              // v.style.willChange = "transform, opacity";
-              // if (next) next.style.willChange = "transform, opacity";
+      if (scroller) {
+        const prevSnap = scroller.style.scrollSnapType;
+        scroller.style.scrollSnapType = "none";
+        next.scrollIntoView({ behavior: "smooth", block: "center" });
+        window.setTimeout(() => (scroller.style.scrollSnapType = prevSnap), 450);
+      } else {
+        next.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+    };
 
-              // const out = animate(
-              //   v,
-              //   { y: [0, -80], scale: [1, 0.98], opacity: [1, 0.85] },
-              //   { duration: 0.45, ease: "circOut" },
-              // );
+    const bindEndedOnce = (v: HTMLVideoElement) => {
+      if (endedBoundRef.current.has(v)) return;
+      endedBoundRef.current.add(v);
 
-              if (next) {
-                // const inAnim = animate(
-                //   next,
-                //   { y: [80, 0], scale: [0.985, 1], opacity: [0.95, 1] },
-                //   { duration: 0.45, ease: "circOut", delay: 0.05 },
-                // );
-                // Custom smooth scroll with controlled duration/easing
-                smoothScrollToCenter(next, scroller, { duration: 800 });
-                setCurrentIndex(index + 1);
+      v.addEventListener("ended", () => {
+        if (!autoScroll) return;
+        // chỉ autoScroll khi nó đang active
+        if (activeRef.current !== v) return;
 
-                try {
-                  // await Promise.all([out.finished, inAnim.finished]);
-                } catch {} finally {
-                  // v.style.willChange = "";
-                  // next.style.willChange = "";
-                }
-              } else {
-                setCurrentIndex(index);
-                // try {
-                //   await out.finished;
-                // } catch {} finally {
-                //   v.style.willChange = "";
-                // }
-              }
-            }
-          };
-        });
+        smoothScrollToNext(v);
 
-        let active: HTMLVideoElement | null = null;
-        let minDist = Infinity;
-        // Center of the visible area: use feed scroller if present, fallback to window
-        const viewportCenter = scroller
-          ? scroller.getBoundingClientRect().top + scroller.clientHeight / 2
-          : window.innerHeight / 2;
-
-        videos.forEach((v) => {
-          const rect = v.getBoundingClientRect();
-          const center = rect.top + rect.height / 2;
-          const dist = Math.abs(viewportCenter - center);
-          if (dist < minDist) {
-            minDist = dist;
-            active = v;
-          }
-        });
-
-        videos.forEach((v) => {
-          if (v === active) {
-            // try play
-            if (v.paused) v.play().catch(() => {});
-          } else {
-            if (!v.paused) v.pause();
-          }
-        });
+        const item = v.closest("[data-feed-item]") as HTMLElement | null;
+        const idx = Number(item?.getAttribute("data-feed-index") ?? "0");
+        setCurrentIndex(Number.isFinite(idx) ? idx + 1 : 0);
       });
     };
 
-    handle();
-    // Listen to scroll on the feed scroller if available; otherwise on window
-    if (scroller) scroller.addEventListener("scroll", handle, { passive: true });
-    else window.addEventListener("scroll", handle, { passive: true });
-    window.addEventListener("resize", handle);
-    return () => {
-      if (scroller) scroller.removeEventListener("scroll", handle);
-      else window.removeEventListener("scroll", handle);
-      window.removeEventListener("resize", handle);
-      if (raf) cancelAnimationFrame(raf);
-      if (scrollRaf) cancelAnimationFrame(scrollRaf);
+    const handleActive = async (active: HTMLVideoElement | null) => {
+      if (!active) {
+        pauseAll();
+        return;
+      }
+
+      // active đổi
+      if (activeRef.current !== active) {
+        if (activeRef.current) {
+          try {
+            activeRef.current.pause();
+          } catch {}
+          activeRef.current.dataset.active = "0";
+        }
+        activeRef.current = active;
+      }
+
+      bindEndedOnce(active);
+
+      // set currentIndex từ wrapper (nếu có)
+      const item = active.closest("[data-feed-item]") as HTMLElement | null;
+      const idx = Number(item?.getAttribute("data-feed-index") ?? "0");
+      if (Number.isFinite(idx)) setCurrentIndex(idx);
+
+      // pause others + play active
+      pauseOthers(active);
+      active.dataset.active = "1";
+      await tryPlay(active);
     };
-  }, [autoScroll, setCurrentIndex]);
+
+    const io = new IntersectionObserver(
+      async (entries) => {
+        // chọn video có ratio >= 2/3 và ratio cao nhất
+        let best: { v: HTMLVideoElement; ratio: number } | null = null;
+
+        for (const e of entries) {
+          const v = e.target as HTMLVideoElement;
+          bindEndedOnce(v);
+
+          if (!e.isIntersecting) continue;
+          const ratio = e.intersectionRatio;
+
+          if (ratio >= ACTIVE_RATIO) {
+            if (!best || ratio > best.ratio) best = { v, ratio };
+          }
+        }
+
+        // Không có video nào đủ 2/3 => pause tất cả (đúng yêu cầu)
+        if (!best) {
+          pauseAll();
+          return;
+        }
+
+        await handleActive(best.v);
+      },
+      {
+        root: scroller ?? null,
+        // đặt threshold chứa 0.66 để callback cập nhật đúng lúc “vượt ngưỡng”
+        threshold: [0, 0.33, 0.5, 0.66, 0.8, 1],
+      }
+    );
+
+    const observeAll = () => {
+      const vids = getVideos();
+      for (const v of vids) io.observe(v);
+    };
+    observeAll();
+
+    // support infinite append
+    const mo = new MutationObserver(() => observeAll());
+    mo.observe(scroller ?? document.body, { childList: true, subtree: true });
+
+    return () => {
+      io.disconnect();
+      mo.disconnect();
+    };
+  }, [autoPlay, autoScroll, setCurrentIndex]);
 }
