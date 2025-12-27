@@ -98,7 +98,7 @@ const UploadPreview: React.FC<Props> = ({file, handleCancel, thumbnail, confirmC
             </div>
 
             <div className="flex gap-5 items-start"> 
-                <div className="flex flex-col p-5 bg-[#181C32] justify-start gap-y-10 flex-4 rounded-xl">
+                <div className="flex flex-col p-5 bg-[#181C32] justify-start gap-y-10 flex-5 rounded-xl">
                     <div>
                         <label className="block mb-2 font-medium text-gray-300 text-left">
                             Video Title
