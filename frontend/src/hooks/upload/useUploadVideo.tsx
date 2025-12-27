@@ -4,7 +4,7 @@ import React, { createContext, useContext, useState } from "react";
 import axios from "axios";
 
 interface UploadContextType {
-    uploadVideo: (userId: number | undefined, title: string, description: string, file: File) => Promise<void>;
+    uploadVideo: (userId: number | undefined, title: string, description: string, visibility: string, file: File) => Promise<void>;
     uploading: boolean;
     progress: number;
 }
@@ -14,7 +14,7 @@ export const UploadProvider = ({ children }: { children: React.ReactNode }) => {
     const [uploading, setUploading] = useState(false);
     const [progress, setProgress] = useState(0);
     
-    const uploadVideo = async (userId: number | undefined, title: string, description: string, file: File) => {
+    const uploadVideo = async (userId: number | undefined, title: string, description: string, visibility: string, file: File) => {
         if (!file) return;
 
         setUploading(true);
@@ -46,7 +46,7 @@ export const UploadProvider = ({ children }: { children: React.ReactNode }) => {
                 userId,
                 title,
                 description,
-                visibility: "PUBLIC",
+                visibility,
                 originalS3Key: videoUrl,
                 defaultRenditionId: 1,
                 duration
