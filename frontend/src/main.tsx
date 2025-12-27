@@ -12,8 +12,9 @@ import UserProfile from "./pages/UserProfile";
 import UploadPage from "./pages/UploadPage";
 import Notification from "./components/Notification/Notification";
 import { UploadProvider } from "./hooks/upload/useUploadVideo";
-import IndexPage from "./pages";
+import IndexPage from "./pages/FeedPage";
 import Comment from "./components/Comment/Comment";
+import FeedPage from "./pages/FeedPage";
 
 const queryClient = new QueryClient();
 
@@ -47,7 +48,7 @@ ReactDOM.createRoot(root).render(
                         <Route
                             path="/"
                             element={
-                                <App />
+                                <FeedPage />
                             }
                         />
 
