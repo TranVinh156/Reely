@@ -27,7 +27,7 @@ interface CommentData {
   rootCommentId: string;
 }
 
-const Comment: React.FC<{ videoId: number, onClose: () => void }> = ({ videoId, onClose }) => {
+const Comment: React.FC<{ videoId: number, videoOwnerId: number , onClose: () => void }> = ({ videoId, videoOwnerId, onClose }) => {
   
   const [comments, setComments] = useState<CommentData[]>([]);
   const [isLoadingComments, setIsLoadingComments] = useState(false);
@@ -112,9 +112,11 @@ const Comment: React.FC<{ videoId: number, onClose: () => void }> = ({ videoId, 
     try {
       const response = await axiosClient.get(`/comments/video?videoId=${videoId}&page=${page}&size=30`);
       const existingIds = new Set(comments.map(n => n.id));
-          const uniqueNew = response.data.data.filter(
-            (n: CommentData) => !existingIds.has(n.id)
-          );
+      const uniqueNew = response.data.data.filter(
+        (n: CommentData) => {
+          return !existingIds.has(n.id)
+        }
+      );
       setComments(prev => [...prev, ...uniqueNew])
 
       setHasMoreComments(response.data.pageNumber < response.data.totalPages - 1);
@@ -132,7 +134,7 @@ const Comment: React.FC<{ videoId: number, onClose: () => void }> = ({ videoId, 
 
     try {
       const response = await axiosClient.get(`/comments/replies?rootCommentId=${commentId}`);
-      const replies: Reply[] = response.data.data;
+      let replies: Reply[] = response.data.data;
       
       // Update repliesData
       setRepliesData(prev => ({
@@ -201,7 +203,7 @@ const Comment: React.FC<{ videoId: number, onClose: () => void }> = ({ videoId, 
     try {
       const response = await axiosClient.get(`/comments/replies?rootCommentId=${commentId}`);
       
-      const replies: Reply[] = response.data.data;
+      let replies: Reply[] = response.data.data;
       
       // Lưu replies vào state
       setRepliesData(prev => ({
@@ -304,6 +306,7 @@ const Comment: React.FC<{ videoId: number, onClose: () => void }> = ({ videoId, 
           <div key={comment.id}>
             {/* Main Comment */}
             <CommentCard
+              videoOwnerId={videoOwnerId}
               ownerId={comment.ownerId}
               username={comment.username}
               comment={comment.comment}
@@ -327,6 +330,7 @@ const Comment: React.FC<{ videoId: number, onClose: () => void }> = ({ videoId, 
               <div className="ml-10">
                 {replies.slice(0, showCount).map((reply) => (
                   <CommentCard
+                    videoOwnerId={videoOwnerId}
                     key={reply.id}
                     ownerId={reply.ownerId}
                     username={reply.username}

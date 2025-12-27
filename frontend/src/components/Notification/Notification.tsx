@@ -132,13 +132,13 @@ const Notification: React.FC<NotificationProps> = ({ onClose }) => {
       {/* Header */}
       <div className="flex items-center justify-between px-6 py-4 border-b border-gray-800">
         <h1 className="text-2xl font-bold">Thông báo</h1>
-        {/* 🔥 New Notification Indicator */}
+        {/* 🔥 New Notification Indicator
         {hasNewNotifications && (
           <div className="flex items-center gap-1 text-xs text-blue-500 animate-pulse">
             <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
             <span>Mới</span>
           </div>
-        )}
+        )} */}
         <button className="p-2 hover:bg-gray-800 rounded-full transition-colors"
           onClick={onClose}>
           <X size={24} />
