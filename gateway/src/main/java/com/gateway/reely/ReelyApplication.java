@@ -43,6 +43,9 @@ public class ReelyApplication {
 				.route("upload-service", p -> p
 						.path("/api/v1/upload/**")
 						.uri(backendUrl))
+                .route("api-service", p -> p
+                        .path("/api/v1/likes/**")
+                        .uri(backendUrl))
 				.build();
 	}
 }

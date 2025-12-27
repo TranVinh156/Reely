@@ -61,7 +61,11 @@ export function useInfiniteFeed(pageSize = 5) {
     setIsLoading(true);
     try {
       const res = await fetchFeed(cursor ?? undefined, pageSize);
-      setVideos((prev) => [...prev, ...res.videos]);
+      setVideos((prev) => {
+        const existingIds = new Set(prev.map((v) => v.id));
+        const newVideos = res.videos.filter((v) => !existingIds.has(v.id));
+        return [...prev, ...newVideos];
+      });
       setCursor(res.nextCursor ?? null);
       setHasMore(res.hasMore);
     } finally {
