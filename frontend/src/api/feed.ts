@@ -1,58 +1,46 @@
-// import axios from "axios";
+import axiosClient from "@/utils/axios.client";
+import type { FeedResponse } from "@/types/video";
 
-// export type User = {
-//     id: number;
-//     username: string;
-//     display_name?: string;
-//     avatar_url?: string;
-// }
+type ApiMaybeWrapped<T> = T | { data: T };
 
-// export type FeedItem = {
-//     id: number;
-//     user: User;
-//     video_url: string;
-//     title?: string;
-//     description?: string;
-//     like_count: number;
-//     comment_count: number;
-//     is_liked: boolean;
-//     create_at: string;
-// }
+function unwrap<T>(payload: ApiMaybeWrapped<T>): T {
+  if (payload && typeof payload === "object" && "data" in payload) {
+    return (payload as any).data as T;
+  }
+  return payload as T;
+}
 
-// export type CommentItem = {
-//     id: number;
-//     user: User;
-//     text: string;
-//     create_at: string;
-// }
+export async function getFeed(params: { cursor?: string; pageSize?: number } = {}) {
+  // Doc: GET /api/feed?cursor=&pageSize=...:contentReference[oaicite:9]{index=9}
+  const res = await axiosClient.get("/feed", { params });
+  return unwrap<FeedResponse>(res.data);
+}
 
-// const client = axios.create({
-//     baseURL: import.meta.env.VITE_API_BASE || "",
-//     withCredentials: true,
-// });
+export async function likeVideo(videoId: string | number) {
+  // Doc: POST /api/interactions/videos/{videoId}/like:contentReference[oaicite:10]{index=10}
+  const res = await axiosClient.post(`/interactions/videos/${videoId}/like`);
+  return unwrap<{ liked: boolean; likeCount: number }>(res.data);
+}
 
-// export const fetchFeed = async (page=0, size=4): Promise<{items: FeedItem[]; hasMore: boolean}> => {
-//     const { data } = await client.get(`/api/feed`, {params: {page, size}});
-//     return data;
-// };
+export async function unlikeVideo(videoId: string | number) {
+  // Doc: DELETE /api/interactions/videos/{videoId}/like:contentReference[oaicite:11]{index=11}
+  const res = await axiosClient.delete(`/interactions/videos/${videoId}/like`);
+  return unwrap<{ liked: boolean; likeCount: number }>(res.data);
+}
 
-// export const toggleLike = async (videoId: number) => {
-//     const { data } = await client.post(`/api/interactions/like/${videoId}`);
-//     return data;
-// };
+// (Optional) nếu bạn muốn chuẩn hoá comment theo doc interactions:
+export async function addComment(videoId: string | number, text: string) {
+  // Doc: POST /api/interactions/videos/{videoId}/comments:contentReference[oaicite:12]{index=12}
+  const res = await axiosClient.post(`/interactions/videos/${videoId}/comments`, { text });
+  return unwrap(res.data);
+}
 
-// export const fetchComments = async (videoId: number): Promise<CommentItem[]> => {
-//     const { data } = await client.get(`/api/comments`, {params: {videoId}});
-//     return data;
-// };
+export async function getComments(videoId: string | number, params: { page?: number; size?: number } = {}) {
+  // Doc: GET /api/interactions/videos/{videoId}/comments?page=&size=:contentReference[oaicite:13]{index=13}
+  const res = await axiosClient.get(`/interactions/videos/${videoId}/comments`, { params });
+  return unwrap(res.data);
+}
 
-// export const postComment = async (videoId: number, text: String) => {
-//     const { data } = await client.post(`/api/comments`, {videoId, text});
-//     return data
-// };
-
-
-import type { FeedResponse } from "../types/video";
 import { fetchFeedMock, fetchVideoMock } from "../features/feed/feed.mock";
 
 export async function fetchFeed(cursor?: string, pageSize = 5): Promise<FeedResponse> {
