@@ -35,7 +35,7 @@ export default function Sidebar() {
     { icon: <UserRoundPlus />, text: "Following", link: "/" },
     { icon: <User2 />, text: "Profile", link: user ? `/users/${user.username}` : "/login" },
     { icon: <Bell />, text: "Notification", link: "/" },
-    { icon: <Upload />, text: "Upload", link: "/upload" }
+    // { icon: <Upload />, text: "Upload", link: "/upload" }
   ]
 
   return (

@@ -53,7 +53,7 @@ const LoginPage: React.FC = () => {
 
                         <FormInput label="Password" type="password" value={formData.password} onChange={handleChange('password')} placeholder="Password" />
 
-                        <NavLink to="/password/reset" className='text-right text-sm hover:underline hover:cursor-pointer'>
+                        <NavLink to="/password/reset" className='z-10 text-right text-sm hover:underline hover:cursor-pointer'>
                             Forgot Password
                         </NavLink>
 

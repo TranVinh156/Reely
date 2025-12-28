@@ -3,6 +3,8 @@ package com.reely.modules.auth.controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.reely.modules.auth.dto.ForgotPasswordRequest;
+import com.reely.modules.auth.dto.ForgotPasswordResponse;
 import com.reely.modules.auth.dto.LoginRequest;
 import com.reely.modules.auth.dto.LoginResponse;
 import com.reely.modules.auth.dto.RegistrationRequest;
@@ -117,6 +119,11 @@ public class AuthController {
 
                 return ResponseEntity.noContent()
                                 .header(HttpHeaders.SET_COOKIE, clearCookie.toString()).build();
+        }
+
+        @PostMapping("/forgot-password")
+        public ResponseEntity<Void> forgotPassword(@RequestBody ForgotPasswordRequest request) {
+                return ResponseEntity.noContent().build();
         }
 
         @PostMapping("/register")
