@@ -43,6 +43,8 @@ public class User {
 
     private String avatarUrl;
 
+    private Long age;
+
     @Column(length = 1000, unique = true)
     private String refreshToken;
 

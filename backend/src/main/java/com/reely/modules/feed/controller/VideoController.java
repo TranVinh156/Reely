@@ -18,6 +18,21 @@ public class VideoController {
         this.videoService = videoService;
     }
 
+    @GetMapping("/user/total-views")
+    public ResponseEntity<Long> getTotalViewsByUserId(@RequestHeader("X-UserId") Long userId) {
+        return ResponseEntity.ok(videoService.getTotalViewsByUserId(userId));
+    }
+
+    @GetMapping("/user/total-comments")
+    public ResponseEntity<Long> getTotalCommentsByUserId(@RequestHeader("X-UserId") Long userId) {
+        return ResponseEntity.ok(videoService.getTotalCommentsByUserId(userId));
+    }
+
+    @GetMapping("/user/total-likes")
+    public ResponseEntity<Long> getTotalLikesByUserId(@RequestHeader("X-UserId") Long userId) {
+        return ResponseEntity.ok(videoService.getTotalCommentsByUserId(userId));
+    }
+
     @PostMapping("")
     public ResponseEntity<Video> addVideo(@RequestBody VideoRequestDto videoRequestDto) {
         return ResponseEntity.ok(videoService.addVideo(videoRequestDto));

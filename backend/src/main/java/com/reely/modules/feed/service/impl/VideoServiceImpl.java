@@ -60,4 +60,22 @@ public class VideoServiceImpl implements VideoService {
         Page<Video> videoPage = videoRepository.findByUserIdOrderByCreatedAtDesc(userId, pageable);
         return new PaginationResponse<>(videoPage);
     }
+
+    @Override
+    public Long getTotalViewsByUserId(Long userId) {
+        Long totalViews = videoRepository.getTotalViewsByUserId(userId);
+        return totalViews != null ? totalViews : 0L;
+    }
+
+    @Override
+    public Long getTotalCommentsByUserId(Long userId) {
+        Long totalComments = videoRepository.getTotalCommentsByUserId(userId);
+        return totalComments != null ? totalComments : 0L;
+    }
+
+    @Override
+    public Long getTotalLikesByUserId(Long userId) {
+        Long totalComments = videoRepository.getTotalLikesByUserId(userId);
+        return totalComments != null ? totalComments : 0L;
+    }
 }

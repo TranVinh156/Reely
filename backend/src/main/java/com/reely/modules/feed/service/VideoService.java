@@ -11,4 +11,10 @@ public interface VideoService {
     String createPresignedUploadUrl(String filename);
 
     PaginationResponse<Video> getVideosByUserId(Long userId, int page, int size);
+
+    Long getTotalViewsByUserId(Long userId);
+
+    Long getTotalCommentsByUserId(Long userId);
+
+    Long getTotalLikesByUserId(Long userId);
 }

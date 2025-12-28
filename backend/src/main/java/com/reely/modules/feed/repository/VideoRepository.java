@@ -37,5 +37,14 @@ public interface VideoRepository extends JpaRepository<Video, Long> {
        @Query("SELECT v FROM Video v WHERE v.userId = :userId AND v.visibility = 'PUBLIC' ORDER BY v.createdAt DESC")
        Page<Video> findByUserId(@Param("userId") Long userId, Pageable pageable);
 
+       @Query("SELECT SUM(v.viewCount) FROM Video v WHERE v.userId = :userId")
+       Long getTotalViewsByUserId(@Param("userId") Long userId);
+
+       @Query("SELECT SUM(v.commentCount) FROM Video v WHERE v.userId = :userId")
+       Long getTotalCommentsByUserId(@Param("userId") Long userId);
+
+        @Query("SELECT SUM(v.likeCount) FROM Video v WHERE v.userId = :userId")
+        Long getTotalLikesByUserId(@Param("userId") Long userId);
+
        // Feed cá nhân hóa
 }

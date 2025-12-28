@@ -41,6 +41,16 @@ public class JwtAuthenticationFilter implements WebFilter {
             Claims claims = jwtUtil.validateAndGetClaims(token);
             String username = claims.getSubject();
 
+            Object userClaimObj = claims.get("user");
+            String userId = "";
+            if (userClaimObj instanceof java.util.Map) {
+                java.util.Map<?, ?> userMap = (java.util.Map<?, ?>) userClaimObj;
+                Object idObj = userMap.get("id");
+                if (idObj != null) {
+                    userId = idObj.toString();
+                }
+            }
+
             Object authoritiesObj = claims.get("authorities");
             String role = "";
             if (authoritiesObj instanceof List<?>) {
@@ -57,6 +67,7 @@ public class JwtAuthenticationFilter implements WebFilter {
             ServerHttpRequest requestModified = exchange.getRequest().mutate()
                     .header("X-Username", username)
                     .header("X-Role", role)
+                    .header("X-UserId", userId)
                     .build();
             exchange = exchange.mutate().request(requestModified).build();
             return chain.filter(exchange)
