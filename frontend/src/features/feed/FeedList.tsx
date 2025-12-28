@@ -3,9 +3,10 @@ import { useInfiniteFeed } from "../../hooks/feed/useInfiniteFeed.ts";
 import { useFeedAutoPause } from "../../hooks/feed/useFeedAutoPause.ts"; // implemented below
 import LoadingPage from "@/components/Auth/LoadingPage.tsx";
 import { useFeedStore } from "@/store/feedStore.ts";
+import type { FeedMode } from "@/api/feed.ts";
 
-export default function FeedList() {
-  const { videos, loaderRef, isLoading } = useInfiniteFeed();
+export default function FeedList({ mode = "personal" }: { mode?: FeedMode }) {
+  const { videos, loaderRef, isLoading } = useInfiniteFeed(5, mode);
   useFeedAutoPause();
   const currentIndex = useFeedStore((s) => s.currentIndex);
 

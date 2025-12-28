@@ -23,6 +23,16 @@ public interface VideoRepository extends JpaRepository<Video, Long> {
                      """)
        Page<Video> findFeedForUser(@Param("followeeIds") List<Long> followeeIds, Pageable pageable);
 
+       @Query("""
+                     SELECT v FROM Video v
+                     WHERE v.visibility = 'PUBLIC'
+                        OR (v.visibility = 'FOLLOWERS' AND v.userId IN :followeeIds)
+                     ORDER BY
+                       CASE WHEN v.userId IN :followeeIds THEN 0 ELSE 1 END,
+                       v.createdAt DESC
+                     """)
+       Page<Video> findPersonalizedFeed(@Param("followeeIds") List<Long> followeeIds, Pageable pageable);
+
        Page<Video> findByUserIdOrderByCreatedAtDesc(Long userId, Pageable pageable);
 
        // Feed Trending

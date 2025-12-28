@@ -15,6 +15,7 @@ interface UploadContextType {
     title: string,
     description: string,
     file: File,
+    tags?: string[],
   ) => Promise<void>;
   uploading: boolean;
   progress: number;
@@ -32,6 +33,7 @@ export const UploadProvider = ({ children }: { children: React.ReactNode }) => {
     title: string,
     description: string,
     file: File,
+    tags?: string[],
   ) => {
     if (!file) return;
 
@@ -96,8 +98,9 @@ export const UploadProvider = ({ children }: { children: React.ReactNode }) => {
         description,
         visibility: "PUBLIC",
         originalS3Key: completed.fileUrl,
-        defaultRenditionId: 1,
+        defaultRenditionId: "original",
         duration: durationSeconds,
+        tags: tags || [],
       });
 
       setProgress(100);
