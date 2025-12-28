@@ -14,13 +14,49 @@ interface Props {
   video: Video;
   className?: string;
   onOrientationChange?: (orientation: VideoOrientation) => void;
+  loadMode?: "active" | "preload" | "idle";
 }
 
 export default function VideoPlayer({
   video,
   className,
   onOrientationChange,
+  loadMode = "idle",
 }: Props) {
+  // load/unload video based on loadMode
+  useEffect(() => {
+    const el = ref.current;
+
+    if (!el) return;
+
+    const desiredPreload = loadMode === "active" ? "auto" : (loadMode === "preload" ? "metadata" : "none");
+    el.preload = desiredPreload;
+
+    if (loadMode === "idle") {
+      try {
+        el.pause();
+      } catch (e) {}
+
+      if (!el.getAttribute("src")) {
+        el.removeAttribute("src");
+        try {
+          el.load();
+        } catch (e) {}
+      }
+
+      return;
+    }
+
+    // ensure src is set
+    const currentSrc = el.getAttribute("src") ?? "";
+    if (video.src && video.src !== currentSrc) {
+      el.setAttribute("src", video.src);
+      try {
+        el.load();
+      } catch (e) {}
+    }
+  }, [loadMode, video.src]);
+
   const ref = useRef<HTMLVideoElement>(null);
   // const { isPlaying, togglePlay } = useVideoController(ref, video.id);
   const { togglePlay, isPlaying, muted, toggleMute, volume, setVol } =
@@ -68,7 +104,7 @@ export default function VideoPlayer({
         data-id={video.id}
         data-video-el
         data-video-id={video.id}
-        src={video.src}
+        src={loadMode === "idle" ? undefined : video.src}
         poster={video.poster}
         playsInline
         // loop

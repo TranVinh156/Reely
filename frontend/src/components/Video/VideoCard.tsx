@@ -7,9 +7,10 @@ import { ActionButtons } from "./ActionButtons";
 
 interface Props {
   video: Video;
+  loadMode?: "active" | "preload" | "idle";
 }
 
-export default function VideoCard({ video }: Props) {
+export default function VideoCard({ video, loadMode = "idle" }: Props) {
   const isSmallScreen = useMediaQuery("(max-width: 768px)");
 
   const [orientation, setOrientation] = useState<VideoOrientation>("landscape");
@@ -32,6 +33,7 @@ export default function VideoCard({ video }: Props) {
         <VideoPlayer
           video={video}
           onOrientationChange={handleOrientationChange}
+          loadMode={loadMode}
         />
         {/* <div className="absolute bottom-5 left-5 text-white drop-shadow-md">
           <p className="font-semibold">@{video.user.username}</p>
