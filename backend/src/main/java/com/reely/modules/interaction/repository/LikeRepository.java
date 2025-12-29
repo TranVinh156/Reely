@@ -19,6 +19,7 @@ public interface LikeRepository extends JpaRepository<Likes, Long> {
     List<Likes> findAllByUserId(Long userId);
     boolean existsByVideoIdAndUserId(Long videoId, Long userId);
     Optional<Likes> findByVideoIdAndUserId(Long videoId, Long userId);
+    void deleteByVideoId(Long videoId);
 
     @Query(value = "SELECT DATE(l.created_at) as date, COUNT(*) as count " +
            "FROM likes l " +

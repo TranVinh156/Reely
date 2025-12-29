@@ -70,4 +70,9 @@ public class VideoController {
     public ResponseEntity<VideoViewResponseDto> incrementView(@PathVariable Long videoId) {
         return ResponseEntity.ok(videoService.incrementView(videoId));
     }
+
+    @DeleteMapping("/{videoId}")
+    public void deleteVideo(@PathVariable Long videoId, @RequestHeader("X-UserId") Long userId) {
+        videoService.deleteVideo(videoId, userId);
+    }
 }

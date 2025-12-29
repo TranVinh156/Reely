@@ -6,10 +6,13 @@ import com.reely.modules.feed.dto.VideoViewResponseDto;
 import com.reely.modules.feed.dto.ViewStat;
 import com.reely.modules.feed.entity.Video;
 import com.reely.modules.feed.repository.VideoRepository;
+import com.reely.modules.interaction.repository.CommentRepository;
+import com.reely.modules.interaction.repository.LikeRepository;
 
 import com.reely.modules.feed.service.VideoService;
 import io.minio.GetPresignedObjectUrlArgs;
 import io.minio.MinioClient;
+import io.minio.RemoveObjectArgs;
 import io.minio.http.Method;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -34,13 +37,17 @@ import java.util.stream.Collectors;
 public class VideoServiceImpl implements VideoService {
     private final VideoRepository videoRepository;
     private final MinioClient minioClient;
+    private final LikeRepository likeRepository;
+    private final CommentRepository commentRepository;
 
     @Value("${minio.bucket-name}")
     private String bucketname;
 
-    public VideoServiceImpl(VideoRepository videoRepository, MinioClient minioClient) {
+    public VideoServiceImpl(VideoRepository videoRepository, MinioClient minioClient, LikeRepository likeRepository, CommentRepository commentRepository) {
         this.videoRepository = videoRepository;
         this.minioClient = minioClient;
+        this.likeRepository = likeRepository;
+        this.commentRepository = commentRepository;
     }
 
     @Override
@@ -130,5 +137,31 @@ public class VideoServiceImpl implements VideoService {
         Video v = videoRepository.findById(videoId).orElseThrow(() -> new RuntimeException("Video not found"));
         Long vc = v.getViewCount() == null ? 0L : v.getViewCount();
         return new VideoViewResponseDto(videoId, vc);
+    }
+
+    @Override
+    @Transactional
+    public void deleteVideo(Long videoId, Long userId) {
+        Video video = videoRepository.findById(videoId)
+                .orElseThrow(() -> new RuntimeException("Video not found"));
+
+        if (!video.getUserId().equals(userId)) {
+            throw new RuntimeException("You are not allowed to delete this video");
+        }
+
+        try {
+            minioClient.removeObject(
+                    RemoveObjectArgs.builder()
+                            .bucket(bucketname)
+                            .object(video.getOriginalS3Key().substring(7))
+                            .build());
+        } catch (Exception e) {
+            System.out.println("Error deleting video from MinIO: " + e.getMessage());
+        }
+
+        likeRepository.deleteByVideoId(videoId);
+        commentRepository.deleteByVideo_Id(videoId);
+
+        videoRepository.delete(video);
     }
 }

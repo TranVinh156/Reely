@@ -30,4 +30,6 @@ public interface VideoService {
 
     List<VideoResponseDto> getTop5ByUserIdOrderByCreatedAtDesc(Long userId);
 
+    void deleteVideo(Long videoId, Long userId);
+
 }
