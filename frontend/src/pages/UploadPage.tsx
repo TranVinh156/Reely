@@ -4,7 +4,6 @@ import UploadDropZone from '../components/UploadVideo/UploadDropZone';
 import UploadPreview from '../components/UploadVideo/UploadPreview';
 import { usePreview } from '@/hooks/upload/usePreview';
 import Sidebar from '@/components/Layout/Sidebar';
-import { div } from 'motion/react-client';
 import Cancel from '@/components/UploadVideo/Cancel';
 
 const UploadVideo: React.FC = () => {
@@ -29,7 +28,6 @@ const UploadVideo: React.FC = () => {
                     file={file}
                     handleCancel={showCancel}
                     thumbnail={thumbnail}
-                    confirmCancel={confirmCancel}
                     />
                 )}
             </div>
