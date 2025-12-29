@@ -3,6 +3,10 @@ import { useState } from "react";
 import type { Video } from "../../types/video";
 import VideoPlayer, { type VideoOrientation } from "./VideoPlayer";
 import { useMediaQuery } from "../../hooks/feed/useMediaQuery";
+import { Icon } from "@iconify/react";
+import { div } from "motion/react-client";
+import { ShareModel } from "./ShareModal";
+
 interface Props {
   video: Video;
 }
@@ -13,8 +17,14 @@ function formatCount(n: number) {
   return n.toString();
 }
 
+
 function ActionButton({ video }: Props) {
   const isSmallScreen = useMediaQuery("(max-width: 768px)");
+  const [shareModalOpen, setShareModalOpen] = useState(false);
+
+  const handleShareClick = () => {
+    setShareModalOpen(true);
+  }
 
   return (
     <div
@@ -34,7 +44,7 @@ function ActionButton({ video }: Props) {
         // onClick={}
         className="relative flex h-10 w-10 flex-col items-center justify-center rounded-full bg-[#ffffff21]"
       >
-        <div className="icon-[mdi--heart] h-6 w-6"></div>
+        <Icon icon="mdi:heart" className="h-6 w-6" />
         <div className="absolute top-10 mt-1 text-xs font-bold text-white">
           {formatCount(video.likes)}
         </div>
@@ -44,7 +54,7 @@ function ActionButton({ video }: Props) {
         // onClick={}
         className="relative flex h-10 w-10 flex-col items-center justify-center rounded-full bg-[#ffffff21]"
       >
-        <div className="icon-[basil--comment-solid] h-6 w-6"></div>
+        <Icon icon="mdi:comment-processing" className="h-6 w-6" />
         <div className="absolute top-10 mt-1 text-sm">
           {formatCount(video.comments)}
         </div>
@@ -54,21 +64,27 @@ function ActionButton({ video }: Props) {
         // onClick={}
         className="relative flex h-10 w-10 flex-col items-center justify-center rounded-full bg-[#ffffff21]"
       >
-        <div className="icon-[subway--mark-2] h-6 w-6"></div>
+        <Icon icon="mdi:bookmark" className="h-6 w-6" />
         <div className="absolute top-10 mt-1 text-xs font-bold text-white">
           {formatCount(video.likes)}
         </div>
       </button>
 
       <button
-        // onClick={}
-        className="relative flex h-10 w-10 flex-col items-center justify-center rounded-full bg-[#ffffff21]"
+        onClick={handleShareClick}
+        className="relative flex h-10 w-10 flex-col items-center justify-center rounded-full bg-[#ffffff21] cursor-pointer"
       >
-        <div className="icon-[ooui--share] h-6 w-6"></div>
+        <Icon icon="mdi:share" className="h-6 w-6" />
         <div className="absolute top-10 mt-1 text-xs font-bold text-white">
-          {formatCount(video.likes)}
+          {formatCount(video.shares)}
         </div>
       </button>
+
+      {shareModalOpen && (
+        <>
+          <ShareModel onClose={() => setShareModalOpen(false)} videoUrl={video.src}></ShareModel>
+        </>
+      )}
     </div>
   );
 }
