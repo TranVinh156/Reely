@@ -30,14 +30,14 @@ public class RabbitMQConfig {
     public static final String LIKE_DLQ = "like.dlq";
     public static final String LIKE_DLQ_ROUTING_KEY = "like.dlq.notification";
 
-    public static final String FOLLOW_QUEUE = "like.queue";
-    public static final String FOLLOW_EXCHANGE = "like.exchange";
-    public static final String FOLLOW_ROUTING_KEY = "like.notification";
+    public static final String FOLLOW_QUEUE = "follow.queue";
+    public static final String FOLLOW_EXCHANGE = "follow.exchange";
+    public static final String FOLLOW_ROUTING_KEY = "follow.notification";
 
-    public static final String FOLLOW_RETRY_QUEUE = "like.retry.queue";
-    public static final String FOLLOW_RETRY_ROUTING_KEY = "like.retry";
-    public static final String FOLLOW_DLQ = "like.dlq";
-    public static final String FOLLOW_DLQ_ROUTING_KEY = "like.dlq.notification";
+    public static final String FOLLOW_RETRY_QUEUE = "follow.retry.queue";
+    public static final String FOLLOW_RETRY_ROUTING_KEY = "follow.retry";
+    public static final String FOLLOW_DLQ = "follow.dlq";
+    public static final String FOLLOW_DLQ_ROUTING_KEY = "follow.dlq.notification";
 
     @Bean
     public Queue commentQueue() {
@@ -85,7 +85,7 @@ public class RabbitMQConfig {
 
     @Bean
     public Queue followQueue() {
-        return QueueBuilder.durable(FOLLOW_EXCHANGE)
+        return QueueBuilder.durable(FOLLOW_QUEUE)
                 .withArgument("x-dead-letter-exchange", ERROR_EXCHANGE)
                 .withArgument("x-dead-letter-routing-key", FOLLOW_DLQ_ROUTING_KEY)
                 .build();
@@ -102,7 +102,7 @@ public class RabbitMQConfig {
 
     @Bean
     public Queue followDLQ() {
-        return QueueBuilder.durable(LIKE_DLQ).build();
+        return QueueBuilder.durable(FOLLOW_DLQ).build();
     }
 
     @Bean
@@ -177,15 +177,15 @@ public class RabbitMQConfig {
     @Bean
     public Binding followBinding() {
         return BindingBuilder
-                .bind(likeQueue())
-                .to(likeExchange())
+                .bind(followQueue())
+                .to(followExchange())
                 .with(FOLLOW_ROUTING_KEY);
     }
 
     @Bean
     public Binding followRetryBinding() {
         return BindingBuilder
-                .bind(likeRetryQueue())
+                .bind(followRetryQueue())
                 .to(errorExchange())
                 .with(FOLLOW_RETRY_ROUTING_KEY);
     }
@@ -193,7 +193,7 @@ public class RabbitMQConfig {
     @Bean
     public Binding followDLQBinding() {
         return BindingBuilder
-                .bind(likeDLQ())
+                .bind(followDLQ())
                 .to(errorExchange())
                 .with(FOLLOW_DLQ_ROUTING_KEY);
     }

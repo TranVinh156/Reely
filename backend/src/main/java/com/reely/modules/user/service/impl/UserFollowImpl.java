@@ -44,6 +44,7 @@ public class UserFollowImpl implements UserFollowService {
                 .following(following)
                 .build();
         userFollowRepository.save(userFollow);
+        publisherFollowNotification(userFollow, follower, following);
     }
 
     @Override

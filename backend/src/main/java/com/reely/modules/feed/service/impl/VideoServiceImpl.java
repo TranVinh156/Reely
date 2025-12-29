@@ -1,6 +1,7 @@
 package com.reely.modules.feed.service.impl;
 
 import com.reely.modules.feed.dto.VideoRequestDto;
+import com.reely.modules.feed.dto.VideoResponseDto;
 import com.reely.modules.feed.dto.VideoViewResponseDto;
 import com.reely.modules.feed.dto.ViewStat;
 import com.reely.modules.feed.entity.Video;
@@ -104,6 +105,20 @@ public class VideoServiceImpl implements VideoService {
             finalResult.add(new ViewStat(java.sql.Date.valueOf(date), count));
         }
         return finalResult;
+    }
+
+    @Override
+    public List<VideoResponseDto> getTop5ByUserIdOrderByCreatedAtDesc(Long userId) {
+        return  videoRepository.findTop5ByUserIdOrderByCreatedAtDesc(userId)
+                .stream()
+                .map(video -> new VideoResponseDto(
+                        video.getTitle(),
+                        video.getViewCount(),
+                        video.getLikeCount(),
+                        video.getCommentCount(),
+                        video.getCreatedAt()
+                ))
+                .collect(Collectors.toList());
     }
 
     
