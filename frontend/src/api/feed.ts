@@ -1,5 +1,6 @@
 import axiosClient from "@/utils/axios.client";
 import type { FeedResponse, Video } from "@/types/video";
+import { resolveMediaUrl } from "@/utils/media";
 
 export type FeedMode = "personal" | "public" | "trending";
 
@@ -35,10 +36,10 @@ function mapDtoToVideo(dto: BackendFeedVideoDTO): Video {
     user: {
       id: String(dto.userId),
       username: dto.username,
-      avatar: dto.avatarUrl ?? "",
+      avatar: resolveMediaUrl(dto.avatarUrl ?? ""),
     },
-    src: dto.videoUrl,
-    poster: dto.thumbnailUrl ?? "/posters/poster1.jpg",
+    src: resolveMediaUrl(dto.videoUrl),
+    poster: resolveMediaUrl(dto.thumbnailUrl) ?? "/posters/poster1.jpg",
     description: dto.description ?? dto.title ?? "",
     likes: Number(dto.likeCount ?? 0),
     comments: Number(dto.commentCount ?? 0),

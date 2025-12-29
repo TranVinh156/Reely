@@ -1,11 +1,13 @@
+
 import { Bell, Upload, Compass, MessageCircle, Search, Sparkle, UserRoundPlus, Users, User2, UserIcon, ChartNoAxesCombined } from "lucide-react";
 import Logo from "./Logo";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/auth/useAuth";
 import useGetFollowing from "@/hooks/follow/useGetFollowing";
 import type { User } from "@/types/user";
 import { useState } from "react";
 import Notification from "../Notification/Notification";
+
 
 interface NavItem {
   icon: any
@@ -16,19 +18,25 @@ interface NavItem {
 
 const FollowingCard = ({ follower }: { follower: User }) => {
   return (
-    <NavLink to={`/users/${follower.username}`} className="following-card font-semibold flex items-center gap-2 mt-1">
-      <div className="bg-white w-8 h-8 rounded-full flex items-center justify-center">
-        <UserIcon className="text-black w-4" />
+    <NavLink
+      to={`/users/${follower.username}`}
+      className="following-card mt-1 flex items-center gap-2 font-semibold"
+    >
+      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white">
+        <UserIcon className="w-4 text-black" />
       </div>
       <div className="info">
         <div className="">{follower.displayName}</div>
-        <div className="text-gray-400 text-sm">@{follower.username}</div>
+        <div className="text-sm text-gray-400">@{follower.username}</div>
       </div>
     </NavLink>
-  )
-}
+  );
+};
 
 export default function Sidebar() {
+  const navigate = useNavigate();
+
+
   const { user, isAuthenticated } = useAuth()
   const { data: following = [] } = useGetFollowing(user?.id || 0)
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
@@ -40,6 +48,7 @@ export default function Sidebar() {
 
   const NAV_ITEMS: NavItem[] = [
     { icon: <Sparkle />, text: "For You", link: "/" },
+    { icon: <Search />, text: "Search", link: "/search" },
     { icon: <Compass />, text: "Explore", link: "/" },
     { icon: <UserRoundPlus />, text: "Following", link: "/" },
     { icon: <User2 />, text: "Profile", link: user ? `/users/${user.username}` : "/login" },
@@ -62,13 +71,22 @@ export default function Sidebar() {
           <input
             type="text"
             placeholder="Search"
-            className="w-full bg-white py-3 pl-10 pr-4 rounded-xl placeholder:text-gray-600 placeholder:font-medium placeholder:text-sm"
+            className="w-full rounded-xl bg-white py-3 pr-4 pl-10 placeholder:text-sm placeholder:font-medium placeholder:text-gray-600"
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                const val = (e.target as HTMLInputElement).value;
+                navigate(`/search?q=${encodeURIComponent(val)}&tab=videos`);
+              }
+            }}
           />
         </div>
 
-        <div className={`flex py-3 justify-center hover:text-red-500 hover:bg-primary-hover hover:rounded-xl cursor-pointer ${isNotificationOpen ? 'flex' : 'md:hidden'}`}>
+        <NavLink
+          to="/search"
+          className={`flex py-3 justify-center hover:text-red-500 hover:bg-primary-hover hover:rounded-xl cursor-pointer ${isNotificationOpen ? 'flex' : 'md:hidden'}`}
+        >
           <Search className="text-white hover:text-red-500" size={24} />
-        </div>
+        </NavLink>
 
         <div className="nav-items">
           {NAV_ITEMS.map((item, index) => {
@@ -82,7 +100,7 @@ export default function Sidebar() {
                 {item.icon}
                 <p className={`font-semibold ${isNotificationOpen ? 'hidden' : 'hidden md:flex'}`}>{item.text}</p>
               </NavLink>
-            )
+            );
           })}
         </div>
 
@@ -90,9 +108,10 @@ export default function Sidebar() {
           <div className={`following mt-6 ${isNotificationOpen ? 'hidden' : 'hidden md:block'}`}>
             <p className="font-semibold text-md mb-2">Following accounts</p>
             {following.map((follower, index) => {
-              return <FollowingCard key={index} follower={follower} />
+              return <FollowingCard key={index} follower={follower} />;
             })}
-          </div>}
+          </div>
+        )}
       </div>
     </aside>
     

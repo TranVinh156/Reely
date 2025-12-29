@@ -15,6 +15,9 @@ import { UploadProvider } from "./hooks/upload/useUploadVideo";
 import IndexPage from "./pages/FeedPage";
 import Comment from "./components/Comment/Comment";
 import FeedPage from "./pages/FeedPage";
+import { Search } from "lucide-react";
+import SearchPage from "./pages/SearchPage";
+import TagPage from "./pages/TagePage";
 import ForgetPasswordPage from "./pages/ForgetPasswordPage";
 import Analysis from "./pages/Analysis";
 
@@ -51,6 +54,20 @@ ReactDOM.createRoot(root).render(
                             path="/"
                             element={
                                 <FeedPage />
+                            }
+                        />
+
+                        <Route
+                            path="/search"
+                            element={
+                                <SearchPage />
+                            }
+                        />
+
+                        <Route
+                            path="/tags/:tagName"
+                            element={
+                                <TagPage />
                             }
                         />
 
