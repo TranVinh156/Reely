@@ -4,6 +4,7 @@ import java.time.Instant;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.reely.modules.auth.entity.PasswordResetToken;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -17,7 +18,6 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -58,6 +58,9 @@ public class User {
 
     @OneToMany(mappedBy = "follower", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<UserFollow> following;
+
+    @OneToMany(mappedBy = "user")
+    private List<PasswordResetToken> resetTokens;
 
     private Instant createdAt;
 
