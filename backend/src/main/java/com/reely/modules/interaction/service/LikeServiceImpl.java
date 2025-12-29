@@ -193,7 +193,7 @@ public class LikeServiceImpl implements LikeService{
                     .readFlag(0)
                     .build();
 
-            rabbitTemplate.convertAndSend(RabbitMQConfig.COMMENT_EXCHANGE, RabbitMQConfig.COMMENT_ROUTING_KEY, notificationRequestDto);
+            rabbitTemplate.convertAndSend(RabbitMQConfig.LIKE_EXCHANGE, RabbitMQConfig.LIKE_ROUTING_KEY, notificationRequestDto);
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }

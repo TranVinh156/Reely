@@ -48,6 +48,8 @@ public interface VideoRepository extends JpaRepository<Video, Long> {
       """)
   Page<Video> findTrendingFeed(Pageable pageable);
 
+  List<Video> findTop5ByUserIdOrderByCreatedAtDesc(Long userId);
+
   // Feed User cu the
   @Query("SELECT v FROM Video v WHERE v.userId = :userId AND v.visibility = 'PUBLIC' ORDER BY v.createdAt DESC")
   Page<Video> findByUserId(@Param("userId") Long userId, Pageable pageable);
@@ -139,5 +141,6 @@ public interface VideoRepository extends JpaRepository<Video, Long> {
   @Modifying
   @Query("UPDATE Video v SET v.viewCount = COALESCE(v.viewCount, 0) + 1 WHERE v.id = :videoId")
   int incrementViewCount(@Param("videoId") Long videoId);
+
 
 }

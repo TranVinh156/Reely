@@ -17,7 +17,7 @@ const Analysis: React.FC = () => {
                 <AnalysisOption activeBar={activeBar} setActiveBar={setActiveBar}/>
                 <AnalysisLineChart activeBar={activeBar} searchTime={searchTime}/>
 
-                <div className="flex mt-5">
+                <div className="flex mt-5 gap-10">
                     <AnalysisPieChart></AnalysisPieChart>
                     <LastestPost>
                     </LastestPost>

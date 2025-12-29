@@ -1,6 +1,7 @@
 package com.reely.modules.feed.controller;
 
 import com.reely.modules.feed.dto.VideoRequestDto;
+import com.reely.modules.feed.dto.VideoResponseDto;
 import com.reely.modules.feed.dto.VideoViewResponseDto;
 import com.reely.modules.feed.dto.ViewStat;
 import com.reely.modules.feed.entity.Video;
@@ -60,8 +61,18 @@ public class VideoController {
         return ResponseEntity.ok(videoService.getVideosByUserId(userId, page, size));
     }
 
+    @GetMapping("/users/top5")
+    public ResponseEntity<List<VideoResponseDto>> get5VideosByUserId(@RequestHeader("X-UserId") Long userId) {
+        return ResponseEntity.ok(videoService.getTop5ByUserIdOrderByCreatedAtDesc(userId));
+    }
+
     @PostMapping("/{videoId}/view")
     public ResponseEntity<VideoViewResponseDto> incrementView(@PathVariable Long videoId) {
         return ResponseEntity.ok(videoService.incrementView(videoId));
+    }
+
+    @DeleteMapping("/{videoId}")
+    public void deleteVideo(@PathVariable Long videoId, @RequestHeader("X-UserId") Long userId) {
+        videoService.deleteVideo(videoId, userId);
     }
 }
