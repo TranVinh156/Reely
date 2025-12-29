@@ -15,6 +15,7 @@ import { UploadProvider } from "./hooks/upload/useUploadVideo";
 import IndexPage from "./pages/FeedPage";
 import Comment from "./components/Comment/Comment";
 import FeedPage from "./pages/FeedPage";
+import Analysis from "./pages/Analysis";
 
 const queryClient = new QueryClient();
 
@@ -93,6 +94,13 @@ ReactDOM.createRoot(root).render(
                             path="/noti"
                             element={
                                 <Notification onClose={() => {}}/>
+                            }
+                        />
+
+                        <Route
+                            path="/analysis"
+                            element={
+                                <Analysis />
                             }
                         />
 

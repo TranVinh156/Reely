@@ -3,6 +3,9 @@ import { useState } from "react";
 import type { Video } from "../../types/video";
 import VideoPlayer, { type VideoOrientation } from "./VideoPlayer";
 import { useMediaQuery } from "../../hooks/feed/useMediaQuery";
+import { Icon } from "@iconify/react";
+import { div } from "motion/react-client";
+import { ShareModel } from "./ShareModal";
 import { ActionButtons } from "./ActionButtons";
 
 interface Props {
@@ -10,6 +13,85 @@ interface Props {
   loadMode?: "active" | "preload" | "idle";
 }
 
+function formatCount(n: number) {
+  if (n >= 1_000_000) return `${Math.round(n / 1000000)}M`;
+  if (n >= 1000) return `${Math.round(n / 1000)}K`;
+  return n.toString();
+}
+
+
+function ActionButton({ video }: Props) {
+  const isSmallScreen = useMediaQuery("(max-width: 768px)");
+  const [shareModalOpen, setShareModalOpen] = useState(false);
+
+  const handleShareClick = () => {
+    setShareModalOpen(true);
+  }
+
+  return (
+    <div
+      className={`${
+        isSmallScreen ? "absolute right-3.5" : "relative ml-5"
+      } flex flex-col items-center space-y-8 text-white`}
+    >
+      <div className="h-12 w-12 overflow-hidden rounded-full border-2 border-white/20">
+        <img
+          src={video.user.avatar}
+          alt={video.user.username}
+          className="h-full w-full object-cover"
+        />
+      </div>
+
+      <button
+        // onClick={}
+        className="relative flex h-10 w-10 flex-col items-center justify-center rounded-full bg-[#ffffff21]"
+      >
+        <Icon icon="mdi:heart" className="h-6 w-6" />
+        <div className="absolute top-10 mt-1 text-xs font-bold text-white">
+          {formatCount(video.likes)}
+        </div>
+      </button>
+
+      <button
+        // onClick={}
+        className="relative flex h-10 w-10 flex-col items-center justify-center rounded-full bg-[#ffffff21]"
+      >
+        <Icon icon="mdi:comment-processing" className="h-6 w-6" />
+        <div className="absolute top-10 mt-1 text-sm">
+          {formatCount(video.comments)}
+        </div>
+      </button>
+
+      <button
+        // onClick={}
+        className="relative flex h-10 w-10 flex-col items-center justify-center rounded-full bg-[#ffffff21]"
+      >
+        <Icon icon="mdi:bookmark" className="h-6 w-6" />
+        <div className="absolute top-10 mt-1 text-xs font-bold text-white">
+          {formatCount(video.likes)}
+        </div>
+      </button>
+
+      <button
+        onClick={handleShareClick}
+        className="relative flex h-10 w-10 flex-col items-center justify-center rounded-full bg-[#ffffff21] cursor-pointer"
+      >
+        <Icon icon="mdi:share" className="h-6 w-6" />
+        <div className="absolute top-10 mt-1 text-xs font-bold text-white">
+          {formatCount(video.shares)}
+        </div>
+      </button>
+
+      {shareModalOpen && (
+        <>
+          <ShareModel onClose={() => setShareModalOpen(false)} videoUrl={video.src}></ShareModel>
+        </>
+      )}
+    </div>
+  );
+}
+
+export default function VideoCard({ video }: Props) {
 export default function VideoCard({ video, loadMode = "idle" }: Props) {
   const isSmallScreen = useMediaQuery("(max-width: 768px)");
 

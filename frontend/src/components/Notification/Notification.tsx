@@ -47,7 +47,6 @@ const Notification: React.FC<NotificationProps> = ({ onClose }) => {
 
 
   useEffect(() => {
-    // Fetch notifications from API
     setNotifications([]);
     fetchNotifications(0);
   }, [user?.id]);
@@ -56,13 +55,8 @@ const Notification: React.FC<NotificationProps> = ({ onClose }) => {
   useEffect(() => {
     if (liveNotifications.length > 0) {
       setNotifications((prev) => {
-        // Get existing IDs
         const existingIds = new Set(prev.map(n => n.id));
-        
-        // Filter out duplicates from live notifications
         const newOnes = liveNotifications.filter(n => !existingIds.has(n.id));
-        
-        // Merge: live notifications first, then existing
         return [...newOnes, ...prev];
       });
       
@@ -128,24 +122,15 @@ const Notification: React.FC<NotificationProps> = ({ onClose }) => {
     : notifications.filter(n => n.type === activeTab);
 
   return (
-    <div className="w-[450px] h-screen bg-black text-white flex flex-col border-l border-gray-800">
-      {/* Header */}
+    <div className="w-[450px] h-screen bg-[#161823] text-white flex flex-col border-l border-gray-800">
       <div className="flex items-center justify-between px-6 py-4 border-b border-gray-800">
         <h1 className="text-2xl font-bold">Thông báo</h1>
-        {/* 🔥 New Notification Indicator
-        {hasNewNotifications && (
-          <div className="flex items-center gap-1 text-xs text-blue-500 animate-pulse">
-            <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
-            <span>Mới</span>
-          </div>
-        )} */}
         <button className="p-2 hover:bg-gray-800 rounded-full transition-colors"
           onClick={onClose}>
           <X size={24} />
         </button>
       </div>
 
-      {/* Tabs */}
       <div className="flex gap-2 px-4 py-3 border-b border-gray-800 flex-wrap">
         {tabs.map(tab => (
           <button
@@ -162,14 +147,12 @@ const Notification: React.FC<NotificationProps> = ({ onClose }) => {
         ))}
       </div>
 
-      {/* Section Label */}
       <div className="px-6 py-3 text-gray-400 text-sm font-medium">
         Trước đây
       </div>
 
       
 
-      {/* ✅ Loading State */}
       {isLoading && (
         <div className="flex items-center justify-center h-32">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
@@ -182,7 +165,6 @@ const Notification: React.FC<NotificationProps> = ({ onClose }) => {
         </div>
       )}
 
-      {/* Notification List */}
       {!isLoading && (
         <div
         className="flex-1 overflow-y-auto [&::-webkit-scrollbar]:w-2  [&::-webkit-scrollbar-thumb]:bg-gray-600 [&::-webkit-scrollbar-thumb]:rounded-full"
@@ -203,7 +185,6 @@ const Notification: React.FC<NotificationProps> = ({ onClose }) => {
             </div>
           ))}
 
-          {/* Loading more indicator */}
           {isLoading && notifications.length > 0 && (
             <div className="flex items-center justify-center py-4">
               <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
