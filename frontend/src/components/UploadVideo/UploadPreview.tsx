@@ -1,8 +1,9 @@
-import React, { useContext } from "react";
-import { X } from "lucide-react";
-import { NavLink } from "react-router-dom";
+import React, { useContext, useEffect, useState } from "react";
+import { X, ChevronDown } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/auth/useAuth";
 import { UploadContext, useUpload } from "@/hooks/upload/useUploadVideo";
+import CircularProgress from "./CircularProgress";
 
 interface Props {
   file?: File;
@@ -138,6 +139,7 @@ const UploadPreview: React.FC<Props> = ({ file, handleCancel, thumbnail }) => {
           <p className="mt-1 text-xs text-gray-500">
             {description.length}/2000
           </p>
+
         </div>
 
         <div className="mt-6 flex flex-col justify-end gap-4 sm:flex-row">

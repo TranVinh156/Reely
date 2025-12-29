@@ -85,6 +85,35 @@ ReactDOM.createRoot(root).render(
                             }
                         />
 
+                        <Route
+                            path="/feed"
+                            element={
+                                <IndexPage />
+                            }
+                        />
+
+                        <Route
+                            path="/feed"
+                            element={
+                                <IndexPage />
+                            }
+                        />
+
+                        <Route
+                            path="/comment"
+                            element={
+                                <Comment videoOwnerId={22} videoId={1} onClose={() => {}}/>
+                            }
+                        />
+
+                        <Route
+                            path="/noti"
+                            element={
+                                <Notification onClose={() => {}}/>
+                            }
+                        />
+
+                        
 
                     </Routes>
                 </BrowserRouter>

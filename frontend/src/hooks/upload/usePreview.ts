@@ -7,6 +7,7 @@ export const usePreview = () => {
   const [thumbnail, setThumbnail] = useState<string>();
   const [progress, setProgress] = useState(0);
   const [uploading, setUploading] = useState(false);
+  const [onShowCancel, setOnShowCancel] = useState(false);
 
   const handleSelectFile = async (selected: File) => {
     setFile(selected);
@@ -16,7 +17,17 @@ export const usePreview = () => {
     console.log('Selected file:', selected);
   };
 
-  const handleCancel = () => {
+
+  const showCancel = () => {
+    setOnShowCancel(true);
+  }
+
+  const offShowCancel = () => {
+    setOnShowCancel(false);
+  }
+  
+  const confirmCancel = () => {
+    setOnShowCancel(false);
     setFile(undefined);
     setPreview(null);
     setThumbnail(undefined);
@@ -42,6 +53,9 @@ export const usePreview = () => {
     uploading,
     thumbnail,
     handleSelectFile,
-    handleCancel
+    confirmCancel,
+    showCancel,
+    onShowCancel,
+    offShowCancel
   };
 };

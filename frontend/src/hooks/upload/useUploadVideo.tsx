@@ -19,6 +19,7 @@ interface UploadContextType {
   ) => Promise<void>;
   uploading: boolean;
   progress: number;
+
 }
 export const UploadContext = createContext<UploadContextType | undefined>(
   undefined,
@@ -70,6 +71,7 @@ export const UploadProvider = ({ children }: { children: React.ReactNode }) => {
                 const percent = Math.floor((current * 100) / file.size);
                 setProgress(Math.min(99, Math.max(0, percent)));
               },
+
             });
             uploadedBytes += end - start;
             break; // exit retry loop on success
