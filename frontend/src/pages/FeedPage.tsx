@@ -5,12 +5,14 @@ import ActionBar from "@/components/Layout/ActionBar";
 import { useAuth } from "@/hooks/auth/useAuth";
 import React, { useEffect } from "react";
 import type { FeedMode } from "@/api/feed";
+import { useFeedStore } from "@/store/feedStore";
 
 export default function FeedPage() {
   const { user } = useAuth();
   const [mode, setMode] = React.useState<FeedMode>(() =>
     user ? "personal" : "public",
   );
+  const isActionBarVisible = useFeedStore((s) => s.isActionBarVisible);
 
   useEffect(() => {
     if (!user && mode === "personal") setMode("public");
@@ -49,7 +51,7 @@ export default function FeedPage() {
           </div>
         </div>
       </div>
-      <ActionBar />
+      {isActionBarVisible && <ActionBar />}
     </div>
   );
 }

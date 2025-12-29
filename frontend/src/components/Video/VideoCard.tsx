@@ -4,6 +4,7 @@ import type { Video } from "../../types/video";
 import VideoPlayer, { type VideoOrientation } from "./VideoPlayer";
 import { useMediaQuery } from "../../hooks/feed/useMediaQuery";
 import { ActionButtons } from "./ActionButtons";
+import { useFeedStore } from "@/store/feedStore";
 
 interface Props {
   video: Video;
@@ -12,6 +13,8 @@ interface Props {
 
 export default function VideoCard({ video, loadMode = "idle" }: Props) {
   const isSmallScreen = useMediaQuery("(max-width: 768px)");
+  const activeCommentVideoId = useFeedStore((s) => s.activeCommentVideoId);
+  const isCommentOpen = !!activeCommentVideoId;
 
   const [orientation, setOrientation] = useState<VideoOrientation>("landscape");
 
@@ -25,10 +28,22 @@ export default function VideoCard({ video, loadMode = "idle" }: Props) {
     square: "w-[70%] h-[70%]", // Giống landscape
   };
 
+  // If comments are open, shift the video container to the left
+  // Assuming comment drawer is ~450px wide.
+  // We can use a transform or margin.
+  // Since the drawer is fixed right, we want to center the video in the remaining space.
+  // Remaining space width = 100vw - 450px.
+  // Center of remaining space is at (100vw - 450px) / 2.
+  // Current center is 50vw.
+  // Shift amount = 50vw - (100vw - 450px) / 2 = 50vw - 50vw + 225px = 225px.
+  // So we need to shift LEFT by 225px.
+  const shiftStyle = isCommentOpen && !isSmallScreen ? { transform: "translateX(-225px)" } : {};
+
   return (
     <div className="relative flex h-screen w-full items-center justify-center bg-[#161823]">
       <div
-        className={`relative flex flex-col ${containerClasses[orientation]} justify-center overflow-hidden rounded-2xl bg-black`}
+        className={`relative flex flex-col ${containerClasses[orientation]} justify-center overflow-hidden rounded-2xl bg-black transition-transform duration-300 ease-in-out`}
+        style={shiftStyle}
       >
         <VideoPlayer
           video={video}

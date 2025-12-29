@@ -31,8 +31,34 @@ export function ActionButtons({ video }: Props) {
   const [viewCount, setViewCount] = useState(video.views);
   const [commentCount, setCommentCount] = useState(video.comments);
   const [likePending, setLikePending] = useState(false);
+  // Select only the specific video's like status to avoid unnecessary re-renders
+  const isLikedInStore = useFeedStore((s) => s.liked[video.id]);
+  const setLikeInStore = useFeedStore((s) => s.setLike);
+  
+  const activeCommentVideoId = useFeedStore((s) => s.activeCommentVideoId);
+  const openComment = useFeedStore((s) => s.openComment);
+  const closeComment = useFeedStore((s) => s.closeComment);
 
-  const [commentOpen, setCommentOpen] = useState(false);
+  // Initialize store with video.isLiked if not present
+  useEffect(() => {
+    if (isLikedInStore === undefined && video.isLiked !== undefined) {
+      setLikeInStore(video.id, video.isLiked);
+    }
+  }, [video.id, video.isLiked, isLikedInStore, setLikeInStore]);
+
+  // Derived state for UI
+  const liked = isLikedInStore !== undefined ? isLikedInStore : !!video.isLiked;
+
+  const likeCount = useMemo(() => {
+    let count = video.likes;
+    const serverLiked = !!video.isLiked;
+    // If local state differs from server state, adjust count
+    if (liked !== serverLiked) {
+      count += liked ? 1 : -1;
+    }
+    return Math.max(0, count);
+  }, [video.likes, video.isLiked, liked]);
+
   const [shareModalOpen, setShareModalOpen] = useState(false);
 
   // Guard against rapid multi-click before React state updates
@@ -46,13 +72,10 @@ export function ActionButtons({ video }: Props) {
     setCommentCount(video.comments);
     setLikePending(false);
     setCommentOpen(false);
-    setShareModalOpen(false);
-  }, [video.id]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  // Keep local liked in sync with store (optional)
+  // Reset modal state when switching to a different video
   useEffect(() => {
-    setLiked(storeLiked);
-  }, [storeLiked]);
+    setShareModalOpen(false);
+  }, [video.id]);
 
   // Listen to view updates coming from the feed watcher
   useEffect(() => {
@@ -76,62 +99,37 @@ export function ActionButtons({ video }: Props) {
     return Number.isFinite(n) ? n : 0;
   }, [video.user.id]);
 
-  const commitLike = async (nextLiked: boolean) => {
-    if (likeLockRef.current || likePending) return;
-    likeLockRef.current = true;
+  const handleToggleLike = async () => {
+    // Optimistic update via store
+    const nextLiked = !liked;
+    setLikeInStore(video.id, nextLiked);
 
-    const prevLiked = liked;
-
-    // optimistic UI
-    setLiked(nextLiked);
-    setLikeCount((c) => Math.max(0, c + (nextLiked ? 1 : -1)));
-    setLikedInStore(video.id, nextLiked);
-
-    setLikePending(true);
     try {
       const data = nextLiked ? await likeVideo(video.id) : await unlikeVideo(video.id);
 
-      // canonical state from server
-      setLiked(Boolean(data.liked));
-      setLikedInStore(video.id, Boolean(data.liked));
-      if (typeof data.likeCount === "number") {
-        setLikeCount(data.likeCount);
+      // If server response contradicts our optimistic update, revert
+      if (!!data.liked !== nextLiked) {
+        setLikeInStore(video.id, !!data.liked);
       }
     } catch (e) {
-      // rollback
-      setLiked(prevLiked);
-      setLikeCount((c) => Math.max(0, c + (nextLiked ? -1 : 1)));
-      setLikedInStore(video.id, prevLiked);
+      // Revert on error
+      setLikeInStore(video.id, !nextLiked);
       console.error("toggle like failed:", e);
-    } finally {
-      setLikePending(false);
-      likeLockRef.current = false;
     }
   };
 
-  const handleToggleLike = async () => {
-    await commitLike(!liked);
-  };
+  const isCommentOpen = activeCommentVideoId === video.id;
+  const anyCommentOpen = !!activeCommentVideoId;
 
-  // TikTok-like: double-tap video to like (only like, never unlike)
-  useEffect(() => {
-    const handler = (e: Event) => {
-      const ce = e as CustomEvent<{ videoId: string }>;
-      if (!ce?.detail) return;
-      if (String(ce.detail.videoId) !== String(video.id)) return;
-      if (liked) return;
-      void commitLike(true);
-    };
-    window.addEventListener("reely:like", handler as EventListener);
-    return () => window.removeEventListener("reely:like", handler as EventListener);
-  }, [video.id, liked]);
+  const shiftStyle = anyCommentOpen && !isSmallScreen ? { transform: "translateX(-225px)" } : {};
 
   return (
     <>
       <div
         className={`${
           isSmallScreen ? "absolute right-3.5" : "relative ml-5"
-        } flex flex-col items-center space-y-8 text-white`}
+        } flex flex-col items-center space-y-8 text-white transition-transform duration-300 ease-in-out`}
+        style={shiftStyle}
       >
         {/* Avatar */}
         <div className="h-12 w-12 overflow-hidden rounded-full border-2 border-white/20">
@@ -145,9 +143,7 @@ export function ActionButtons({ video }: Props) {
         {/* Like */}
         <button
           onClick={handleToggleLike}
-          disabled={likePending}
-          className={`relative flex h-10 w-10 flex-col items-center justify-center rounded-full bg-[#ffffff21]
-            ${likePending ? "opacity-60" : "opacity-100"}`}
+          className="relative flex h-10 w-10 flex-col items-center justify-center rounded-full bg-[#ffffff21]"
           aria-label="Like"
         >
           <div
@@ -162,7 +158,7 @@ export function ActionButtons({ video }: Props) {
 
         {/* Comment */}
         <button
-          onClick={() => setCommentOpen(true)}
+          onClick={() => isCommentOpen ? closeComment() : openComment(video.id)}
           className="relative flex h-10 w-10 flex-col items-center justify-center rounded-full bg-[#ffffff21]"
           aria-label="Comment"
         >
@@ -196,17 +192,9 @@ export function ActionButtons({ video }: Props) {
       )}
 
       {/* Comment Drawer */}
-      {commentOpen && (
-        <div className="fixed inset-0 z-50 flex justify-end">
-          {/* Backdrop */}
-          <div
-            className="absolute inset-0 bg-black/60"
-            onClick={() => setCommentOpen(false)}
-          />
-          {/* Panel */}
-          <div className="relative h-full">
-            <Comment videoId={videoIdNumber} videoOwnerId={videoOwnerIdNumber} onClose={() => setCommentOpen(false)} />
-          </div>
+      {isCommentOpen && (
+        <div className="fixed right-0 top-0 bottom-0 z-50 w-[450px] shadow-xl bg-[#1e1e1e] border-l border-white/10">
+            <Comment videoId={videoIdNumber} videoOwnerId={videoOwnerIdNumber} onClose={closeComment} />
         </div>
       )}
     </>

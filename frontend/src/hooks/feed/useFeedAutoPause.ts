@@ -184,6 +184,13 @@ export function useFeedAutoPause() {
         }
         activeRef.current = active;
         resetViewTracker();
+
+        // Sync comment drawer if open
+        const videoId = getKey(active);
+        const { activeCommentVideoId, openComment } = useFeedStore.getState();
+        if (activeCommentVideoId && activeCommentVideoId !== videoId) {
+           openComment(videoId);
+        }
       }
 
       bindEndedOnce(active);

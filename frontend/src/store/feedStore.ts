@@ -7,13 +7,17 @@ interface FeedState {
   liked: Record<string, boolean>;
   saved: Record<string, boolean>;
   currentIndex: number;
+  isActionBarVisible: boolean;
+  activeCommentVideoId: string | null;
   setCurrentIndex: (i: number) => void
+  setActionBarVisible: (visible: boolean) => void;
+  openComment: (id: string) => void;
+  closeComment: () => void;
   toggleAutoScroll: () => void;
   toggleAutoPlay: () => void;
   toggleSubtitle: () => void;
   toggleLike: (id: string) => void;
-  setLiked: (id: string, liked: boolean) => void;
-  hydrateLiked: (entries: Record<string, boolean>) => void;
+  setLike: (id: string, isLiked: boolean) => void;
   toggleSave: (id: string) => void;
 }
 
@@ -24,26 +28,19 @@ export const useFeedStore = create<FeedState>((set) => ({
   liked: {},
   saved: {},
   currentIndex: 0,
+  isActionBarVisible: true,
+  activeCommentVideoId: null,
   setCurrentIndex: (i) => set(() => ({ currentIndex: i })),
+  setActionBarVisible: (visible) => set(() => ({ isActionBarVisible: visible })),
+  openComment: (id) => set(() => ({ activeCommentVideoId: id, isActionBarVisible: false })),
+  closeComment: () => set(() => ({ activeCommentVideoId: null, isActionBarVisible: true })),
   toggleAutoScroll: () => set((s) => ({ autoScroll: !s.autoScroll })),
   toggleAutoPlay: () => set((s) => ({ autoPlay: !s.autoPlay })),
   toggleSubtitle: () => set((s) => ({ subtitleOn: !s.subtitleOn })),
   toggleLike: (id: string) =>
     set((s) => ({ liked: { ...s.liked, [id]: !s.liked[id] } })),
-  setLiked: (id: string, liked: boolean) =>
-    set((s) => ({ liked: { ...s.liked, [id]: liked } })),
-  hydrateLiked: (entries: Record<string, boolean>) =>
-    set((s) => {
-      if (!entries || Object.keys(entries).length === 0) return s;
-      // don't overwrite user actions already recorded in the store
-      const next = { ...s.liked };
-      for (const [id, liked] of Object.entries(entries)) {
-        if (!Object.prototype.hasOwnProperty.call(next, id)) {
-          next[id] = liked;
-        }
-      }
-      return { liked: next };
-    }),
+  setLike: (id: string, isLiked: boolean) =>
+    set((s) => ({ liked: { ...s.liked, [id]: isLiked } })),
   toggleSave: (id: string) =>
     set((s) => ({ saved: { ...s.saved, [id]: !s.saved[id] } })),
 }));

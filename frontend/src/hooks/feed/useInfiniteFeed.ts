@@ -65,7 +65,7 @@ export function useInfiniteFeed(pageSize = 5, mode: FeedMode = "personal") {
     isFetching.current = true;
     setIsLoading(true);
     try {
-      const res = await fetchFeed(cursor ?? undefined, pageSize);
+      const res = await fetchFeed(cursor ?? undefined, pageSize, mode);
       setVideos((prev) => {
         const existingIds = new Set(prev.map((v) => v.id));
         const newVideos = res.videos.filter((v) => !existingIds.has(v.id));
@@ -85,7 +85,7 @@ export function useInfiniteFeed(pageSize = 5, mode: FeedMode = "personal") {
       setIsLoading(false);
       isFetching.current = false;
     }
-  }, [cursor, hasMore, pageSize]);
+  }, [cursor, hasMore, pageSize, mode]);
 
   useEffect(() => {
     loadMore(); // initial

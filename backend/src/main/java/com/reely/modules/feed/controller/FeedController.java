@@ -22,10 +22,11 @@ public class FeedController {
      */
     @GetMapping("/public")
     public FeedResponse getPublicFeed(
+            @RequestHeader(value = "X-UserId", required = false) Long viewerId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
-        return feedService.getPublicFeed(pageable);
+        return feedService.getPublicFeed(pageable, viewerId);
     }
 
     /**
@@ -43,7 +44,7 @@ public class FeedController {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
         // If not logged in, fall back to public feed.
         if (userId == null) {
-            return feedService.getPublicFeed(pageable);
+            return feedService.getPublicFeed(pageable, null);
         }
         return feedService.getPersonalizedFeed(userId, pageable);
     }
@@ -56,10 +57,11 @@ public class FeedController {
      */
     @GetMapping("/trending")
     public FeedResponse getTrendingFeed(
+            @RequestHeader(value = "X-UserId", required = false) Long viewerId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
         Pageable pageable = PageRequest.of(page, size);
-        return feedService.getTrendingFeed(pageable);
+        return feedService.getTrendingFeed(pageable, viewerId);
     }
 
     /**
@@ -72,10 +74,11 @@ public class FeedController {
     @GetMapping("/user/{userId}")
     public FeedResponse getUserFeed(
             @PathVariable Long userId,
+            @RequestHeader(value = "X-UserId", required = false) Long viewerId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
         Pageable pageable = PageRequest.of(page, size);
-        return feedService.getUserFeed(userId, pageable);
+        return feedService.getUserFeed(userId, pageable, viewerId);
     }
 
     /**

@@ -46,9 +46,10 @@ public class LikeServiceImpl implements LikeService{
         Optional<User> user = userRepository.findById(likeRequestDTO.getUserId());
         Optional<Video> video = videoRepository.findById(likeRequestDTO.getVideoId());
 
-        if(likeRepository.findByVideoIdAndUserId(likeRequestDTO.getVideoId(), likeRequestDTO.getUserId()).isPresent()){
-            deleteLikeByVideoIdAndUserId(likeRequestDTO.getVideoId(), likeRequestDTO.getUserId());
-            return null;
+        // Idempotency: If already liked, return existing like
+        Optional<Likes> existingLike = likeRepository.findByVideoIdAndUserId(likeRequestDTO.getVideoId(), likeRequestDTO.getUserId());
+        if(existingLike.isPresent()){
+            return existingLike.get();
         }
 
         if(user.isPresent() && video.isPresent()){
@@ -161,13 +162,12 @@ public class LikeServiceImpl implements LikeService{
             likeRepository.delete(like.get());
             if (video.isPresent()) {
                 Video v =  video.get();
-                v.setLikeCount(v.getLikeCount()-1);
+                v.setLikeCount(v.getLikeCount() == null || v.getLikeCount() <= 0 ? 0 : v.getLikeCount() - 1);
                 videoRepository.save(v);
             }
 
-        } else {
-            throw new RuntimeException("Like not found for videoId: " + videoId + " and userId: " + userId);
         }
+        // If not found, do nothing (idempotent)
     }
 
     private void publisherLikeNotification(Likes like, User user, Video video) {
