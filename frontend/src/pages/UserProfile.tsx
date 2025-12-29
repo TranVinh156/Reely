@@ -37,8 +37,7 @@ const UserProfile = () => {
 
     const { mutate: followUser, isPending: isFollowing } = useFollow()
     const { mutate: unfollowUser, isPending: isUnfollowing } = useUnfollow()
-    // const { uploading, progress } = useUpload();
-
+    
     const handleFollowToggle = () => {
         if (!currentUser || !user) return
 
