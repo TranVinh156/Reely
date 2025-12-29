@@ -6,9 +6,11 @@ import { useMediaQuery } from "../../hooks/feed/useMediaQuery";
 import { Icon } from "@iconify/react";
 import { div } from "motion/react-client";
 import { ShareModel } from "./ShareModal";
+import { ActionButtons } from "./ActionButtons";
 
 interface Props {
   video: Video;
+  loadMode?: "active" | "preload" | "idle";
 }
 
 function formatCount(n: number) {
@@ -90,6 +92,7 @@ function ActionButton({ video }: Props) {
 }
 
 export default function VideoCard({ video }: Props) {
+export default function VideoCard({ video, loadMode = "idle" }: Props) {
   const isSmallScreen = useMediaQuery("(max-width: 768px)");
 
   const [orientation, setOrientation] = useState<VideoOrientation>("landscape");
@@ -112,15 +115,16 @@ export default function VideoCard({ video }: Props) {
         <VideoPlayer
           video={video}
           onOrientationChange={handleOrientationChange}
+          loadMode={loadMode}
         />
         {/* <div className="absolute bottom-5 left-5 text-white drop-shadow-md">
           <p className="font-semibold">@{video.user.username}</p>
           <p className="max-w-[70%] text-sm opacity-80">{video.description}</p>
         </div> */}
-        {isSmallScreen ? <ActionButton video={video} /> : ""}
+        {isSmallScreen ? <ActionButtons video={video} /> : ""}
       </div>
       {/* Right action column */}
-      {isSmallScreen ? "" : <ActionButton video={video} />}
+      {isSmallScreen ? "" : <ActionButtons video={video} />}
     </div>
   );
 }

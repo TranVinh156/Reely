@@ -23,8 +23,10 @@ public class LikeController {
 
     @PostMapping
     public ResponseEntity<Likes> addLike(
-            @RequestBody LikeRequestDto likeRequestDTO
+            @RequestBody LikeRequestDto likeRequestDTO,
+            @RequestHeader("X-UserId") Long userId
     ) {
+        likeRequestDTO.setUserId(userId);
         Likes like = likeService.addLike(likeRequestDTO);
         return ResponseEntity.ok(like);
     }
@@ -47,6 +49,14 @@ public class LikeController {
     @DeleteMapping("/{likeId}")
     public void deleteLikeById(@PathVariable Long likeId) {
         likeService.deleteLike(likeId);
+    }
+
+    @DeleteMapping
+    public void deleteLikeByVideoId(
+            @RequestParam Long videoId,
+            @RequestHeader("X-UserId") Long userId
+    ) {
+        likeService.deleteLikeByVideoIdAndUserId(videoId, userId);
     }
 
 

@@ -47,25 +47,29 @@ public class LikeServiceImpl implements LikeService{
         Optional<Video> video = videoRepository.findById(likeRequestDTO.getVideoId());
 
         if(likeRepository.findByVideoIdAndUserId(likeRequestDTO.getVideoId(), likeRequestDTO.getUserId()).isPresent()){
-            throw new RuntimeException(); // tạm
+            deleteLikeByVideoIdAndUserId(likeRequestDTO.getVideoId(), likeRequestDTO.getUserId());
+            return null;
         }
 
         if(user.isPresent() && video.isPresent()){
-
-
             Likes like =  likeRepository.save(
                     Likes.builder()
                             .user(user.get())
                             .video(video.get())
                             .build()
             );
+
+            Video v =  video.get();
+            v.setLikeCount(v.getLikeCount()+1);
+            videoRepository.save(v);
+
             if (!user.get().getId().equals(video.get().getUserId())) {
                 publisherLikeNotification(like, user.get(), video.get());
             }
 
             return like;
         } else {
-            throw new RuntimeException();
+            throw new RuntimeException("User or Video not found. UserId: " + likeRequestDTO.getUserId() + ", VideoId: " + likeRequestDTO.getVideoId());
         }
     }
 
@@ -138,7 +142,32 @@ public class LikeServiceImpl implements LikeService{
     }
 
     public void deleteLike(long likeId) {
-        likeRepository.deleteById(likeId);
+        Optional<Likes> like = likeRepository.findById(likeId);
+        if (like.isPresent()) {
+            likeRepository.deleteById(likeId);
+            Video video = like.get().getVideo();
+            if (video != null) {
+                video.setLikeCount(video.getLikeCount() == null || video.getLikeCount() <= 0 ? 0 : video.getLikeCount() - 1);
+                videoRepository.save(video);
+            }
+        }
+    }
+
+    @Override
+    public void deleteLikeByVideoIdAndUserId(Long videoId, Long userId) {
+        Optional<Likes> like = likeRepository.findByVideoIdAndUserId(videoId, userId);
+        Optional<Video> video = videoRepository.findById(videoId);
+        if (like.isPresent()) {
+            likeRepository.delete(like.get());
+            if (video.isPresent()) {
+                Video v =  video.get();
+                v.setLikeCount(v.getLikeCount()-1);
+                videoRepository.save(v);
+            }
+
+        } else {
+            throw new RuntimeException("Like not found for videoId: " + videoId + " and userId: " + userId);
+        }
     }
 
     private void publisherLikeNotification(Likes like, User user, Video video) {

@@ -71,6 +71,9 @@ public class CommentServiceImpl implements CommentService {
                             .build()
 
             );
+            Video v = video.get();
+            v.setCommentCount(v.getCommentCount() + 1);
+            commentRepository.save(comment);
 
             if (!user.get().getId().equals(video.get().getUserId())) {
                 publishCommentNotification(comment, user.get(), video.get());
@@ -152,17 +155,27 @@ public class CommentServiceImpl implements CommentService {
     @Transactional
     public void deleteCommentById(Long commentId) {
         Comment comment = getCommentById(commentId);
+        Optional<Video> video = videoRepository.findById(comment.getVideo().getId());
         if (comment.getRootComment() != null) {
             Comment rootComment = comment.getRootComment();
             rootComment.setReplyCount(rootComment.getReplyCount() - 1);
             commentRepository.save(rootComment);
         } else {
             List<Comment> childComments = commentRepository.findByRootComment_IdOrderByCreatedAtDesc(commentId, PageRequest.of(0, 10)).getContent();
+            if (video.isPresent()) {
+                Video v = video.get();
+                v.setCommentCount(v.getCommentCount() - childComments.size());
+                videoRepository.save(v);
+            }
             childComments.forEach((childComment) -> {
                 commentRepository.delete(childComment);
             }) ;
         }
-
+        if (video.isPresent()) {
+            Video v = video.get();
+            v.setCommentCount(v.getCommentCount() - 1);
+            videoRepository.save(v);
+        }
         commentRepository.deleteById(commentId);
     }
 

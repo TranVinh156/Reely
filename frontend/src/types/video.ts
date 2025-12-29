@@ -28,6 +28,7 @@ export interface Video {
   comments: number;
   shares: number;
   duration: number; // seconds
+  tags: string[]; // array of tags
 }
 
 export interface FeedResponse {

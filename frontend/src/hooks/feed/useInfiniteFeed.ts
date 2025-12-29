@@ -47,9 +47,9 @@
 
 import { useEffect, useState, useRef, useCallback } from "react";
 import type { Video } from "../../types/video";
-import { fetchFeed } from "../../api/feed";
+import { fetchFeed, type FeedMode } from "../../api/feed";
 
-export function useInfiniteFeed(pageSize = 5) {
+export function useInfiniteFeed(pageSize = 5, mode: FeedMode = "personal") {
   const [videos, setVideos] = useState<Video[]>([]);
   const [cursor, setCursor] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -64,7 +64,8 @@ export function useInfiniteFeed(pageSize = 5) {
     try {
       const res = await fetchFeed(cursor ?? undefined, pageSize);
       setVideos((prev) => {
-        const newVideos = res.videos.filter(v => !prev.some(p => p.id === v.id));
+        const existingIds = new Set(prev.map((v) => v.id));
+        const newVideos = res.videos.filter((v) => !existingIds.has(v.id));
         return [...prev, ...newVideos];
       });
       setCursor(res.nextCursor ?? null);
@@ -79,6 +80,12 @@ export function useInfiniteFeed(pageSize = 5) {
     loadMore(); // initial
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    setVideos([]);
+    setCursor(null);
+    setHasMore(true);
+  }, [mode]);
 
   useEffect(() => {
     if (!loaderRef.current) return;

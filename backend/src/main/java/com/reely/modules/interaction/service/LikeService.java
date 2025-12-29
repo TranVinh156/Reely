@@ -17,4 +17,5 @@ public interface LikeService {
     List<Long> statisticLikesUserAge(Long userId);
     Likes getLikeById(Long likeId);
     void deleteLike(long likeId);
+    void deleteLikeByVideoIdAndUserId(Long videoId, Long userId);
 }
