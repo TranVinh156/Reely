@@ -58,7 +58,7 @@ export function useInfiniteFeed(pageSize = 5, mode: FeedMode = "personal") {
   const loaderRef = useRef<HTMLDivElement | null>(null);
   const isFetching = useRef(false);
 
-  const hydrateLiked = useFeedStore((s) => s.hydrateLiked);
+  // const hydrateLiked = useFeedStore((s) => s.hydrateLiked);
 
   const loadMore = useCallback(async () => {
     if (isFetching.current || !hasMore) return;
@@ -75,7 +75,7 @@ export function useInfiniteFeed(pageSize = 5, mode: FeedMode = "personal") {
         for (const v of newVideos) {
           if (typeof v.isLiked === "boolean") likedEntries[v.id] = v.isLiked;
         }
-        hydrateLiked(likedEntries);
+        // hydrateLiked(likedEntries);
 
         return [...prev, ...newVideos];
       });
