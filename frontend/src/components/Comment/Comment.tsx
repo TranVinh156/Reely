@@ -4,6 +4,7 @@ import { X, ChevronDown, Paperclip, Smile, Send, ChevronUp } from "lucide-react"
 import { formatTimestamp } from "../../utils/formatTimestamp.ts";
 import axiosClient from "@/utils/axios.client.ts";
 import { useAuth } from "@/hooks/auth/useAuth.ts";
+import { useFeedStore } from "@/store/feedStore";
 
 interface Reply {
   id: string;
@@ -46,6 +47,7 @@ const Comment: React.FC<{ videoId: number, videoOwnerId: number , onClose: () =>
   const [hasMoreComments, setHasMoreComments] = useState(true);
 
   const {user} = useAuth();
+  const incrementCommentCount = useFeedStore((s) => s.incrementCommentCount);
   
   useEffect(() => {
     setComments([]);
@@ -185,6 +187,7 @@ const Comment: React.FC<{ videoId: number, videoOwnerId: number , onClose: () =>
         console.log('Comment submitted:', response.data.data);
         setComments(prev => [response.data, ...prev]);
         setCommentText("");
+        incrementCommentCount(videoId.toString());
       } catch (error) {
         console.error('Error submitting comment:', error);
       }   

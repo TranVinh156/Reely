@@ -52,7 +52,6 @@ export default function Sidebar() {
     { icon: <Compass />, text: "Explore", link: "/" },
     { icon: <UserRoundPlus />, text: "Following", link: "/" },
     { icon: <User2 />, text: "Profile", link: user ? `/users/${user.username}` : "/login" },
-    { icon: <Bell />, text: "Notification", link: "/" },
     // { icon: <Upload />, text: "Upload", link: "/upload" }
     { icon: <ChartNoAxesCombined />, text: "Analysis", link: "/analysis" },
     { icon: <Bell />, text: "Notification", link: "#", onClick: toggleNotification }    

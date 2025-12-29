@@ -1,12 +1,11 @@
 // frontend/src/components/Video/ActionButtons.tsx
-import { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useMediaQuery } from "@/hooks/feed/useMediaQuery";
 import { useFeedStore } from "@/store/feedStore";
 import Comment from "@/components/Comment/Comment";
 import type { Video } from "@/types/video";
 import { likeVideo, unlikeVideo } from "@/api/feed";
 import { ShareModel } from "./ShareModal";
-import { li } from "motion/react-client";
 
 function formatCount(n: number) {
   if (n >= 1_000_000) return `${Math.round(n / 1_000_000)}M`;
@@ -21,9 +20,12 @@ type Props = {
 export function ActionButtons({ video }: Props) {
   const isSmallScreen = useMediaQuery("(max-width: 768px)");
 
-  // Select only this video's like status to avoid unnecessary re-renders
-  const isLikedInStore = useFeedStore((s) => s.liked[String(video.id)]);
+  // Select only the specific video's like status to avoid unnecessary re-renders
+  const isLikedInStore = useFeedStore((s) => s.liked[video.id]);
   const setLikeInStore = useFeedStore((s) => s.setLike);
+
+  const commentCountInStore = useFeedStore((s) => s.commentCounts[video.id]);
+  const setCommentCountInStore = useFeedStore((s) => s.setCommentCount);
   
   const activeCommentVideoId = useFeedStore((s) => s.activeCommentVideoId);
   const openComment = useFeedStore((s) => s.openComment);
@@ -32,15 +34,19 @@ export function ActionButtons({ video }: Props) {
   // Initialize store with video.isLiked if not present
   useEffect(() => {
     if (isLikedInStore === undefined && video.isLiked !== undefined) {
-      setLikeInStore(String(video.id), !!video.isLiked);
+      setLikeInStore(video.id, video.isLiked);
     }
-  }, [video.id, video.isLiked, isLikedInStore, setLikeInStore]);
+    if (commentCountInStore === undefined && video.comments !== undefined) {
+      setCommentCountInStore(video.id, video.comments);
+    }
+  }, [video.id, video.isLiked, isLikedInStore, setLikeInStore, video.comments, commentCountInStore, setCommentCountInStore]);
 
   // Derived state for UI
-  const liked = isLikedInStore !== undefined ? !!isLikedInStore : !!video.isLiked;
+  const liked = isLikedInStore !== undefined ? isLikedInStore : !!video.isLiked;
+  const commentCount = commentCountInStore !== undefined ? commentCountInStore : video.comments;
 
   const likeCount = useMemo(() => {
-    let count = Number(video.likes ?? 0);
+    let count = video.likes;
     const serverLiked = !!video.isLiked;
     // If local state differs from server state, adjust count
     if (liked !== serverLiked) {
@@ -50,9 +56,6 @@ export function ActionButtons({ video }: Props) {
   }, [video.likes, video.isLiked, liked]);
 
   const [shareModalOpen, setShareModalOpen] = useState(false);
-
-  // Guard against rapid multi-click before request finishes
-  const likeLockRef = useRef(false);
 
   // Reset modal state when switching to a different video
   useEffect(() => {
@@ -70,34 +73,25 @@ export function ActionButtons({ video }: Props) {
   }, [video.user.id]);
 
   const handleToggleLike = async () => {
-    if (likeLockRef.current) return;
-    likeLockRef.current = true;
-
-    console.log("Liked status before toggle:", liked);
     // Optimistic update via store
     const nextLiked = !liked;
-    setLikeInStore(String(video.id), nextLiked);
-    console.log("like toggled, now:", nextLiked);
+    setLikeInStore(video.id, nextLiked);
 
     try {
       const data = nextLiked ? await likeVideo(video.id) : await unlikeVideo(video.id);
+
       // If server response contradicts our optimistic update, revert
-      // if (!(!data.liked !== nextLiked)) {
-      //   setLikeInStore(String(video.id), !!data.liked);
-      //   console.log("like status corrected to:", !!data.liked);
-      // }
+      if (!!data.liked !== nextLiked) {
+        setLikeInStore(video.id, !!data.liked);
+      }
     } catch (e) {
       // Revert on error
-      setLikeInStore(String(video.id), !nextLiked);
+      setLikeInStore(video.id, !nextLiked);
       console.error("toggle like failed:", e);
-    } finally {
-      likeLockRef.current = false;
     }
-
-    console.log("Liked status after toggle:", liked);
   };
 
-  const isCommentOpen = activeCommentVideoId === String(video.id);
+  const isCommentOpen = activeCommentVideoId === video.id;
   const anyCommentOpen = !!activeCommentVideoId;
 
   const shiftStyle = anyCommentOpen && !isSmallScreen ? { transform: "translateX(-225px)" } : {};
@@ -137,12 +131,12 @@ export function ActionButtons({ video }: Props) {
 
         {/* Comment */}
         <button
-          onClick={() => (isCommentOpen ? closeComment() : openComment(String(video.id)))}
+          onClick={() => isCommentOpen ? closeComment() : openComment(video.id)}
           className="relative flex h-10 w-10 flex-col items-center justify-center rounded-full bg-[#ffffff21]"
           aria-label="Comment"
         >
           <div className="icon-[basil--comment-solid] h-6 w-6" />
-          <div className="absolute top-10 mt-1 text-sm">{formatCount(video.comments)}</div>
+          <div className="absolute top-10 mt-1 text-sm">{formatCount(commentCount)}</div>
         </button>
 
         {/* Save (placeholder) */}
@@ -179,4 +173,3 @@ export function ActionButtons({ video }: Props) {
     </>
   );
 }
-

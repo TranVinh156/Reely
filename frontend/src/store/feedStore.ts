@@ -6,6 +6,7 @@ interface FeedState {
   subtitleOn: boolean;
   liked: Record<string, boolean>;
   saved: Record<string, boolean>;
+  commentCounts: Record<string, number>;
   currentIndex: number;
   isActionBarVisible: boolean;
   activeCommentVideoId: string | null;
@@ -19,6 +20,8 @@ interface FeedState {
   toggleLike: (id: string) => void;
   setLike: (id: string, isLiked: boolean) => void;
   toggleSave: (id: string) => void;
+  setCommentCount: (id: string, count: number) => void;
+  incrementCommentCount: (id: string) => void;
 }
 
 export const useFeedStore = create<FeedState>((set) => ({
@@ -27,6 +30,7 @@ export const useFeedStore = create<FeedState>((set) => ({
   subtitleOn: false,
   liked: {},
   saved: {},
+  commentCounts: {},
   currentIndex: 0,
   isActionBarVisible: true,
   activeCommentVideoId: null,
@@ -43,4 +47,13 @@ export const useFeedStore = create<FeedState>((set) => ({
     set((s) => ({ liked: { ...s.liked, [id]: isLiked } })),
   toggleSave: (id: string) =>
     set((s) => ({ saved: { ...s.saved, [id]: !s.saved[id] } })),
+  setCommentCount: (id, count) =>
+    set((s) => ({ commentCounts: { ...s.commentCounts, [id]: count } })),
+  incrementCommentCount: (id) =>
+    set((s) => ({
+      commentCounts: {
+        ...s.commentCounts,
+        [id]: (s.commentCounts[id] || 0) + 1,
+      },
+    })),
 }));

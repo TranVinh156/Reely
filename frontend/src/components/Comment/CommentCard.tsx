@@ -6,6 +6,7 @@ import axiosClient from "@/utils/axios.client";
 import { useAuth } from "@/hooks/auth/useAuth";
 import { h4 } from "motion/react-client";
 import { NavLink } from "react-router-dom";
+import { useFeedStore } from "@/store/feedStore";
 
 
 interface CommentCardProps {
@@ -55,6 +56,7 @@ const CommentCard: React.FC<CommentCardProps> = ({
   const [showReportModal, setShowReportModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const {user} = useAuth();
+  const incrementCommentCount = useFeedStore((s) => s.incrementCommentCount);
 
   avatarUrl = "http://localhost:9000/" + avatarUrl;
 
@@ -72,6 +74,7 @@ const CommentCard: React.FC<CommentCardProps> = ({
         onReplyAdded?.(targetRootId);
         setReplyText("");
         if (onReplyClose) onReplyClose();
+        incrementCommentCount(videoId.toString());
       } catch (error) {
         console.error("Error submitting reply:", error);
       }
