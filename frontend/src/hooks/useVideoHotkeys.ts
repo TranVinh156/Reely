@@ -1,44 +1,60 @@
-import { use, useEffect } from "react";
+import { useEffect } from "react";
 
-export function useVideoHotkeys(videoRef: React.RefObject<HTMLVideoElement | null>) {
-    useEffect(() => {
-        const handler = (e: KeyboardEvent) => {
-            const active = document.activeElement;
-            if (active && ['INPUT', 'TEXTAREA'].includes(active.tagName)) {
-                return;
-            }
+function getActiveVideo(): HTMLVideoElement | null {
+  // ưu tiên video được đánh dấu active
+  const v = document.querySelector<HTMLVideoElement>('video[data-active="1"]');
+  if (v) return v;
 
-            const video = videoRef.current;
-            if (!video) return;
-            const key = e.key.toLowerCase();
-            if (key === " ") {
-                e.preventDefault();
-                if (video.paused) {
-                    video.play().catch(() => {});
-                } else {
-                    video.pause();
-                }
-            } else if (key === "m") {
-                e.preventDefault();
-                video.muted = !video.muted;
-            } else if (key === "arrowup") {
-                e.preventDefault();
-                video.volume = Math.min(1, video.volume + 0.05);
-            } else if (key === "arrowdown") {
-                e.preventDefault();
-                video.volume = Math.max(0, video.volume - 0.05);
-            } else if (key === "arrowright") {
-                e.preventDefault();
-                video.currentTime = Math.min(video.duration || Infinity, video.currentTime + 5);
-            } else if (key === "arrowleft") {
-                e.preventDefault();
-                video.currentTime = Math.max(0, video.currentTime - 5);
-            }
-        };
+  // fallback: video đang play
+  const playing = Array.from(document.querySelectorAll<HTMLVideoElement>("video")).find(
+    (x) => !x.paused && !x.ended
+  );
+  return playing ?? null;
+}
 
-        window.addEventListener("keydown", handler);
-        return () => {
-            window.removeEventListener("keydown", handler);
-        };
-    }, [videoRef]);
+export function useVideoHotkeys() {
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      const activeEl = document.activeElement as HTMLElement | null;
+      if (
+        activeEl &&
+        (activeEl.tagName === "INPUT" ||
+          activeEl.tagName === "TEXTAREA" ||
+          activeEl.isContentEditable)
+      ) {
+        return;
+      }
+
+      const video = getActiveVideo();
+      if (!video) return;
+
+      // dùng e.code cho ổn định (Space không phụ thuộc layout)
+      const code = e.code;
+
+      if (code === "Space") {
+        e.preventDefault();
+        if (video.paused) video.play().catch(() => {});
+        else video.pause();
+      } else if (code === "KeyM") {
+        e.preventDefault();
+        video.muted = !video.muted;
+      } else if (code === "ArrowUp") {
+        e.preventDefault();
+        video.volume = Math.min(1, video.volume + 0.05);
+      } else if (code === "ArrowDown") {
+        e.preventDefault();
+        video.volume = Math.max(0, video.volume - 0.05);
+      } else if (code === "ArrowRight") {
+        e.preventDefault();
+        video.currentTime = Math.min(video.duration || Infinity, video.currentTime + 5);
+      } else if (code === "ArrowLeft") {
+        e.preventDefault();
+        video.currentTime = Math.max(0, video.currentTime - 5);
+      }
+    };
+
+    // capture=true để tránh bị component khác chặn
+    window.addEventListener("keydown", handler, { capture: true });
+    return () => window.removeEventListener("keydown", handler, { capture: true } as any);
+  }, []);
 }

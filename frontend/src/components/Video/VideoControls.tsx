@@ -49,7 +49,7 @@ export default function VideoControls({
 
     <div className="pointer-events-none absolute inset-0 flex flex-col justify-between select-none">
       {/* Overlay Play/Pause Animation */}
-      <AnimatePresence>
+      {/* <AnimatePresence>
         {!isPlaying && (
           <motion.div
             key="play-overlay"
@@ -62,7 +62,7 @@ export default function VideoControls({
             <i className="ri-play-circle-fill text-6xl text-white/80" />
           </motion.div>
         )}
-      </AnimatePresence>
+      </AnimatePresence> */}
       {/* Bottom Controls */}
       <div className="pointer-events-auto absolute right-0 bottom-0 left-0 px-3 pb-3">
         <div className="flex flex-col gap-2">

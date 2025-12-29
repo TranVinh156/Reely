@@ -13,4 +13,5 @@ public interface LikeService {
     LikeResponseDto getLikeByVideoIdAndUserId(Long videoId, Long userId);
     Likes getLikeById(Long likeId);
     void deleteLike(long likeId);
+    void deleteLikeByVideoIdAndUserId(Long videoId, Long userId);
 }
