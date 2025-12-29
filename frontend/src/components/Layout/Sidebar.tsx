@@ -111,7 +111,7 @@ export default function Sidebar() {
               return <FollowingCard key={index} follower={follower} />;
             })}
           </div>
-        )}
+        }
       </div>
     </aside>
     
