@@ -208,6 +208,8 @@ public class CommentServiceImpl implements CommentService {
                     .readFlag(0)
                     .payload(payload)
                     .build();
+
+            System.out.println(notificationRequestDto);
             this.rabbitTemplate.convertAndSend(
                     RabbitMQConfig.COMMENT_EXCHANGE,
                     RabbitMQConfig.COMMENT_ROUTING_KEY,

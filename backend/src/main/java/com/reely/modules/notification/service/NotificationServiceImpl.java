@@ -128,6 +128,7 @@ public class NotificationServiceImpl implements NotificationService {
     @RabbitListener(queues = RabbitMQConfig.COMMENT_QUEUE, ackMode = "MANUAL")
     @Transactional
     public void handleCommentNotification(NotificationRequestDto notificationRequestDto, Message message, Channel channel) {
+        System.out.println(notificationRequestDto);
         try {
             NotificationResponseDto response = addNotification(notificationRequestDto);
             notifyPendingRequests(notificationRequestDto.getUserId(), response);
@@ -151,6 +152,22 @@ public class NotificationServiceImpl implements NotificationService {
         } catch (Exception e) {
             try {
                 handleFailure(message, RabbitMQConfig.LIKE_RETRY_ROUTING_KEY, RabbitMQConfig.LIKE_DLQ_ROUTING_KEY, channel, e);
+            } catch (Exception ex) {
+                System.out.println(ex.getMessage());
+            }
+        }
+    }
+
+    @RabbitListener(queues = RabbitMQConfig.FOLLOW_QUEUE, ackMode = "MANUAL")
+    @Transactional
+    public void handleFollowNotification(NotificationRequestDto notificationRequestDto, Message message, Channel channel) {
+        try {
+            NotificationResponseDto response = addNotification(notificationRequestDto);
+            notifyPendingRequests(notificationRequestDto.getUserId(), response);
+            channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
+        } catch (Exception e) {
+            try {
+                handleFailure(message, RabbitMQConfig.FOLLOW_RETRY_ROUTING_KEY, RabbitMQConfig.FOLLOW_DLQ_ROUTING_KEY, channel, e);
             } catch (Exception ex) {
                 System.out.println(ex.getMessage());
             }
@@ -248,16 +265,12 @@ public class NotificationServiceImpl implements NotificationService {
 
     @RabbitListener(queues = RabbitMQConfig.COMMENT_DLQ)
     public void handleCommentDLQ(NotificationRequestDto notificationRequestDto, Message message) {
-        // TODO: Implement logging to database or monitoring system
-        // TODO: Send alert to admin
-        // TODO: Store in permanent storage for manual review
+
     }
 
     @RabbitListener(queues = RabbitMQConfig.LIKE_DLQ)
     public void handleLikeDLQ(NotificationRequestDto notificationRequestDto, Message message) {
-        // TODO: Implement logging to database or monitoring system
-        // TODO: Send alert to admin
-        // TODO: Store in permanent storage for manual review
+
     }
 
     private NotificationResponseDto mapToDto(Notification notification) {

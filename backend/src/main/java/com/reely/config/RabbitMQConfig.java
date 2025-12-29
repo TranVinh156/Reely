@@ -30,6 +30,15 @@ public class RabbitMQConfig {
     public static final String LIKE_DLQ = "like.dlq";
     public static final String LIKE_DLQ_ROUTING_KEY = "like.dlq.notification";
 
+    public static final String FOLLOW_QUEUE = "like.queue";
+    public static final String FOLLOW_EXCHANGE = "like.exchange";
+    public static final String FOLLOW_ROUTING_KEY = "like.notification";
+
+    public static final String FOLLOW_RETRY_QUEUE = "like.retry.queue";
+    public static final String FOLLOW_RETRY_ROUTING_KEY = "like.retry";
+    public static final String FOLLOW_DLQ = "like.dlq";
+    public static final String FOLLOW_DLQ_ROUTING_KEY = "like.dlq.notification";
+
     @Bean
     public Queue commentQueue() {
         return QueueBuilder.durable(COMMENT_QUEUE)
@@ -75,6 +84,28 @@ public class RabbitMQConfig {
     }
 
     @Bean
+    public Queue followQueue() {
+        return QueueBuilder.durable(FOLLOW_EXCHANGE)
+                .withArgument("x-dead-letter-exchange", ERROR_EXCHANGE)
+                .withArgument("x-dead-letter-routing-key", FOLLOW_DLQ_ROUTING_KEY)
+                .build();
+    }
+
+    @Bean
+    public Queue followRetryQueue() {
+        return QueueBuilder.durable(FOLLOW_RETRY_QUEUE)
+                .withArgument("x-message-ttl", 5000)
+                .withArgument("x-dead-letter-exchange", FOLLOW_EXCHANGE)
+                .withArgument("x-dead-letter-routing-key", FOLLOW_ROUTING_KEY)
+                .build();
+    }
+
+    @Bean
+    public Queue followDLQ() {
+        return QueueBuilder.durable(LIKE_DLQ).build();
+    }
+
+    @Bean
     public TopicExchange commentExchange() {
         return new TopicExchange(COMMENT_EXCHANGE, true, false);
     }
@@ -87,6 +118,11 @@ public class RabbitMQConfig {
     @Bean
     public TopicExchange likeExchange() {
         return new TopicExchange(LIKE_EXCHANGE, true, false);
+    }
+
+    @Bean
+    public TopicExchange followExchange() {
+        return new TopicExchange(FOLLOW_EXCHANGE, true, false);
     }
 
 
@@ -136,6 +172,30 @@ public class RabbitMQConfig {
                 .bind(likeDLQ())
                 .to(errorExchange())
                 .with(LIKE_DLQ_ROUTING_KEY);
+    }
+
+    @Bean
+    public Binding followBinding() {
+        return BindingBuilder
+                .bind(likeQueue())
+                .to(likeExchange())
+                .with(FOLLOW_ROUTING_KEY);
+    }
+
+    @Bean
+    public Binding followRetryBinding() {
+        return BindingBuilder
+                .bind(likeRetryQueue())
+                .to(errorExchange())
+                .with(FOLLOW_RETRY_ROUTING_KEY);
+    }
+
+    @Bean
+    public Binding followDLQBinding() {
+        return BindingBuilder
+                .bind(likeDLQ())
+                .to(errorExchange())
+                .with(FOLLOW_DLQ_ROUTING_KEY);
     }
 
     @Bean
