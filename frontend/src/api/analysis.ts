@@ -17,6 +17,11 @@ export const getCommentStat = async (days: number): Promise<Stat[]> => {
     return response.data
 }
 
+export const getViewStat = async (days: number): Promise<Stat[]> => {
+    const response = await axiosClient.get('videos/user/stat-views', {params: {days: days}})
+    return response.data
+}
+
 export const getLikeStatAge = async (): Promise<number[]> => {
     const response = await axiosClient.get('/likes/stat-age');
     return response.data

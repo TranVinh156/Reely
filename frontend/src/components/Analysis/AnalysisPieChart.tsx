@@ -53,7 +53,6 @@ const AnalysisPieChart : React.FC = () => {
                     dataKey="count"
                     nameKey="ageGroup"
                 >
-                    {/* Vòng lặp để tô màu cho từng miếng */}
                     {data.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}

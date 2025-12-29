@@ -41,11 +41,6 @@ const AnalysisOption: React.FC<{activeBar: string, setActiveBar: React.Dispatch<
             id: 'comments',
             label: 'Comments',
             value: comments
-        }, 
-        {
-            id: 'shares',
-            label: 'Number of shares',
-            value: 0
         }
        ]
 

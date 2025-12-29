@@ -1,4 +1,4 @@
-import { getCommentStat, getLikeStat } from "@/api/analysis";
+import { getCommentStat, getLikeStat, getViewStat } from "@/api/analysis";
 import { div } from "motion/react-client";
 import React, { useEffect, useState } from "react";
 import {
@@ -20,16 +20,19 @@ interface Stat {
 const AnalysisLineChart: React.FC<{activeBar: string, searchTime: string}> = ({activeBar, searchTime}) => {
     const [likeData, setLikeData] = useState<Stat[]>([]);
     const [commentData, setCommentData] = useState<Stat[]>([]);
+    const [viewData, setViewData] = useState<Stat[]>([]);
 
     useEffect(() => {
         const fetchData = async () => {
-            const [likesResult, commentsResult] = await Promise.all([
+            const [likesResult, commentsResult, viewsResult] = await Promise.all([
                 getLikeStat(parseInt(searchTime)),
-                getCommentStat(parseInt(searchTime))
+                getCommentStat(parseInt(searchTime)),
+                getViewStat(parseInt(searchTime))
             ]);
 
             setLikeData(likesResult);
             setCommentData(commentsResult);
+            setViewData(viewsResult);
         }
         fetchData();
     }, [searchTime])
@@ -37,6 +40,32 @@ const AnalysisLineChart: React.FC<{activeBar: string, searchTime: string}> = ({a
 
   return (
     <>
+        {activeBar === 'views' && (
+        <div className="w-full h-80 bg-white pb-10 pr-4 rounded-xl shadow-md border border-gray-200">
+            <h3 className="pl-4 text-lg font-bold text-gray-700 mb-4">Views</h3>
+            <ResponsiveContainer width="100%" height="100%">
+                <LineChart
+                data={viewData}
+                margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                >
+                <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                <XAxis dataKey="date" stroke="#6b7280" />
+                <YAxis stroke="#6b7280" allowDecimals={false}/>
+                <Tooltip />
+                <Legend />
+                <Line 
+                    type="monotone" 
+                    dataKey="count" 
+                    name="Views" 
+                    stroke="#10b981" 
+                    activeDot={{ r: 4 }} 
+                    strokeWidth={1}
+                />
+                </LineChart>
+            </ResponsiveContainer>
+        </div>
+        )}
+
         {activeBar === 'likes' && (
         <div className="w-full h-80 bg-white pb-10 pr-4 rounded-xl shadow-md border border-gray-200">
             <h3 className="pl-4 text-lg font-bold text-gray-700 mb-4">Likes</h3>
