@@ -37,7 +37,7 @@ public class VideoController {
     }
 
     @GetMapping("/user/stat-views")
-    public ResponseEntity<List<ViewStat>> getTotalViewsByUserId(@RequestParam Long userId, @RequestParam Long days) {
+    public ResponseEntity<List<ViewStat>> getTotalViewsByUserId(@RequestHeader("X-UserId") Long userId, @RequestParam Long days) {
         return ResponseEntity.ok(videoService.countViewsByUserIdAndDate(userId, days));
     }
 

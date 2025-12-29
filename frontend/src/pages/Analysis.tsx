@@ -21,7 +21,6 @@ const Analysis: React.FC = () => {
                     <AnalysisPieChart></AnalysisPieChart>
                     <LastestPost>
                     </LastestPost>
-
                     
                 </div>
             </div>              
