@@ -139,14 +139,6 @@ export function ActionButtons({ video }: Props) {
           <div className="absolute top-10 mt-1 text-sm">{formatCount(commentCount)}</div>
         </button>
 
-        {/* Save (placeholder) */}
-        <button
-          className="relative flex h-10 w-10 flex-col items-center justify-center rounded-full bg-[#ffffff21]"
-          aria-label="Save"
-        >
-          <div className="icon-[subway--mark-2] h-6 w-6" />
-        </button>
-
         {/* Share */}
         <button
           className="relative flex h-10 w-10 flex-col items-center justify-center rounded-full bg-[#ffffff21]"
@@ -154,9 +146,6 @@ export function ActionButtons({ video }: Props) {
           onClick={() => setShareModalOpen(true)}
         >
           <div className="icon-[ooui--share] h-6 w-6" />
-          <div className="absolute top-10 mt-1 text-xs font-bold text-white">
-            {formatCount(video.shares)}
-          </div>
         </button>
       </div>
 
