@@ -14,6 +14,8 @@ public interface FeedMapper {
     @Mapping(target = "avatarUrl", source = "user.avatarUrl")
     @Mapping(target = "videoUrl", expression = "java(buildVideoUrl(video.getOriginalS3Key()))")
     @Mapping(target = "thumbnailUrl", ignore = true)
+    @Mapping(target = "durationSeconds", source = "video.durationSeconds")
+    @Mapping(target = "tags", ignore = true)
     @Mapping(target = "createdAt", source = "video.createdAt")
     @Mapping(target = "isFollowed", ignore = true)
     @Mapping(target = "isLiked", ignore = true)

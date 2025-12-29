@@ -14,24 +14,65 @@ interface Props {
   video: Video;
   className?: string;
   onOrientationChange?: (orientation: VideoOrientation) => void;
+  loadMode?: "active" | "preload" | "idle";
 }
 
 export default function VideoPlayer({
   video,
   className,
   onOrientationChange,
+  loadMode = "idle",
 }: Props) {
+  // load/unload video based on loadMode
+  useEffect(() => {
+    const el = ref.current;
+
+    if (!el) return;
+
+    const desiredPreload = loadMode === "active" ? "auto" : (loadMode === "preload" ? "metadata" : "none");
+    el.preload = desiredPreload;
+
+    if (loadMode === "idle") {
+      try {
+        el.pause();
+      } catch (e) {}
+
+      if (!el.getAttribute("src")) {
+        el.removeAttribute("src");
+        try {
+          el.load();
+        } catch (e) {}
+      }
+
+      return;
+    }
+
+    // ensure src is set
+    const currentSrc = el.getAttribute("src") ?? "";
+    if (video.src && video.src !== currentSrc) {
+      el.setAttribute("src", video.src);
+      try {
+        el.load();
+      } catch (e) {}
+    }
+  }, [loadMode, video.src]);
+
   const ref = useRef<HTMLVideoElement>(null);
   // const { isPlaying, togglePlay } = useVideoController(ref, video.id);
   const { togglePlay, isPlaying, muted, toggleMute, volume, setVol } =
     useVideoController(ref, video.id);
 
-  useVideoHotkeys(ref);
+  useVideoHotkeys();
 
   useEffect(() => {
     // ensure metadata preloaded
     if (ref.current) ref.current.preload = "metadata";
   }, []);
+
+  // useEffect(() => {
+  //   if (!ref.current) return;
+  //   ref.current.dataset.seeking = isSeeking ? "1" : "0";
+  // }, [isSeeking]);
 
   const handleLoadedMetadata = () => {
     if (ref.current && onOrientationChange) {
@@ -55,12 +96,15 @@ export default function VideoPlayer({
       className={`relative h-full w-full overflow-hidden transition-opacity duration-300 ${
         isPlaying ? "opacity-100" : "opacity-50"
       } ${className ?? ""}`}
+      onClick={() => togglePlay()}
     >
       <video
         ref={ref}
         onLoadedMetadata={handleLoadedMetadata}
         data-id={video.id}
-        src={video.src}
+        data-video-el
+        data-video-id={video.id}
+        src={loadMode === "idle" ? undefined : video.src}
         poster={video.poster}
         playsInline
         // loop
@@ -78,7 +122,7 @@ export default function VideoPlayer({
           className={`bg-red pointer-events-none h-18 w-18 text-4xl opacity-100 ${isPlaying ? "" : "icon-[solar--play-bold]"}`}
         ></div>
       </button> */}
-      
+
       <VideoControls
         username={video.user.username}
         description={video.description}
@@ -97,7 +141,6 @@ export default function VideoPlayer({
       />
 
       {/* simple overlay: click to toggle */}
-      
 
       {/* simple overlay: click to toggle */}
       {/* <button

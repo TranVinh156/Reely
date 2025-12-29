@@ -16,6 +16,7 @@ import IndexPage from "./pages/FeedPage";
 import Comment from "./components/Comment/Comment";
 import FeedPage from "./pages/FeedPage";
 import ForgetPasswordPage from "./pages/ForgetPasswordPage";
+import Analysis from "./pages/Analysis";
 
 const queryClient = new QueryClient();
 
@@ -75,6 +76,37 @@ ReactDOM.createRoot(root).render(
                                 <ForgetPasswordPage />
                             }
                         />
+                      
+                        <Route
+                            path="/feed"
+                            element={
+                                <IndexPage />
+                            }
+                        />
+
+                        <Route
+                            path="/comment"
+                            element={
+                                <Comment videoOwnerId={22} videoId={1} onClose={() => {}}/>
+                            }
+                        />
+
+                        <Route
+                            path="/noti"
+                            element={
+                                <Notification onClose={() => {}}/>
+                            }
+                        />
+
+                        <Route
+                            path="/analysis"
+                            element={
+                                <Analysis />
+                            }
+                        />
+
+                        
+
                     </Routes>
                 </BrowserRouter>
             </UploadProvider>

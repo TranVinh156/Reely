@@ -3,8 +3,14 @@ import { useState } from "react";
 import type { Video } from "../../types/video";
 import VideoPlayer, { type VideoOrientation } from "./VideoPlayer";
 import { useMediaQuery } from "../../hooks/feed/useMediaQuery";
+import { Icon } from "@iconify/react";
+import { div } from "motion/react-client";
+import { ShareModel } from "./ShareModal";
+import { ActionButtons } from "./ActionButtons";
+
 interface Props {
   video: Video;
+  loadMode?: "active" | "preload" | "idle";
 }
 
 function formatCount(n: number) {
@@ -13,8 +19,14 @@ function formatCount(n: number) {
   return n.toString();
 }
 
+
 function ActionButton({ video }: Props) {
   const isSmallScreen = useMediaQuery("(max-width: 768px)");
+  const [shareModalOpen, setShareModalOpen] = useState(false);
+
+  const handleShareClick = () => {
+    setShareModalOpen(true);
+  }
 
   return (
     <div
@@ -34,7 +46,7 @@ function ActionButton({ video }: Props) {
         // onClick={}
         className="relative flex h-10 w-10 flex-col items-center justify-center rounded-full bg-[#ffffff21]"
       >
-        <div className="icon-[mdi--heart] h-6 w-6"></div>
+        <Icon icon="mdi:heart" className="h-6 w-6" />
         <div className="absolute top-10 mt-1 text-xs font-bold text-white">
           {formatCount(video.likes)}
         </div>
@@ -44,7 +56,7 @@ function ActionButton({ video }: Props) {
         // onClick={}
         className="relative flex h-10 w-10 flex-col items-center justify-center rounded-full bg-[#ffffff21]"
       >
-        <div className="icon-[basil--comment-solid] h-6 w-6"></div>
+        <Icon icon="mdi:comment-processing" className="h-6 w-6" />
         <div className="absolute top-10 mt-1 text-sm">
           {formatCount(video.comments)}
         </div>
@@ -54,26 +66,33 @@ function ActionButton({ video }: Props) {
         // onClick={}
         className="relative flex h-10 w-10 flex-col items-center justify-center rounded-full bg-[#ffffff21]"
       >
-        <div className="icon-[subway--mark-2] h-6 w-6"></div>
+        <Icon icon="mdi:bookmark" className="h-6 w-6" />
         <div className="absolute top-10 mt-1 text-xs font-bold text-white">
           {formatCount(video.likes)}
         </div>
       </button>
 
       <button
-        // onClick={}
-        className="relative flex h-10 w-10 flex-col items-center justify-center rounded-full bg-[#ffffff21]"
+        onClick={handleShareClick}
+        className="relative flex h-10 w-10 flex-col items-center justify-center rounded-full bg-[#ffffff21] cursor-pointer"
       >
-        <div className="icon-[ooui--share] h-6 w-6"></div>
+        <Icon icon="mdi:share" className="h-6 w-6" />
         <div className="absolute top-10 mt-1 text-xs font-bold text-white">
-          {formatCount(video.likes)}
+          {formatCount(video.shares)}
         </div>
       </button>
+
+      {shareModalOpen && (
+        <>
+          <ShareModel onClose={() => setShareModalOpen(false)} videoUrl={video.src}></ShareModel>
+        </>
+      )}
     </div>
   );
 }
 
 export default function VideoCard({ video }: Props) {
+export default function VideoCard({ video, loadMode = "idle" }: Props) {
   const isSmallScreen = useMediaQuery("(max-width: 768px)");
 
   const [orientation, setOrientation] = useState<VideoOrientation>("landscape");
@@ -96,15 +115,16 @@ export default function VideoCard({ video }: Props) {
         <VideoPlayer
           video={video}
           onOrientationChange={handleOrientationChange}
+          loadMode={loadMode}
         />
         {/* <div className="absolute bottom-5 left-5 text-white drop-shadow-md">
           <p className="font-semibold">@{video.user.username}</p>
           <p className="max-w-[70%] text-sm opacity-80">{video.description}</p>
         </div> */}
-        {isSmallScreen ? <ActionButton video={video} /> : ""}
+        {isSmallScreen ? <ActionButtons video={video} /> : ""}
       </div>
       {/* Right action column */}
-      {isSmallScreen ? "" : <ActionButton video={video} />}
+      {isSmallScreen ? "" : <ActionButtons video={video} />}
     </div>
   );
 }

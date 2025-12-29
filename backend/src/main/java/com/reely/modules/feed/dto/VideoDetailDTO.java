@@ -18,6 +18,8 @@ public class VideoDetailDTO {
     private Long viewCount;
     private Long likeCount;
     private Long commentCount;
+    private Integer durationSeconds;
+    private List<String> tags;
     private LocalDateTime createdAt;
 
     private List<CommentDTO> comments;

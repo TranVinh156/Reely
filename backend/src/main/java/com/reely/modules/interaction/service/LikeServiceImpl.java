@@ -6,6 +6,7 @@ import com.reely.modules.feed.entity.Video;
 import com.reely.modules.feed.repository.VideoRepository;
 import com.reely.modules.interaction.dto.LikeRequestDto;
 import com.reely.modules.interaction.dto.LikeResponseDto;
+import com.reely.modules.interaction.dto.LikeStat;
 import com.reely.modules.interaction.entity.Likes;
 import com.reely.modules.interaction.repository.LikeRepository;
 import com.reely.modules.notification.dto.NotificationRequestDto;
@@ -18,10 +19,13 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class LikeServiceImpl implements LikeService{
@@ -43,25 +47,29 @@ public class LikeServiceImpl implements LikeService{
         Optional<Video> video = videoRepository.findById(likeRequestDTO.getVideoId());
 
         if(likeRepository.findByVideoIdAndUserId(likeRequestDTO.getVideoId(), likeRequestDTO.getUserId()).isPresent()){
-            throw new RuntimeException(); // tạm
+            deleteLikeByVideoIdAndUserId(likeRequestDTO.getVideoId(), likeRequestDTO.getUserId());
+            return null;
         }
 
         if(user.isPresent() && video.isPresent()){
-
-
             Likes like =  likeRepository.save(
                     Likes.builder()
                             .user(user.get())
                             .video(video.get())
                             .build()
             );
+
+            Video v =  video.get();
+            v.setLikeCount(v.getLikeCount()+1);
+            videoRepository.save(v);
+
             if (!user.get().getId().equals(video.get().getUserId())) {
                 publisherLikeNotification(like, user.get(), video.get());
             }
 
             return like;
         } else {
-            throw new RuntimeException();
+            throw new RuntimeException("User or Video not found. UserId: " + likeRequestDTO.getUserId() + ", VideoId: " + likeRequestDTO.getVideoId());
         }
     }
 
@@ -107,8 +115,59 @@ public class LikeServiceImpl implements LikeService{
         return  likeRepository.findById(likeId).orElseThrow(() -> new RuntimeException("Like not found!"));
     }
 
+    public List<LikeStat> countLikesByUserIdAndDate(Long userId, Long days) {
+        LocalDate startDate = LocalDate.now(ZoneId.of("Asia/Ho_Chi_Minh")).minusDays(days);
+        List<LikeStat> likeStats = likeRepository.countLikesByUserIdAndDate(userId, startDate);
+
+        Map<String, Long> mapData = likeStats.stream().collect(Collectors.toMap(stat -> stat.getDate().toString(), stat -> stat.getCount()));
+
+        List<LikeStat> finalResult = new ArrayList<>();
+
+        for (LocalDate date = startDate; !date.isAfter(LocalDate.now(ZoneId.of("Asia/Ho_Chi_Minh"))); date = date.plusDays(1)) {
+            Long count = mapData.getOrDefault(date.toString(), 0L);
+            finalResult.add(new LikeStat(java.sql.Date.valueOf(date), count));
+        }
+        return  finalResult;
+    }
+
+    public List<Long> statisticLikesUserAge(Long userId) {
+        List<Likes> likes = likeRepository.findAllLikesByVideoOwnerId(userId);
+        List<Long> finalResult = new ArrayList<>();
+
+        for (Likes like : likes) {
+            finalResult.add(like.getUser().getAge());
+        }
+
+        return finalResult;
+    }
+
     public void deleteLike(long likeId) {
-        likeRepository.deleteById(likeId);
+        Optional<Likes> like = likeRepository.findById(likeId);
+        if (like.isPresent()) {
+            likeRepository.deleteById(likeId);
+            Video video = like.get().getVideo();
+            if (video != null) {
+                video.setLikeCount(video.getLikeCount() == null || video.getLikeCount() <= 0 ? 0 : video.getLikeCount() - 1);
+                videoRepository.save(video);
+            }
+        }
+    }
+
+    @Override
+    public void deleteLikeByVideoIdAndUserId(Long videoId, Long userId) {
+        Optional<Likes> like = likeRepository.findByVideoIdAndUserId(videoId, userId);
+        Optional<Video> video = videoRepository.findById(videoId);
+        if (like.isPresent()) {
+            likeRepository.delete(like.get());
+            if (video.isPresent()) {
+                Video v =  video.get();
+                v.setLikeCount(v.getLikeCount()-1);
+                videoRepository.save(v);
+            }
+
+        } else {
+            throw new RuntimeException("Like not found for videoId: " + videoId + " and userId: " + userId);
+        }
     }
 
     private void publisherLikeNotification(Likes like, User user, Video video) {

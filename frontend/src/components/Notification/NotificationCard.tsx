@@ -14,9 +14,10 @@ const NotificationCard: React.FC<NotificationCardProps> = ({
   timestamp,
   avatarUrl
 }) => {
-  
+  avatarUrl = "http://localhost:9000/" + avatarUrl;
+
   return (
-    <div className="flex gap-3 px-3 py-2 w-full min-h-18 max-h-70 bg-black">
+    <div className="flex gap-3 px-3 py-2 w-full min-h-18 max-h-70 bg-[#161823]">
       {/* Avatar */}
       <div className="flex flex-col justify-center">
           <img
