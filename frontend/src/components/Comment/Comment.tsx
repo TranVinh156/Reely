@@ -268,7 +268,7 @@ const Comment: React.FC<{ videoId: number, videoOwnerId: number , onClose: () =>
   }};
 
   return (
-    <div className="w-[450px] h-screen bg-[#1e1e1e] text-white flex flex-col">
+    <div className="w-full h-full bg-[#1e1e1e] text-white flex flex-col">
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-4">
         <h2 className="text-lg font-semibold">Comment</h2>

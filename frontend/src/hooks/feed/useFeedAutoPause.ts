@@ -100,6 +100,13 @@ export function useFeedAutoPause() {
           activeRef.current.dataset.active = "0";
         }
         activeRef.current = active;
+
+        // Sync comment drawer if open
+        const videoId = getKey(active);
+        const { activeCommentVideoId, openComment } = useFeedStore.getState();
+        if (activeCommentVideoId && activeCommentVideoId !== videoId) {
+           openComment(videoId);
+        }
       }
 
       bindEndedOnce(active);

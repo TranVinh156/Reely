@@ -1,16 +1,20 @@
 import VideoCard from "../../components/Video/VideoCard.tsx";
-import { useInfiniteFeed } from "../../hooks/feed/useInfiniteFeed.ts";
 import { useFeedAutoPause } from "../../hooks/feed/useFeedAutoPause.ts"; // implemented below
 import LoadingPage from "@/components/Auth/LoadingPage.tsx";
 import { useFeedStore } from "@/store/feedStore.ts";
 import type { FeedMode } from "@/api/feed.ts";
+import { useInfiniteFeed } from "@/hooks/feed/useInfiniteFeed.ts";
 
-export default function FeedList({ mode = "personal" }: { mode?: FeedMode }) {
+interface FeedListProps {
+  mode?: FeedMode;
+}
+
+export default function FeedList({ mode = "personal" }: FeedListProps) {
   const { videos, loaderRef, isLoading } = useInfiniteFeed(5, mode);
   useFeedAutoPause();
   const currentIndex = useFeedStore((s) => s.currentIndex);
 
-  if (isLoading) {
+  if (isLoading && videos.length === 0) {
     return <LoadingPage />;
   }
 

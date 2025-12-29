@@ -29,6 +29,7 @@ export interface Video {
   shares: number;
   duration: number; // seconds
   tags: string[]; // array of tags
+  isLiked?: boolean;
 }
 
 export interface FeedResponse {
