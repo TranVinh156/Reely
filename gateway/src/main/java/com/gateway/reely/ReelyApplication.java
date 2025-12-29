@@ -45,7 +45,16 @@ public class ReelyApplication {
 						.uri(backendUrl))
                 .route("api-service", p -> p
                         .path("/api/v1/likes/**")
-                        .uri(backendUrl))
+                        .uri(backendUrl))				
+				.route("search-service", p -> p
+						.path("/api/v1/search/**")
+						.uri(backendUrl))
+				.route("tags-service", p -> p
+						.path("/api/v1/tags/**")
+						.uri(backendUrl))
+				.route("feed-service", p -> p
+						.path("/api/v1/feed/**")
+						.uri(backendUrl))
 				.build();
 	}
 }

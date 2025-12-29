@@ -4,11 +4,11 @@ import com.reely.modules.feed.dto.*;
 import com.reely.modules.feed.service.FeedService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/feed")
+@RequestMapping("/api/v1/feed")
 @RequiredArgsConstructor
 public class FeedController {
 
@@ -37,10 +37,14 @@ public class FeedController {
      */
     @GetMapping
     public FeedResponse getPersonalizedFeed(
-            @AuthenticationPrincipal(expression = "id") Long userId,
+            @RequestHeader(value = "X-UserId", required = false) Long userId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+        // If not logged in, fall back to public feed.
+        if (userId == null) {
+            return feedService.getPublicFeed(pageable);
+        }
         return feedService.getPersonalizedFeed(userId, pageable);
     }
 
@@ -83,7 +87,7 @@ public class FeedController {
     @GetMapping("/video/{videoId}")
     public VideoDetailDTO getVideoDetail(
             @PathVariable Long videoId,
-            @AuthenticationPrincipal(expression = "id") Long viewerId) {
+            @RequestHeader(value = "X-UserId", required = false) Long viewerId) {
         return feedService.getVideoDetail(videoId, viewerId);
     }
 }
