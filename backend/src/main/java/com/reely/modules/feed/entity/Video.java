@@ -12,8 +12,10 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@Table(name= "videos")
-@Getter @Setter @Builder
+@Table(name = "videos")
+@Getter
+@Setter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class Video {
