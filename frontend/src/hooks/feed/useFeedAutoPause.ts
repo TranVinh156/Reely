@@ -1,7 +1,10 @@
 import { useEffect, useRef } from "react";
 import { useFeedStore } from "@/store/feedStore";
+import { registerView } from "@/api/feed";
 
 const ACTIVE_RATIO = 2 / 3; // 0.666...
+const VIEW_SECONDS = 5;
+const TICK_MS = 250;
 
 export function useFeedAutoPause() {
   const autoPlay = useFeedStore((s) => s.autoPlay);
@@ -10,6 +13,84 @@ export function useFeedAutoPause() {
 
   const activeRef = useRef<HTMLVideoElement | null>(null);
   const endedBoundRef = useRef<WeakSet<HTMLVideoElement>>(new WeakSet());
+
+
+  // ---- View tracking (continuous watch only) ----
+  const viewIntervalRef = useRef<number | null>(null);
+  const viewVideoIdRef = useRef<string | null>(null);
+  const viewElapsedRef = useRef(0);
+  const viewLastTimeRef = useRef<number | null>(null);
+
+  const resetViewTracker = () => {
+    viewElapsedRef.current = 0;
+    viewLastTimeRef.current = null;
+  };
+
+  const stopViewInterval = () => {
+    if (viewIntervalRef.current != null) {
+      window.clearInterval(viewIntervalRef.current);
+      viewIntervalRef.current = null;
+    }
+  };
+
+  const startViewInterval = () => {
+    if (viewIntervalRef.current != null) return;
+    viewIntervalRef.current = window.setInterval(async () => {
+      const v = activeRef.current;
+      if (!v) {
+        resetViewTracker();
+        return;
+      }
+
+      const videoId = v.getAttribute("data-video-id") ?? v.getAttribute("data-id") ?? null;
+      if (!videoId) {
+        resetViewTracker();
+        return;
+      }
+
+      // if active video changed, reset continuous timer
+      if (viewVideoIdRef.current !== videoId) {
+        viewVideoIdRef.current = videoId;
+        resetViewTracker();
+      }
+
+      // only count when truly active + playing
+      if (v.dataset.active !== "1" || v.paused || v.ended) {
+        resetViewTracker();
+        return;
+      }
+
+      const t = v.currentTime;
+      const last = viewLastTimeRef.current;
+      viewLastTimeRef.current = t;
+
+      if (last == null) return;
+
+      const dt = t - last;
+      // Seek / jump / background tab => break continuity
+      if (dt <= 0 || dt > 1.0) {
+        viewElapsedRef.current = 0;
+        return;
+      }
+
+      viewElapsedRef.current += dt;
+
+      if (viewElapsedRef.current >= VIEW_SECONDS) {
+        // One continuous view achieved => +1 view
+        viewElapsedRef.current -= VIEW_SECONDS;
+        try {
+          const res = await registerView(videoId);
+          window.dispatchEvent(
+            new CustomEvent("reely:view", {
+              detail: { videoId: String(videoId), viewCount: res.viewCount },
+            })
+          );
+        } catch {
+          // ignore network errors
+        }
+      }
+    }, TICK_MS);
+  };
 
   useEffect(() => {
     const scroller = document.querySelector("[data-feed-scroller]") as HTMLElement | null;
@@ -32,6 +113,8 @@ export function useFeedAutoPause() {
         v.dataset.active = "0";
       }
       activeRef.current = null;
+      viewVideoIdRef.current = null;
+      resetViewTracker();
     };
 
     const pauseOthers = (active: HTMLVideoElement) => {
@@ -100,6 +183,7 @@ export function useFeedAutoPause() {
           activeRef.current.dataset.active = "0";
         }
         activeRef.current = active;
+        resetViewTracker();
 
         // Sync comment drawer if open
         const videoId = getKey(active);
@@ -120,6 +204,8 @@ export function useFeedAutoPause() {
       pauseOthers(active);
       active.dataset.active = "1";
       await tryPlay(active);
+
+      startViewInterval();
     };
 
     const io = new IntersectionObserver(
@@ -164,9 +250,12 @@ export function useFeedAutoPause() {
     const mo = new MutationObserver(() => observeAll());
     mo.observe(scroller ?? document.body, { childList: true, subtree: true });
 
+    startViewInterval();
+
     return () => {
       io.disconnect();
       mo.disconnect();
+      stopViewInterval();
     };
   }, [autoPlay, autoScroll, setCurrentIndex]);
 }

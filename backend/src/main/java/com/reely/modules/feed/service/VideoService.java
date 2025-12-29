@@ -1,6 +1,7 @@
 package com.reely.modules.feed.service;
 
 import com.reely.modules.feed.dto.VideoRequestDto;
+import com.reely.modules.feed.dto.VideoViewResponseDto;
 import com.reely.modules.feed.dto.ViewStat;
 import com.reely.modules.feed.entity.Video;
 
@@ -23,4 +24,7 @@ public interface VideoService {
     Long getTotalLikesByUserId(Long userId);
 
     List<ViewStat> countViewsByUserIdAndDate(Long userId, Long days);
+    
+    VideoViewResponseDto incrementView(Long videoId);
+
 }

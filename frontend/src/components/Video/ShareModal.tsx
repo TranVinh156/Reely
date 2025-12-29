@@ -1,7 +1,6 @@
-import { Icon } from "@iconify/react";
 import { X } from "lucide-react";
 import React from "react";
-
+import { Icon } from "@iconify/react";
 interface Props {
     videoUrl: string
     onClose: () => void

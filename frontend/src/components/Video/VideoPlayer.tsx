@@ -91,12 +91,85 @@ export default function VideoPlayer({
   const { progress, duration, isSeeking, currentTime, setIsSeeking, seekTo } =
     useVideoProgress(ref);
 
+  const tapTimerRef = useRef<number | null>(null);
+  const lastTapAtRef = useRef<number>(0);
+
+  const isInteractiveTarget = (t: HTMLElement | null) =>
+    Boolean(
+      t?.closest(
+        [
+          '[data-video-controls="1"]',
+          "button",
+          "a",
+          "input",
+          "textarea",
+          "select",
+          "label",
+          "summary",
+          '[role="button"]',
+          '[role="link"]',
+        ].join(",")
+      )
+    );
+
+  const fireLikeEvent = () => {
+    window.dispatchEvent(
+      new CustomEvent("reely:like", {
+        detail: { videoId: String(video.id) },
+      })
+    );
+  };
+
+  const scheduleTogglePlay = () => {
+    if (tapTimerRef.current != null) {
+      window.clearTimeout(tapTimerRef.current);
+      tapTimerRef.current = null;
+    }
+    // Small delay so double-tap won't toggle play/pause
+    tapTimerRef.current = window.setTimeout(() => {
+      tapTimerRef.current = null;
+      togglePlay();
+    }, 220);
+  };
+
+  const handleSurfacePointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
+    const t = e.target as HTMLElement | null;
+    if (isInteractiveTarget(t)) return;
+
+    const now = Date.now();
+    const dt = now - lastTapAtRef.current;
+    lastTapAtRef.current = now;
+
+    // double tap/click
+    if (dt > 0 && dt < 260) {
+      if (tapTimerRef.current != null) {
+        window.clearTimeout(tapTimerRef.current);
+        tapTimerRef.current = null;
+      }
+      e.preventDefault();
+      e.stopPropagation();
+      fireLikeEvent();
+      return;
+    }
+
+    scheduleTogglePlay();
+  };
+
+  useEffect(() => {
+    return () => {
+      if (tapTimerRef.current != null) {
+        window.clearTimeout(tapTimerRef.current);
+        tapTimerRef.current = null;
+      }
+    };
+  }, []);
+
   return (
     <motion.div
       className={`relative h-full w-full overflow-hidden transition-opacity duration-300 ${
         isPlaying ? "opacity-100" : "opacity-50"
       } ${className ?? ""}`}
-      onClick={() => togglePlay()}
+      onPointerUp={handleSurfacePointerUp}
     >
       <video
         ref={ref}
@@ -126,13 +199,11 @@ export default function VideoPlayer({
       <VideoControls
         username={video.user.username}
         description={video.description}
-        isPlaying={isPlaying}
         currentTime={currentTime}
         duration={duration}
         progress={progress}
         muted={muted}
         volume={volume}
-        togglePlay={togglePlay}
         toggleMute={toggleMute}
         setVol={setVol}
         onSeek={seekTo}

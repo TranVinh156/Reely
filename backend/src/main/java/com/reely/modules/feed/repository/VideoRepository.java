@@ -116,23 +116,28 @@ public interface VideoRepository extends JpaRepository<Video, Long> {
         AND t.name COLLATE utf8mb4_0900_ai_ci = :tagName
       """, nativeQuery = true)
   Page<Video> findPublicVideosByTagName(@Param("tagName") String tagName, Pageable pageable);
-         
-       @Query("SELECT SUM(v.viewCount) FROM Video v WHERE v.userId = :userId")
-       Long getTotalViewsByUserId(@Param("userId") Long userId);
 
-       @Query("SELECT SUM(v.commentCount) FROM Video v WHERE v.userId = :userId")
-       Long getTotalCommentsByUserId(@Param("userId") Long userId);
+  @Query("SELECT SUM(v.viewCount) FROM Video v WHERE v.userId = :userId")
+  Long getTotalViewsByUserId(@Param("userId") Long userId);
 
-        @Query("SELECT SUM(v.likeCount) FROM Video v WHERE v.userId = :userId")
-        Long getTotalLikesByUserId(@Param("userId") Long userId);
+  @Query("SELECT SUM(v.commentCount) FROM Video v WHERE v.userId = :userId")
+  Long getTotalCommentsByUserId(@Param("userId") Long userId);
 
-       // Feed cá nhân hóa
+  @Query("SELECT SUM(v.likeCount) FROM Video v WHERE v.userId = :userId")
+  Long getTotalLikesByUserId(@Param("userId") Long userId);
 
-       @Query(value = "SELECT DATE(v.created_at) as date, SUM(v.view_count) as count " +
-               "FROM videos v " +
-               "WHERE v.user_id = :userId " +
-               "AND v.created_at >= :startDate " +
-               "GROUP BY DATE(v.created_at) " +
-               "ORDER BY date ASC", nativeQuery = true)
-       List<ViewStat> getViewsByUserIdAndDate(@Param("userId") Long userId, @Param("startDate") LocalDate startDate);
+  // Feed cá nhân hóa
+
+  @Query(value = "SELECT DATE(v.created_at) as date, SUM(v.view_count) as count " +
+      "FROM videos v " +
+      "WHERE v.user_id = :userId " +
+      "AND v.created_at >= :startDate " +
+      "GROUP BY DATE(v.created_at) " +
+      "ORDER BY date ASC", nativeQuery = true)
+  List<ViewStat> getViewsByUserIdAndDate(@Param("userId") Long userId, @Param("startDate") LocalDate startDate);
+
+  @Modifying
+  @Query("UPDATE Video v SET v.viewCount = COALESCE(v.viewCount, 0) + 1 WHERE v.id = :videoId")
+  int incrementViewCount(@Param("videoId") Long videoId);
+
 }

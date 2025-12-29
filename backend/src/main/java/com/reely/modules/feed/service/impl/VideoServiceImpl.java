@@ -1,6 +1,7 @@
 package com.reely.modules.feed.service.impl;
 
 import com.reely.modules.feed.dto.VideoRequestDto;
+import com.reely.modules.feed.dto.VideoViewResponseDto;
 import com.reely.modules.feed.dto.ViewStat;
 import com.reely.modules.feed.entity.Video;
 import com.reely.modules.feed.repository.VideoRepository;
@@ -12,6 +13,8 @@ import io.minio.http.Method;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import jakarta.transaction.Transactional;
+
 
 import com.reely.modules.auth.dto.PaginationResponse;
 import org.springframework.data.domain.Page;
@@ -101,5 +104,16 @@ public class VideoServiceImpl implements VideoService {
             finalResult.add(new ViewStat(java.sql.Date.valueOf(date), count));
         }
         return finalResult;
+    }
+
+    
+    @Override
+    @Transactional
+    public VideoViewResponseDto incrementView(Long videoId) {
+        if (videoId == null) throw new RuntimeException("VideoId is required");
+        videoRepository.incrementViewCount(videoId);
+        Video v = videoRepository.findById(videoId).orElseThrow(() -> new RuntimeException("Video not found"));
+        Long vc = v.getViewCount() == null ? 0L : v.getViewCount();
+        return new VideoViewResponseDto(videoId, vc);
     }
 }

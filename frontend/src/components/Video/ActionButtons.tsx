@@ -1,5 +1,5 @@
 // frontend/src/components/Video/ActionButtons.tsx
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useMediaQuery } from "@/hooks/feed/useMediaQuery";
 import { useFeedStore } from "@/store/feedStore";
 import Comment from "@/components/Comment/Comment";
@@ -20,6 +20,17 @@ type Props = {
 export function ActionButtons({ video }: Props) {
   const isSmallScreen = useMediaQuery("(max-width: 768px)");
 
+  const likedMap = useFeedStore((s) => s.liked);
+  const setLikedInStore = useFeedStore((s) => s.setLiked);
+
+  const hasStoreValue = Object.prototype.hasOwnProperty.call(likedMap, video.id);
+  const storeLiked = hasStoreValue ? Boolean(likedMap[video.id]) : Boolean(video.isLiked);
+
+  const [liked, setLiked] = useState(storeLiked);
+  const [likeCount, setLikeCount] = useState(video.likes);
+  const [viewCount, setViewCount] = useState(video.views);
+  const [commentCount, setCommentCount] = useState(video.comments);
+  const [likePending, setLikePending] = useState(false);
   // Select only the specific video's like status to avoid unnecessary re-renders
   const isLikedInStore = useFeedStore((s) => s.liked[video.id]);
   const setLikeInStore = useFeedStore((s) => s.setLike);
@@ -50,9 +61,32 @@ export function ActionButtons({ video }: Props) {
 
   const [shareModalOpen, setShareModalOpen] = useState(false);
 
+  // Guard against rapid multi-click before React state updates
+  const likeLockRef = useRef(false);
+
+  // Reset state when switching to a different video
+  useEffect(() => {
+    setLiked(storeLiked);
+    setLikeCount(video.likes);
+    setViewCount(video.views);
+    setCommentCount(video.comments);
+    setLikePending(false);
+    setCommentOpen(false);
   // Reset modal state when switching to a different video
   useEffect(() => {
     setShareModalOpen(false);
+  }, [video.id]);
+
+  // Listen to view updates coming from the feed watcher
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const ce = e as CustomEvent<{ videoId: string; viewCount: number }>;
+      if (!ce?.detail) return;
+      if (String(ce.detail.videoId) !== String(video.id)) return;
+      setViewCount(Number(ce.detail.viewCount ?? 0));
+    };
+    window.addEventListener("reely:view", handler as EventListener);
+    return () => window.removeEventListener("reely:view", handler as EventListener);
   }, [video.id]);
 
   const videoIdNumber = useMemo(() => {
