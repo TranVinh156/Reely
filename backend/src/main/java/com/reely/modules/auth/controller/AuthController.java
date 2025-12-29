@@ -148,11 +148,4 @@ public class AuthController {
                 UserDTO userDTO = this.userService.getUserByEmail(email);
                 return ResponseEntity.ok(userDTO);
         }
-
-        @PostMapping("/change-password")
-        public String changePassword(@RequestBody ChangePasswordRequest request) {
-                this.authService.handleChangePassword(request);
-                return "OK";
-        }
-
 }
