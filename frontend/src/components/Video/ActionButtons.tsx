@@ -5,6 +5,7 @@ import { useFeedStore } from "@/store/feedStore";
 import Comment from "@/components/Comment/Comment";
 import type { Video } from "@/types/video";
 import { likeVideo, unlikeVideo } from "@/api/feed";
+import { ShareModel } from "./ShareModal";
 
 function formatCount(n: number) {
   if (n >= 1_000_000) return `${Math.round(n / 1_000_000)}M`;
@@ -29,6 +30,7 @@ export function ActionButtons({ video }: Props) {
   const [likePending, setLikePending] = useState(false);
 
   const [commentOpen, setCommentOpen] = useState(false);
+  const [shareModalOpen, setShareModalOpen] = useState(false);
 
   // Reset state when switching to a different video
   useEffect(() => {
@@ -36,6 +38,7 @@ export function ActionButtons({ video }: Props) {
     setLikeCount(video.likes);
     setLikePending(false);
     setCommentOpen(false);
+    setShareModalOpen(false);
   }, [video.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Keep local liked in sync with store (optional)
@@ -47,6 +50,11 @@ export function ActionButtons({ video }: Props) {
     const n = Number.parseInt(String(video.id), 10);
     return Number.isFinite(n) ? n : 0;
   }, [video.id]);
+
+  const videoOwnerIdNumber = useMemo(() => {
+    const n = Number.parseInt(String(video.user.id), 10);
+    return Number.isFinite(n) ? n : 0;
+  }, [video.user.id]);
 
   const handleToggleLike = async () => {
     if (likePending) return;
@@ -137,12 +145,7 @@ export function ActionButtons({ video }: Props) {
         <button
           className="relative flex h-10 w-10 flex-col items-center justify-center rounded-full bg-[#ffffff21]"
           aria-label="Share"
-          onClick={() => {
-            // optional: navigator.share
-            if (navigator.share) {
-              navigator.share({ title: "Reely", text: video.description, url: video.src }).catch(() => {});
-            }
-          }}
+          onClick={() => setShareModalOpen(true)}
         >
           <div className="icon-[ooui--share] h-6 w-6" />
           <div className="absolute top-10 mt-1 text-xs font-bold text-white">
@@ -150,6 +153,10 @@ export function ActionButtons({ video }: Props) {
           </div>
         </button>
       </div>
+
+      {shareModalOpen && (
+        <ShareModel onClose={() => setShareModalOpen(false)} videoUrl={video.src} />
+      )}
 
       {/* Comment Drawer */}
       {commentOpen && (
@@ -161,7 +168,7 @@ export function ActionButtons({ video }: Props) {
           />
           {/* Panel */}
           <div className="relative h-full">
-            <Comment videoId={videoIdNumber} onClose={() => setCommentOpen(false)} />
+            <Comment videoId={videoIdNumber} videoOwnerId={videoOwnerIdNumber} onClose={() => setCommentOpen(false)} />
           </div>
         </div>
       )}

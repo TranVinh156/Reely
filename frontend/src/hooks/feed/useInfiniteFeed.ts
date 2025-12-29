@@ -55,9 +55,11 @@ export function useInfiniteFeed(pageSize = 5, mode: FeedMode = "personal") {
   const [isLoading, setIsLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const loaderRef = useRef<HTMLDivElement | null>(null);
+  const isFetching = useRef(false);
 
   const loadMore = useCallback(async () => {
-    if (isLoading || !hasMore) return;
+    if (isFetching.current || !hasMore) return;
+    isFetching.current = true;
     setIsLoading(true);
     try {
       const res = await fetchFeed(cursor ?? undefined, pageSize);
@@ -70,8 +72,9 @@ export function useInfiniteFeed(pageSize = 5, mode: FeedMode = "personal") {
       setHasMore(res.hasMore);
     } finally {
       setIsLoading(false);
+      isFetching.current = false;
     }
-  }, [cursor, hasMore, isLoading, pageSize]);
+  }, [cursor, hasMore, pageSize]);
 
   useEffect(() => {
     loadMore(); // initial

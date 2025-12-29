@@ -18,6 +18,8 @@ import FeedPage from "./pages/FeedPage";
 import { Search } from "lucide-react";
 import SearchPage from "./pages/SearchPage";
 import TagPage from "./pages/TagePage";
+import ForgetPasswordPage from "./pages/ForgetPasswordPage";
+import Analysis from "./pages/Analysis";
 
 const queryClient = new QueryClient();
 
@@ -86,12 +88,12 @@ ReactDOM.createRoot(root).render(
                         />
 
                         <Route
-                            path="/feed"
+                            path="/password/reset"
                             element={
-                                <IndexPage />
+                                <ForgetPasswordPage />
                             }
                         />
-
+                      
                         <Route
                             path="/feed"
                             element={
@@ -110,6 +112,13 @@ ReactDOM.createRoot(root).render(
                             path="/noti"
                             element={
                                 <Notification onClose={() => {}}/>
+                            }
+                        />
+
+                        <Route
+                            path="/analysis"
+                            element={
+                                <Analysis />
                             }
                         />
 

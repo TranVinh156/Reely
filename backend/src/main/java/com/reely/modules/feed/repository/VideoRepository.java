@@ -1,10 +1,14 @@
 package com.reely.modules.feed.repository;
 
+import com.reely.modules.feed.dto.ViewStat;
 import com.reely.modules.feed.entity.Video;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.domain.*;
 import org.springframework.data.jpa.repository.*;
 import org.springframework.stereotype.Repository;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Repository
@@ -110,4 +114,22 @@ public interface VideoRepository extends JpaRepository<Video, Long> {
         AND t.name COLLATE utf8mb4_0900_ai_ci = :tagName
       """, nativeQuery = true)
   Page<Video> findPublicVideosByTagName(@Param("tagName") String tagName, Pageable pageable);
-}
+         
+       @Query("SELECT SUM(v.viewCount) FROM Video v WHERE v.userId = :userId")
+       Long getTotalViewsByUserId(@Param("userId") Long userId);
+
+       @Query("SELECT SUM(v.commentCount) FROM Video v WHERE v.userId = :userId")
+       Long getTotalCommentsByUserId(@Param("userId") Long userId);
+
+        @Query("SELECT SUM(v.likeCount) FROM Video v WHERE v.userId = :userId")
+        Long getTotalLikesByUserId(@Param("userId") Long userId);
+
+       // Feed cá nhân hóa
+
+       @Query(value = "SELECT DATE(v.created_at) as date, SUM(v.view_count) as count " +
+               "FROM videos v " +
+               "WHERE v.user_id = :userId " +
+               "AND v.created_at >= :startDate " +
+               "GROUP BY DATE(v.created_at) " +
+               "ORDER BY date ASC", nativeQuery = true)
+       List<ViewStat> getViewsByUserIdAndDate(@Param("userId") Long userId, @Param("startDate") LocalDate startDate);

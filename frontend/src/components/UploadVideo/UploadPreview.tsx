@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
 import { X, ChevronDown } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/auth/useAuth";
 import { UploadContext, useUpload } from "@/hooks/upload/useUploadVideo";
 import CircularProgress from "./CircularProgress";
