@@ -48,6 +48,7 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import type { Video } from "../../types/video";
 import { fetchFeed, type FeedMode } from "../../api/feed";
+import { useFeedStore } from "@/store/feedStore";
 
 export function useInfiniteFeed(pageSize = 5, mode: FeedMode = "personal") {
   const [videos, setVideos] = useState<Video[]>([]);
@@ -56,6 +57,8 @@ export function useInfiniteFeed(pageSize = 5, mode: FeedMode = "personal") {
   const [hasMore, setHasMore] = useState(true);
   const loaderRef = useRef<HTMLDivElement | null>(null);
   const isFetching = useRef(false);
+
+  const hydrateLiked = useFeedStore((s) => s.hydrateLiked);
 
   const loadMore = useCallback(async () => {
     if (isFetching.current || !hasMore) return;
@@ -66,6 +69,14 @@ export function useInfiniteFeed(pageSize = 5, mode: FeedMode = "personal") {
       setVideos((prev) => {
         const existingIds = new Set(prev.map((v) => v.id));
         const newVideos = res.videos.filter((v) => !existingIds.has(v.id));
+
+        // hydrate liked state once we see a video in feed
+        const likedEntries: Record<string, boolean> = {};
+        for (const v of newVideos) {
+          if (typeof v.isLiked === "boolean") likedEntries[v.id] = v.isLiked;
+        }
+        hydrateLiked(likedEntries);
+
         return [...prev, ...newVideos];
       });
       setCursor(res.nextCursor ?? null);

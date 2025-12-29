@@ -28,4 +28,7 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
             "GROUP BY DATE(c.created_at) " +
             "ORDER BY date ASC", nativeQuery = true)
     List<CommentStat> countCommentsByUserIdAndDate(@Param("userId") Long userId, @Param("startDate") LocalDate startDate);
+
+    java.util.List<Comment> findAllByRootComment_Id(Long rootCommentId);
+
 }

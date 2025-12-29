@@ -1,5 +1,5 @@
 // frontend/src/components/Video/ActionButtons.tsx
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useMediaQuery } from "@/hooks/feed/useMediaQuery";
 import { useFeedStore } from "@/store/feedStore";
 import Comment from "@/components/Comment/Comment";
@@ -21,21 +21,29 @@ export function ActionButtons({ video }: Props) {
   const isSmallScreen = useMediaQuery("(max-width: 768px)");
 
   const likedMap = useFeedStore((s) => s.liked);
-  const toggleLikeInStore = useFeedStore((s) => s.toggleLike);
+  const setLikedInStore = useFeedStore((s) => s.setLiked);
 
-  const storeLiked = !!likedMap[video.id];
+  const hasStoreValue = Object.prototype.hasOwnProperty.call(likedMap, video.id);
+  const storeLiked = hasStoreValue ? Boolean(likedMap[video.id]) : Boolean(video.isLiked);
 
   const [liked, setLiked] = useState(storeLiked);
   const [likeCount, setLikeCount] = useState(video.likes);
+  const [viewCount, setViewCount] = useState(video.views);
+  const [commentCount, setCommentCount] = useState(video.comments);
   const [likePending, setLikePending] = useState(false);
 
   const [commentOpen, setCommentOpen] = useState(false);
   const [shareModalOpen, setShareModalOpen] = useState(false);
 
+  // Guard against rapid multi-click before React state updates
+  const likeLockRef = useRef(false);
+
   // Reset state when switching to a different video
   useEffect(() => {
     setLiked(storeLiked);
     setLikeCount(video.likes);
+    setViewCount(video.views);
+    setCommentCount(video.comments);
     setLikePending(false);
     setCommentOpen(false);
     setShareModalOpen(false);
@@ -45,6 +53,18 @@ export function ActionButtons({ video }: Props) {
   useEffect(() => {
     setLiked(storeLiked);
   }, [storeLiked]);
+
+  // Listen to view updates coming from the feed watcher
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const ce = e as CustomEvent<{ videoId: string; viewCount: number }>;
+      if (!ce?.detail) return;
+      if (String(ce.detail.videoId) !== String(video.id)) return;
+      setViewCount(Number(ce.detail.viewCount ?? 0));
+    };
+    window.addEventListener("reely:view", handler as EventListener);
+    return () => window.removeEventListener("reely:view", handler as EventListener);
+  }, [video.id]);
 
   const videoIdNumber = useMemo(() => {
     const n = Number.parseInt(String(video.id), 10);
@@ -56,38 +76,55 @@ export function ActionButtons({ video }: Props) {
     return Number.isFinite(n) ? n : 0;
   }, [video.user.id]);
 
-  const handleToggleLike = async () => {
-    if (likePending) return;
+  const commitLike = async (nextLiked: boolean) => {
+    if (likeLockRef.current || likePending) return;
+    likeLockRef.current = true;
 
-    const nextLiked = !liked;
+    const prevLiked = liked;
 
     // optimistic UI
     setLiked(nextLiked);
     setLikeCount((c) => Math.max(0, c + (nextLiked ? 1 : -1)));
-    toggleLikeInStore(video.id);
+    setLikedInStore(video.id, nextLiked);
 
     setLikePending(true);
     try {
       const data = nextLiked ? await likeVideo(video.id) : await unlikeVideo(video.id);
 
       // canonical state from server
-      setLiked(!!data.liked);
-      setLikeCount(typeof data.likeCount === "number" ? data.likeCount : likeCount);
-
-      // reconcile store if mismatched
-      if (!!data.liked !== nextLiked) {
-        toggleLikeInStore(video.id);
+      setLiked(Boolean(data.liked));
+      setLikedInStore(video.id, Boolean(data.liked));
+      if (typeof data.likeCount === "number") {
+        setLikeCount(data.likeCount);
       }
     } catch (e) {
       // rollback
-      setLiked(!nextLiked);
+      setLiked(prevLiked);
       setLikeCount((c) => Math.max(0, c + (nextLiked ? -1 : 1)));
-      toggleLikeInStore(video.id);
+      setLikedInStore(video.id, prevLiked);
       console.error("toggle like failed:", e);
     } finally {
       setLikePending(false);
+      likeLockRef.current = false;
     }
   };
+
+  const handleToggleLike = async () => {
+    await commitLike(!liked);
+  };
+
+  // TikTok-like: double-tap video to like (only like, never unlike)
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const ce = e as CustomEvent<{ videoId: string }>;
+      if (!ce?.detail) return;
+      if (String(ce.detail.videoId) !== String(video.id)) return;
+      if (liked) return;
+      void commitLike(true);
+    };
+    window.addEventListener("reely:like", handler as EventListener);
+    return () => window.removeEventListener("reely:like", handler as EventListener);
+  }, [video.id, liked]);
 
   return (
     <>

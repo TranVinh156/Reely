@@ -30,6 +30,17 @@ type BackendFeedResponse = {
   content: BackendFeedVideoDTO[];
 };
 
+type LikeToggleResponse = {
+  videoId: number;
+  liked: boolean;
+  likeCount?: number | null;
+};
+
+type ViewResponse = {
+  videoId: number;
+  viewCount: number;
+};
+
 function mapDtoToVideo(dto: BackendFeedVideoDTO): Video {
   return {
     id: String(dto.videoId),
@@ -43,9 +54,11 @@ function mapDtoToVideo(dto: BackendFeedVideoDTO): Video {
     description: dto.description ?? dto.title ?? "",
     likes: Number(dto.likeCount ?? 0),
     comments: Number(dto.commentCount ?? 0),
+    views: Number(dto.viewCount ?? 0),
     shares: 0,
     duration: Number(dto.durationSeconds ?? 0),
     tags: dto.tags ?? [],
+    isLiked: Boolean(dto.isLiked),
   };
 }
 
@@ -76,14 +89,25 @@ export async function fetchVideo(videoId: string | number) {
 }
 
 export async function likeVideo(videoId: string | number) {
-  // Call the LikeController endpoint
-  // Backend extracts userId from token (via Gateway X-UserId header)
   const res = await axiosClient.post(`/likes`, { videoId });
-  // Backend returns the created Like object. We infer success.
-  return { liked: true, likeCount: undefined as unknown as number };
+  const data = res.data as LikeToggleResponse;
+  return {
+    liked: Boolean(data.liked),
+    likeCount: typeof data.likeCount === "number" ? data.likeCount : undefined,
+  };
 }
 
 export async function unlikeVideo(videoId: string | number) {
   const res = await axiosClient.delete(`/likes?videoId=${videoId}`);
-  return { liked: false, likeCount: undefined as unknown as number };
+  const data = res.data as LikeToggleResponse;
+  return {
+    liked: Boolean(data.liked),
+    likeCount: typeof data.likeCount === "number" ? data.likeCount : undefined,
+  };
+}
+
+export async function registerView(videoId: string | number) {
+  const res = await axiosClient.post(`/videos/${videoId}/view`);
+  const data = res.data as ViewResponse;
+  return { viewCount: Number(data.viewCount ?? 0) };
 }

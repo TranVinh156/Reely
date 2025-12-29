@@ -1,6 +1,7 @@
 package com.reely.modules.feed.controller;
 
 import com.reely.modules.feed.dto.VideoRequestDto;
+import com.reely.modules.feed.dto.VideoViewResponseDto;
 import com.reely.modules.feed.dto.ViewStat;
 import com.reely.modules.feed.entity.Video;
 import com.reely.modules.feed.service.VideoService;
@@ -57,5 +58,10 @@ public class VideoController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
         return ResponseEntity.ok(videoService.getVideosByUserId(userId, page, size));
+    }
+
+    @PostMapping("/{videoId}/view")
+    public ResponseEntity<VideoViewResponseDto> incrementView(@PathVariable Long videoId) {
+        return ResponseEntity.ok(videoService.incrementView(videoId));
     }
 }
