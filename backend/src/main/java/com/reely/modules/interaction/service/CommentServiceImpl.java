@@ -6,6 +6,7 @@ import com.reely.modules.feed.entity.Video;
 import com.reely.modules.feed.repository.VideoRepository;
 import com.reely.modules.interaction.dto.CommentRequestDto;
 import com.reely.modules.interaction.dto.CommentResponseDto;
+import com.reely.modules.interaction.dto.CommentStat;
 import com.reely.modules.interaction.dto.PaginationResponse;
 import com.reely.modules.interaction.entity.Comment;
 import com.reely.modules.interaction.repository.CommentRepository;
@@ -19,10 +20,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
+import java.sql.Date;
 import java.time.Instant;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.time.LocalDate;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class CommentServiceImpl implements CommentService {
@@ -59,16 +61,19 @@ public class CommentServiceImpl implements CommentService {
                     Comment.builder()
                             .user(user.get())
                             .video(video.get())
-                            .created_at(Instant.now())
-                            .updated_at(Instant.now())
+                            .createdAt(Instant.now())
+                            .updatedAt(Instant.now())
                             .rootComment(rootComment)
                             .text(commentRequestDTO.getText())
                             .replyToComment(replyToComment)
                             .replyCount(0)
-                            .deleted_flag(0)
+                            .deletedFlag(0)
                             .build()
 
             );
+            Video v = video.get();
+            v.setCommentCount(v.getCommentCount() + 1);
+            commentRepository.save(comment);
 
             if (!user.get().getId().equals(video.get().getUserId())) {
                 publishCommentNotification(comment, user.get(), video.get());
@@ -104,7 +109,7 @@ public class CommentServiceImpl implements CommentService {
     }
 
     public PaginationResponse<CommentResponseDto> getRepliesByRootCommentId(Long commentId, int page, int size) {
-        Page<Comment> repliesPage = commentRepository.findByRootComment_Id(commentId, PageRequest.of(page, size));
+        Page<Comment> repliesPage = commentRepository.findByRootComment_IdOrderByCreatedAtDesc(commentId, PageRequest.of(page, size));
         List<Comment> replies = repliesPage.getContent();
 
         return new PaginationResponse<>(
@@ -116,13 +121,31 @@ public class CommentServiceImpl implements CommentService {
         );
     }
 
+    public List<CommentStat> countCommentsByUserIdAndDate(Long userId, Long days) {
+        LocalDate startDate = LocalDate.now().minusDays(days);
+        List<CommentStat> commentStats = commentRepository.countCommentsByUserIdAndDate(userId, startDate);
+
+        Map<String, Long> mapData = commentStats.stream().collect(Collectors.toMap(
+                stat -> stat.getDate().toString(), stat -> stat.getCount()
+        ));
+
+        List<CommentStat> finalResult = new ArrayList<>();
+
+        for (LocalDate date = startDate; !date.isAfter(LocalDate.now()); date = date.plusDays(1)) {
+            Long count  = mapData.getOrDefault(date.toString(), 0L);
+
+            finalResult.add(new CommentStat(java.sql.Date.valueOf(date), count));
+        }
+        return finalResult;
+    }
+
     @Transactional
     public Comment updateCommentById(Long commentId, CommentRequestDto commentRequestDTO) {
         return commentRepository.findById(commentId)
                 .map(commentInDb -> {
                     if(commentRequestDTO.getText() != null && !commentRequestDTO.getText().isEmpty()) {
                         commentInDb.setText(commentRequestDTO.getText());
-                        commentInDb.setUpdated_at(Instant.now());
+                        commentInDb.setUpdatedAt(Instant.now());
                     }
                     return  commentRepository.save(commentInDb);
                 })
@@ -132,17 +155,27 @@ public class CommentServiceImpl implements CommentService {
     @Transactional
     public void deleteCommentById(Long commentId) {
         Comment comment = getCommentById(commentId);
+        Optional<Video> video = videoRepository.findById(comment.getVideo().getId());
         if (comment.getRootComment() != null) {
             Comment rootComment = comment.getRootComment();
             rootComment.setReplyCount(rootComment.getReplyCount() - 1);
             commentRepository.save(rootComment);
         } else {
-            List<Comment> childComments = commentRepository.findByRootComment_Id(commentId, PageRequest.of(0, 10)).getContent();
+            List<Comment> childComments = commentRepository.findByRootComment_IdOrderByCreatedAtDesc(commentId, PageRequest.of(0, 10)).getContent();
+            if (video.isPresent()) {
+                Video v = video.get();
+                v.setCommentCount(v.getCommentCount() - childComments.size());
+                videoRepository.save(v);
+            }
             childComments.forEach((childComment) -> {
                 commentRepository.delete(childComment);
             }) ;
         }
-
+        if (video.isPresent()) {
+            Video v = video.get();
+            v.setCommentCount(v.getCommentCount() - 1);
+            videoRepository.save(v);
+        }
         commentRepository.deleteById(commentId);
     }
 

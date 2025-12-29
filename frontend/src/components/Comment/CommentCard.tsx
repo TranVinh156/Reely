@@ -3,9 +3,13 @@ import React, { useState } from "react";
 import Report from "./Report";
 import Delete from "./Delete";
 import axiosClient from "@/utils/axios.client";
+import { useAuth } from "@/hooks/auth/useAuth";
+import { h4 } from "motion/react-client";
+import { NavLink } from "react-router-dom";
 
 
 interface CommentCardProps {
+  videoOwnerId?: number;
   ownerId?: string;
   username?: string;
   comment?: string;
@@ -20,7 +24,6 @@ interface CommentCardProps {
   onMenuClick?: () => void;
   onMenuClose?: () => void;
   videoId: number;
-  currentUserId: number;
   commentId: string;
   rootCommentId: string;
   onReplyAdded?: (rootCommentId: string) => void;
@@ -28,6 +31,7 @@ interface CommentCardProps {
 }
 
 const CommentCard: React.FC<CommentCardProps> = ({
+  videoOwnerId,
   ownerId,
   username,
   comment,
@@ -42,7 +46,6 @@ const CommentCard: React.FC<CommentCardProps> = ({
   onMenuClick,
   onMenuClose,
   videoId,
-  currentUserId,
   commentId,
   rootCommentId,
   onReplyAdded,
@@ -51,13 +54,16 @@ const CommentCard: React.FC<CommentCardProps> = ({
   const [replyText, setReplyText] = useState("");
   const [showReportModal, setShowReportModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const {user} = useAuth();
+
+  avatarUrl = "http://localhost:9000/" + avatarUrl;
 
   const handleSubmitReply = async () => {
     if (replyText.trim()) {
       try {
         const response = await axiosClient.post('/comments', {
           videoId,
-          userId: currentUserId,
+          userId: user?.id,
           text: replyText.trim(),
           rootCommentId: rootCommentId === null ? parseInt(commentId) : parseInt(rootCommentId),
           replyToCommentId: rootCommentId === null ? null : parseInt(commentId)
@@ -129,10 +135,17 @@ const CommentCard: React.FC<CommentCardProps> = ({
         {/* Content */}
         <div className="flex-1 min-w-0 flex flex-col gap-y-1">
           {/* Username */}
-          <div className="flex items-center gap-1">
-            <h4 className={`${isReply ? 'text-sm' : 'text-base'} font-semibold text-white`}>
-              {username || 'Unknown'}
-            </h4>
+          <div className="flex items-center gap-3">
+            <NavLink to={`/users/${username}`}
+              className={`${isReply ? 'text-sm' : 'text-base'} font-semibold text-white cursor-pointer hover:underline`}>
+                {username || 'Unknown'}
+            </NavLink>
+
+            { Number(ownerId) === videoOwnerId && (
+              <h4 className={`${isReply ? 'text-sm' : 'text-sm'} font-semibold text-[#FE2C55]/95`}> 
+                Tác giả
+              </h4>
+            )}
             
             {usernameReplied && (
               <div className="flex items-center gap-1">
@@ -212,7 +225,7 @@ const CommentCard: React.FC<CommentCardProps> = ({
           className={`flex justify-start cursor-pointer text-white/60 hover:text-white ${showMenu ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
             <Ellipsis className="mt-0.5"/>
           </button>
-          {showMenu && `${currentUserId}` !== ownerId && (
+          {showMenu && `${user?.id}` !== ownerId && (
             <div 
             onClick={handleReportClick}
             className="flex absolute right-0 w-25 bg-[#2a2a2a] rounded-lg shadow-lg p-2 border border-white/10 hover:text-[#FE2C55] gap-1 justify-center">
@@ -223,7 +236,7 @@ const CommentCard: React.FC<CommentCardProps> = ({
             </div>
           )}
 
-          {showMenu && `${currentUserId}` === ownerId && (
+          {showMenu && `${user?.id}` === ownerId && (
             <div 
             onClick={handleDeleteClick}
             className="flex absolute right-0 w-25 bg-[#2a2a2a] rounded-lg shadow-lg p-2 border border-white/10 hover:text-[#FE2C55] gap-1 justify-center">

@@ -34,9 +34,9 @@ public class FeedServiceImpl implements FeedService {
      * @return
      */
     @Override
-    public FeedResponse getPublicFeed(Pageable pageable) {
+    public FeedResponse getPublicFeed(Pageable pageable, Long viewerId) {
         Page<Video> page = videoRepository.findPublicFeed(pageable);
-        List<FeedVideoDTO> content = mapVideosToDTO(page.getContent(), null);
+        List<FeedVideoDTO> content = mapVideosToDTO(page.getContent(), viewerId);
         return buildFeedResponse(page, content);
     }
 
@@ -54,9 +54,9 @@ public class FeedServiceImpl implements FeedService {
                 .map(userFollow -> userFollow.getFollowing().getId())
                 .collect(Collectors.toList());
         if (followeeIds.isEmpty())
-            return getPublicFeed(pageable);
+            return getPublicFeed(pageable, userId);
 
-        Page<Video> page = videoRepository.findFollowedFeed(followeeIds, pageable);
+        Page<Video> page = videoRepository.findFeedForUser(followeeIds, pageable);
         List<FeedVideoDTO> content = mapVideosToDTO(page.getContent(), userId);
         return buildFeedResponse(page, content);
     }
@@ -68,9 +68,9 @@ public class FeedServiceImpl implements FeedService {
      * @return
      */
     @Override
-    public FeedResponse getTrendingFeed(Pageable pageable) {
+    public FeedResponse getTrendingFeed(Pageable pageable, Long viewerId) {
         Page<Video> page = videoRepository.findTrendingFeed(pageable);
-        List<FeedVideoDTO> content = mapVideosToDTO(page.getContent(), null);
+        List<FeedVideoDTO> content = mapVideosToDTO(page.getContent(), viewerId);
         return buildFeedResponse(page, content);
     }
 
@@ -82,9 +82,9 @@ public class FeedServiceImpl implements FeedService {
      * @return
      */
     @Override
-    public FeedResponse getUserFeed(Long userId, Pageable pageable) {
+    public FeedResponse getUserFeed(Long userId, Pageable pageable, Long viewerId) {
         Page<Video> page = videoRepository.findByUserId(userId, pageable);
-        List<FeedVideoDTO> content = mapVideosToDTO(page.getContent(), null);
+        List<FeedVideoDTO> content = mapVideosToDTO(page.getContent(), viewerId);
         return buildFeedResponse(page, content);
     }
 

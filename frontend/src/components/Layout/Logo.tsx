@@ -1,11 +1,13 @@
-import LogoImage from '@/assets/logo.png'
+import logo from "../../assets/logo.png";
 
 
-const Logo = () => {
+const Logo = ({ collapsed }: { collapsed?: boolean }) => {
     return (
-        <div className='flex items-center gap-2'>
-            <img className="w-10 h-auto" src={LogoImage} alt="logo" />
-            <p className='font-bold hidden md:flex text-2xl text-white'>Reely</p>
+        <div className="w-full flex justify-center">
+            <div className='flex items-center gap-2 w-fit'>
+                <img src={logo} alt="Logo" className="w-12 h-12 filter brightness-0 invert" />
+                {!collapsed && <p className='font-black hidden md:flex text-3xl text-white'>Reely</p>}
+            </div>
         </div>
     )
 }

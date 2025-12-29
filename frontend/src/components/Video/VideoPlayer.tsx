@@ -1,8 +1,8 @@
 import React, { useRef, useEffect, use } from "react";
 import type { Video } from "../../types/video";
-import { useVideoController } from "../../hooks/useVideoController";
+import { useVideoController } from "../../hooks/feed/useVideoController";
 import { ProgressBar } from "./ProgressBar";
-import { useVideoProgress } from "../../hooks/useVideoProgress";
+import { useVideoProgress } from "../../hooks/feed/useVideoProgress";
 import VideoControls from "./VideoControls";
 import VideoInfo from "./VideoInfo";
 import { motion } from "framer-motion";
@@ -14,24 +14,65 @@ interface Props {
   video: Video;
   className?: string;
   onOrientationChange?: (orientation: VideoOrientation) => void;
+  loadMode?: "active" | "preload" | "idle";
 }
 
 export default function VideoPlayer({
   video,
   className,
   onOrientationChange,
+  loadMode = "idle",
 }: Props) {
+  // load/unload video based on loadMode
+  useEffect(() => {
+    const el = ref.current;
+
+    if (!el) return;
+
+    const desiredPreload = loadMode === "active" ? "auto" : (loadMode === "preload" ? "metadata" : "none");
+    el.preload = desiredPreload;
+
+    if (loadMode === "idle") {
+      try {
+        el.pause();
+      } catch (e) {}
+
+      if (!el.getAttribute("src")) {
+        el.removeAttribute("src");
+        try {
+          el.load();
+        } catch (e) {}
+      }
+
+      return;
+    }
+
+    // ensure src is set
+    const currentSrc = el.getAttribute("src") ?? "";
+    if (video.src && video.src !== currentSrc) {
+      el.setAttribute("src", video.src);
+      try {
+        el.load();
+      } catch (e) {}
+    }
+  }, [loadMode, video.src]);
+
   const ref = useRef<HTMLVideoElement>(null);
   // const { isPlaying, togglePlay } = useVideoController(ref, video.id);
   const { togglePlay, isPlaying, muted, toggleMute, volume, setVol } =
     useVideoController(ref, video.id);
 
-  useVideoHotkeys(ref);
+  useVideoHotkeys();
 
   useEffect(() => {
     // ensure metadata preloaded
     if (ref.current) ref.current.preload = "metadata";
   }, []);
+
+  // useEffect(() => {
+  //   if (!ref.current) return;
+  //   ref.current.dataset.seeking = isSeeking ? "1" : "0";
+  // }, [isSeeking]);
 
   const handleLoadedMetadata = () => {
     if (ref.current && onOrientationChange) {
@@ -50,17 +91,93 @@ export default function VideoPlayer({
   const { progress, duration, isSeeking, currentTime, setIsSeeking, seekTo } =
     useVideoProgress(ref);
 
+  const tapTimerRef = useRef<number | null>(null);
+  const lastTapAtRef = useRef<number>(0);
+
+  const isInteractiveTarget = (t: HTMLElement | null) =>
+    Boolean(
+      t?.closest(
+        [
+          '[data-video-controls="1"]',
+          "button",
+          "a",
+          "input",
+          "textarea",
+          "select",
+          "label",
+          "summary",
+          '[role="button"]',
+          '[role="link"]',
+        ].join(",")
+      )
+    );
+
+  const fireLikeEvent = () => {
+    window.dispatchEvent(
+      new CustomEvent("reely:like", {
+        detail: { videoId: String(video.id) },
+      })
+    );
+  };
+
+  const scheduleTogglePlay = () => {
+    if (tapTimerRef.current != null) {
+      window.clearTimeout(tapTimerRef.current);
+      tapTimerRef.current = null;
+    }
+    // Small delay so double-tap won't toggle play/pause
+    tapTimerRef.current = window.setTimeout(() => {
+      tapTimerRef.current = null;
+      togglePlay();
+    }, 220);
+  };
+
+  const handleSurfacePointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
+    const t = e.target as HTMLElement | null;
+    if (isInteractiveTarget(t)) return;
+
+    const now = Date.now();
+    const dt = now - lastTapAtRef.current;
+    lastTapAtRef.current = now;
+
+    // double tap/click
+    if (dt > 0 && dt < 260) {
+      if (tapTimerRef.current != null) {
+        window.clearTimeout(tapTimerRef.current);
+        tapTimerRef.current = null;
+      }
+      e.preventDefault();
+      e.stopPropagation();
+      fireLikeEvent();
+      return;
+    }
+
+    scheduleTogglePlay();
+  };
+
+  useEffect(() => {
+    return () => {
+      if (tapTimerRef.current != null) {
+        window.clearTimeout(tapTimerRef.current);
+        tapTimerRef.current = null;
+      }
+    };
+  }, []);
+
   return (
     <motion.div
       className={`relative h-full w-full overflow-hidden transition-opacity duration-300 ${
         isPlaying ? "opacity-100" : "opacity-50"
       } ${className ?? ""}`}
+      onPointerUp={handleSurfacePointerUp}
     >
       <video
         ref={ref}
         onLoadedMetadata={handleLoadedMetadata}
         data-id={video.id}
-        src={video.src}
+        data-video-el
+        data-video-id={video.id}
+        src={loadMode === "idle" ? undefined : video.src}
         poster={video.poster}
         playsInline
         // loop
@@ -78,17 +195,15 @@ export default function VideoPlayer({
           className={`bg-red pointer-events-none h-18 w-18 text-4xl opacity-100 ${isPlaying ? "" : "icon-[solar--play-bold]"}`}
         ></div>
       </button> */}
-      
+
       <VideoControls
         username={video.user.username}
         description={video.description}
-        isPlaying={isPlaying}
         currentTime={currentTime}
         duration={duration}
         progress={progress}
         muted={muted}
         volume={volume}
-        togglePlay={togglePlay}
         toggleMute={toggleMute}
         setVol={setVol}
         onSeek={seekTo}
@@ -97,7 +212,6 @@ export default function VideoPlayer({
       />
 
       {/* simple overlay: click to toggle */}
-      
 
       {/* simple overlay: click to toggle */}
       {/* <button

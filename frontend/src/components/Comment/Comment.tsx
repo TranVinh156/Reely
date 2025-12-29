@@ -3,6 +3,7 @@ import CommentCard from "./CommentCard";
 import { X, ChevronDown, Paperclip, Smile, Send, ChevronUp } from "lucide-react";
 import { formatTimestamp } from "../../utils/formatTimestamp.ts";
 import axiosClient from "@/utils/axios.client.ts";
+import { useAuth } from "@/hooks/auth/useAuth.ts";
 
 interface Reply {
   id: string;
@@ -26,7 +27,7 @@ interface CommentData {
   rootCommentId: string;
 }
 
-const Comment: React.FC<{ videoId: number, currentUserId: number }> = ({ videoId, currentUserId }) => {
+const Comment: React.FC<{ videoId: number, videoOwnerId: number , onClose: () => void }> = ({ videoId, videoOwnerId, onClose }) => {
   
   const [comments, setComments] = useState<CommentData[]>([]);
   const [isLoadingComments, setIsLoadingComments] = useState(false);
@@ -43,6 +44,8 @@ const Comment: React.FC<{ videoId: number, currentUserId: number }> = ({ videoId
 
   const [currentPage, setCurrentPage] = useState(0);
   const [hasMoreComments, setHasMoreComments] = useState(true);
+
+  const {user} = useAuth();
   
   useEffect(() => {
     setComments([]);
@@ -109,9 +112,11 @@ const Comment: React.FC<{ videoId: number, currentUserId: number }> = ({ videoId
     try {
       const response = await axiosClient.get(`/comments/video?videoId=${videoId}&page=${page}&size=30`);
       const existingIds = new Set(comments.map(n => n.id));
-          const uniqueNew = response.data.data.filter(
-            (n: CommentData) => !existingIds.has(n.id)
-          );
+      const uniqueNew = response.data.data.filter(
+        (n: CommentData) => {
+          return !existingIds.has(n.id)
+        }
+      );
       setComments(prev => [...prev, ...uniqueNew])
 
       setHasMoreComments(response.data.pageNumber < response.data.totalPages - 1);
@@ -129,7 +134,7 @@ const Comment: React.FC<{ videoId: number, currentUserId: number }> = ({ videoId
 
     try {
       const response = await axiosClient.get(`/comments/replies?rootCommentId=${commentId}`);
-      const replies: Reply[] = response.data.data;
+      let replies: Reply[] = response.data.data;
       
       // Update repliesData
       setRepliesData(prev => ({
@@ -174,7 +179,7 @@ const Comment: React.FC<{ videoId: number, currentUserId: number }> = ({ videoId
       try {
         const response = await axiosClient.post('/comments', {
           videoId,
-          userId: currentUserId,
+          userId: user?.id,
           text: commentText.trim()
         });
         console.log('Comment submitted:', response.data.data);
@@ -198,7 +203,7 @@ const Comment: React.FC<{ videoId: number, currentUserId: number }> = ({ videoId
     try {
       const response = await axiosClient.get(`/comments/replies?rootCommentId=${commentId}`);
       
-      const replies: Reply[] = response.data.data;
+      let replies: Reply[] = response.data.data;
       
       // Lưu replies vào state
       setRepliesData(prev => ({
@@ -263,11 +268,11 @@ const Comment: React.FC<{ videoId: number, currentUserId: number }> = ({ videoId
   }};
 
   return (
-    <div className="w-[450px] h-screen bg-[#1e1e1e] text-white flex flex-col">
+    <div className="w-full h-full bg-[#1e1e1e] text-white flex flex-col">
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-4">
         <h2 className="text-lg font-semibold">Comment</h2>
-        <button className="p-2 hover:bg-white/10 rounded-full transition-colors" onClick={closeMenu}>
+        <button className="p-2 hover:bg-white/10 rounded-full transition-colors" onClick={onClose}>
           <X size={20} />
         </button>
       </div>
@@ -301,6 +306,7 @@ const Comment: React.FC<{ videoId: number, currentUserId: number }> = ({ videoId
           <div key={comment.id}>
             {/* Main Comment */}
             <CommentCard
+              videoOwnerId={videoOwnerId}
               ownerId={comment.ownerId}
               username={comment.username}
               comment={comment.comment}
@@ -313,7 +319,6 @@ const Comment: React.FC<{ videoId: number, currentUserId: number }> = ({ videoId
               onMenuClick={() => setActiveMenuId(comment.id)}
               onMenuClose={() => setActiveMenuId(null)}
               videoId={videoId}
-              currentUserId={currentUserId}
               commentId={comment.id}
               rootCommentId={comment.rootCommentId}
               onReplyAdded={handleReplyAdded}
@@ -325,6 +330,7 @@ const Comment: React.FC<{ videoId: number, currentUserId: number }> = ({ videoId
               <div className="ml-10">
                 {replies.slice(0, showCount).map((reply) => (
                   <CommentCard
+                    videoOwnerId={videoOwnerId}
                     key={reply.id}
                     ownerId={reply.ownerId}
                     username={reply.username}
@@ -340,7 +346,6 @@ const Comment: React.FC<{ videoId: number, currentUserId: number }> = ({ videoId
                     onMenuClick={() => setActiveMenuId(reply.id)}
                     onMenuClose={closeMenu}
                     videoId={videoId}
-                    currentUserId={currentUserId}
                     commentId={reply.id}
                     rootCommentId={reply.rootCommentId}
                     onReplyAdded={handleReplyAdded}

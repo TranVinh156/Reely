@@ -21,9 +21,6 @@ import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.intercept.AuthorizationFilter;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import com.nimbusds.jose.jwk.source.ImmutableSecret;
 
@@ -50,6 +47,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(
                         (authz) -> authz
                                 .requestMatchers("/hello").hasAuthority("SUPER_ADMIN")
+                                .requestMatchers("/api/v1/users/**").hasAuthority("SUPER_ADMIN")
                                 .anyRequest().permitAll())
                 .addFilterBefore(headerAuthenticationFilter(), AuthorizationFilter.class)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));

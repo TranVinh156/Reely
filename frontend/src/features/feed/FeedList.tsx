@@ -1,19 +1,45 @@
 import VideoCard from "../../components/Video/VideoCard.tsx";
-import { useInfiniteFeed } from "../../hooks/useInfiniteFeed.ts";
-import { useFeedAutoPause } from "../../hooks/useFeedAutoPause.ts"; // implemented below
+import { useFeedAutoPause } from "../../hooks/feed/useFeedAutoPause.ts"; // implemented below
+import LoadingPage from "@/components/Auth/LoadingPage.tsx";
+import { useFeedStore } from "@/store/feedStore.ts";
+import type { FeedMode } from "@/api/feed.ts";
+import { useInfiniteFeed } from "@/hooks/feed/useInfiniteFeed.ts";
 
-export default function FeedList() {
-  const { videos, loaderRef, isLoading } = useInfiniteFeed();
+interface FeedListProps {
+  mode?: FeedMode;
+}
+
+export default function FeedList({ mode = "personal" }: FeedListProps) {
+  const { videos, loaderRef, isLoading } = useInfiniteFeed(5, mode);
   useFeedAutoPause();
+  const currentIndex = useFeedStore((s) => s.currentIndex);
+
+  if (isLoading && videos.length === 0) {
+    return <LoadingPage />;
+  }
 
   return (
-    <div className="flex flex-col items-center w-full">
-      {videos.map((v) => (
-        <div key={v.id} className="feed-item w-full">
-          <VideoCard video={v} />
-        </div>
-      ))}
-      {isLoading && <p className="py-4 text-gray-400 text-sm animate-pulse">Đang tải thêm video...</p>}
+    <div className="flex w-full flex-col items-center">
+      {videos.map((v, idx) => {
+        const delta = idx - currentIndex;
+        const loadMode =
+          delta === 0
+            ? "active"
+            : (delta >= -2 && delta <= 4
+              ? "preload"
+              : "idle");
+        return (
+          <div
+            key={v.id}
+            className="feed-item w-full"
+            data-feed-item
+            data-video-id={v.id}
+            data-feed-index={idx}
+          >
+            <VideoCard video={v} loadMode={loadMode} />
+          </div>
+        );
+      })}
       <div ref={loaderRef} className="h-[200px]" />
     </div>
   );
