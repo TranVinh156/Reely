@@ -1,6 +1,7 @@
 import FeedList from "../features/feed/FeedList";
 import Sidebar from "../components/Layout/Sidebar";
 import "@/styles/feedSnap.css";
+import ActionBar from "@/components/Layout/ActionBar";
 import { useAuth } from "@/hooks/auth/useAuth";
 import React, { useEffect } from "react";
 import type { FeedMode } from "@/api/feed";
@@ -48,6 +49,7 @@ export default function FeedPage() {
           </div>
         </div>
       </div>
+      <ActionBar />
     </div>
   );
 }

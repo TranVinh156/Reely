@@ -15,6 +15,7 @@ import { UploadProvider } from "./hooks/upload/useUploadVideo";
 import IndexPage from "./pages/FeedPage";
 import Comment from "./components/Comment/Comment";
 import FeedPage from "./pages/FeedPage";
+import ForgetPasswordPage from "./pages/ForgetPasswordPage";
 import Analysis from "./pages/Analysis";
 
 const queryClient = new QueryClient();
@@ -70,12 +71,12 @@ ReactDOM.createRoot(root).render(
                         />
 
                         <Route
-                            path="/feed"
+                            path="/password/reset"
                             element={
-                                <IndexPage />
+                                <ForgetPasswordPage />
                             }
                         />
-
+                      
                         <Route
                             path="/feed"
                             element={
