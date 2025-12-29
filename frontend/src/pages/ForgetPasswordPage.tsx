@@ -21,9 +21,6 @@ const ForgetPasswordPage: React.FC = () => {
 
         setIsPending(true)
 
-        // TODO: Implement forgot password API call
-        // await forgotPasswordMutation({ email })
-
         setTimeout(() => {
             setIsPending(false)
             setIsSubmitted(true)
@@ -115,7 +112,6 @@ const ForgetPasswordPage: React.FC = () => {
             </section>
 
             <aside className="hidden md:flex md:flex-4 flex-1 min-h-20 bg-blue-500" aria-hidden="true">
-                {/* Background image can be added here */}
             </aside>
         </main>
     )

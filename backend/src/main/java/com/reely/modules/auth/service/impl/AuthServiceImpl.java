@@ -4,8 +4,11 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -16,17 +19,17 @@ import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import org.springframework.stereotype.Service;
 
+import com.reely.modules.auth.dto.ChangePasswordRequest;
 import com.reely.modules.auth.dto.UserClaims;
 import com.reely.modules.auth.entity.PasswordResetToken;
 import com.reely.modules.auth.repository.PasswordResetTokenRepository;
 import com.reely.modules.auth.service.AuthService;
 import com.reely.modules.user.dto.UserDTO;
 import com.reely.modules.user.entity.User;
+import com.reely.modules.user.repository.UserRepository;
 import com.reely.modules.user.service.UserService;
 import com.reely.util.EmailSending;
 import com.reely.util.TokenGenerator;
-
-import ch.qos.logback.core.subst.Token;
 
 @Service
 public class AuthServiceImpl implements AuthService {
@@ -46,18 +49,24 @@ public class AuthServiceImpl implements AuthService {
 
     private PasswordEncoder passwordEncoder;
 
+    private UserRepository userRepository;
+
     private PasswordResetTokenRepository passwordResetTokenRepository;
+
+    private final AuthenticationManager authenticationManager;
 
     private EmailSending emailSending;
 
     public AuthServiceImpl(JwtEncoder jwtEncoder, UserService userService,
             PasswordEncoder passwordEncoder, PasswordResetTokenRepository passwordResetTokenRepository,
-            EmailSending emailSending) {
+            EmailSending emailSending, AuthenticationManager authenticationManager, UserRepository userRepository) {
         this.jwtEncoder = jwtEncoder;
         this.userService = userService;
         this.passwordEncoder = passwordEncoder;
         this.passwordResetTokenRepository = passwordResetTokenRepository;
         this.emailSending = emailSending;
+        this.userRepository = userRepository;
+        this.authenticationManager = authenticationManager;
     }
 
     public static final MacAlgorithm JWT_ALGORITHM = MacAlgorithm.HS256;
@@ -118,8 +127,9 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public void sendForgotPasswordEmail(String email) {
-        User user = this.userService.getUserEntityByEmail(email);
-        if (user != null) {
+        Optional<User> userOptional = this.userRepository.findByEmail(email);
+        if (userOptional.isPresent()) {
+            User user = userOptional.get();
             String rawToken = TokenGenerator.generateToken(32);
             String tokenHash = passwordEncoder.encode(rawToken);
             PasswordResetToken token = PasswordResetToken.builder()
@@ -130,5 +140,21 @@ public class AuthServiceImpl implements AuthService {
             String resetLink = "http://localhost:5173/reset-password?token=" + rawToken;
             emailSending.sendEmail(email, "Reset Password for Reely", resetLink);
         }
+    }
+
+    @Override
+    public void handleChangePassword(ChangePasswordRequest request) {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
+                email, request.getOldPassword());
+        authenticationManager.authenticate(authenticationToken);
+
+        System.out.println(email);
+        User user = this.userRepository.findByEmail(email).get();
+        String hashPassword = this.passwordEncoder.encode(request.getNewPassword());
+
+        user.setPasswordHash(hashPassword);
+        this.userRepository.save(user);
+        return;
     }
 }

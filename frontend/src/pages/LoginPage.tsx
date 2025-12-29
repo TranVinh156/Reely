@@ -44,7 +44,7 @@ const LoginPage: React.FC = () => {
 
                     {error && (
                         <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-md" role="alert">
-                            {error instanceof Error ? error.message : 'Login failed. Please try again.'}
+                            {(error as any)?.response?.data?.message || 'Login failed. Please try again.'}
                         </div>
                     )}
 

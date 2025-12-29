@@ -1,5 +1,6 @@
 package com.reely.modules.auth.service;
 
+import com.reely.modules.auth.dto.ChangePasswordRequest;
 import com.reely.modules.user.dto.UserDTO;
 
 public interface AuthService {
@@ -10,4 +11,6 @@ public interface AuthService {
     String getCurrentUserEmail();
 
     void sendForgotPasswordEmail(String email);
+
+    void handleChangePassword(ChangePasswordRequest request);
 }

@@ -13,6 +13,7 @@ import { UserIcon } from "lucide-react"
 import { useState } from "react"
 import { useParams } from "react-router-dom"
 import EditProfileModal from "@/components/Profile/EditProfileModal"
+import ChangePasswordModal from "@/components/Profile/ChangePasswordModal"
 import VideoSection from "@/components/Profile/VideoSection"
 
 type ModalTab = 'followers' | 'following' | null
@@ -22,13 +23,13 @@ const UserProfile = () => {
     const { user: currentUser } = useAuth()
     const [modalTab, setModalTab] = useState<ModalTab>(null)
     const [isEditProfileOpen, setIsEditProfileOpen] = useState(false)
+    const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false)
     const storageUrl = 'http://localhost:9000'
 
     const { data: user, error, isLoading, isError } = useGetUserByUsername(params.username || "")
     const { data: followingCount = 0 } = useGetFollowingCount(user?.id || 0)
     const { data: followerCount = 0 } = useGetFollowersCount(user?.id || 0)
 
-    // Check if current user follows this profile user
     const { data: isFollowingUser = false } = useIsFollowing(
         currentUser?.id || 0,
         user?.id || 0,
@@ -117,6 +118,9 @@ const UserProfile = () => {
                                     <button onClick={() => setIsEditProfileOpen(true)} className="bg-red-600 px-8 py-2 rounded-lg">
                                         Edit Profile
                                     </button>
+                                    <button onClick={() => setIsChangePasswordOpen(true)} className="bg-gray-600 px-6 py-2 rounded-lg">
+                                        Change Password
+                                    </button>
                                 </>
                             }
                         </div>
@@ -163,6 +167,7 @@ const UserProfile = () => {
             />
 
             <EditProfileModal isOpen={isEditProfileOpen} onClose={() => setIsEditProfileOpen(false)} />
+            <ChangePasswordModal isOpen={isChangePasswordOpen} onClose={() => setIsChangePasswordOpen(false)} />
 
 
         </div>
