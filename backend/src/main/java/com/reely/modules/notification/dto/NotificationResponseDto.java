@@ -16,6 +16,7 @@ public class NotificationResponseDto {
     private String type;
     private String avatarUrl;
 
+
     public NotificationResponseDto(Notification notification) {
         this.id = notification.getId().toString();
         this.username = notification.getUser().getUsername();

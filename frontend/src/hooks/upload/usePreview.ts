@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { extractThumbnail } from '../../utils/extractThumbnail.ts';
+import { getVideoDuration } from './useUploadVideo.tsx';
 
 export const usePreview = () => {
   const [file, setFile] = useState<File>();
@@ -10,6 +11,18 @@ export const usePreview = () => {
   const [onShowCancel, setOnShowCancel] = useState(false);
 
   const handleSelectFile = async (selected: File) => {
+    const MAX_SIZE = 30 * 1024 * 1024 * 1024;
+    if (selected.size > MAX_SIZE) {
+      alert("File size exceeds 30GB limit.");
+      return;
+    }
+
+    const duration = await getVideoDuration(selected);
+    if (duration > 3600) {
+      alert("Video duration exceeds 60 minutes limit.");
+      return;
+    }
+    
     setFile(selected);
     setPreview(URL.createObjectURL(selected));
     const thumbnail = await extractThumbnail(selected);

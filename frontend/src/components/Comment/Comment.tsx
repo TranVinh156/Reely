@@ -5,6 +5,7 @@ import { formatTimestamp } from "../../utils/formatTimestamp.ts";
 import axiosClient from "@/utils/axios.client.ts";
 import { useAuth } from "@/hooks/auth/useAuth.ts";
 import { useFeedStore } from "@/store/feedStore";
+import { useNavigate } from "react-router-dom";
 
 interface Reply {
   id: string;
@@ -52,8 +53,11 @@ const Comment: React.FC<CommentProps> = ({ videoId, videoOwnerId, onClose, hideC
   const [currentPage, setCurrentPage] = useState(0);
   const [hasMoreComments, setHasMoreComments] = useState(true);
 
-  const { user } = useAuth();
+  const { user, isAuthenticated } = useAuth();
   const incrementCommentCount = useFeedStore((s) => s.incrementCommentCount);
+  const decrementCommentCount = useFeedStore((s) => s.decrementCommentCount);
+
+  const navigate = useNavigate()
 
   useEffect(() => {
     setComments([]);
@@ -72,7 +76,7 @@ const Comment: React.FC<CommentProps> = ({ videoId, videoOwnerId, onClose, hideC
 
   useEffect(() => {
     if (deleteCommentId[1]) {
-      // Xóa reply khỏi repliesData
+      decrementCommentCount(videoId.toString(), 1);
       setRepliesData(prev => ({
         ...prev,
         [deleteCommentId[1]]: prev[deleteCommentId[1]]?.filter(r => r.id !== deleteCommentId[0]) || []
@@ -93,6 +97,11 @@ const Comment: React.FC<CommentProps> = ({ videoId, videoOwnerId, onClose, hideC
       }));
 
     } else {
+      const commentToDelete = comments.find(c => c.id === deleteCommentId[0]);
+      if (commentToDelete) {
+          const total = 1 + (commentToDelete.replyCount || 0);
+          decrementCommentCount(videoId.toString(), total);
+      }
       // Xoá comment khỏi danh sách
       setComments(prev => prev.filter(c => c.id !== deleteCommentId[0]));
 
@@ -111,7 +120,8 @@ const Comment: React.FC<CommentProps> = ({ videoId, videoOwnerId, onClose, hideC
       });
 
     }
-  }, [deleteCommentId]);
+    setDeleteCommentId(["", ""]);
+  }, [deleteCommentId, comments, videoId, decrementCommentCount]);
 
 
 
@@ -136,7 +146,7 @@ const Comment: React.FC<CommentProps> = ({ videoId, videoOwnerId, onClose, hideC
     }
   };
 
-  // ✅ Function mới: Re-fetch replies
+  //  Function mới: Re-fetch replies
   const refetchReplies = async (commentId: string) => {
     setLoadingReplies(prev => ({ ...prev, [commentId]: true }));
 
@@ -183,6 +193,12 @@ const Comment: React.FC<CommentProps> = ({ videoId, videoOwnerId, onClose, hideC
   const closeMenu = () => setActiveMenuId(null);
 
   const handleSubmitComment = async () => {
+
+    if (!isAuthenticated) {
+      onClose();
+      navigate('/login');
+      return;
+    }
     if (commentText.trim()) {
       try {
         const response = await axiosClient.post('/comments', {
@@ -277,6 +293,12 @@ const Comment: React.FC<CommentProps> = ({ videoId, videoOwnerId, onClose, hideC
     }
   };
 
+  const handleNavigate = () => {
+    if (!hideCloseButton) {
+      onClose();
+    }
+  };
+
   return (
     <div className="w-full h-full bg-[#1e1e1e] text-white flex flex-col">
       {/* Header */}
@@ -335,6 +357,7 @@ const Comment: React.FC<CommentProps> = ({ videoId, videoOwnerId, onClose, hideC
                 rootCommentId={comment.rootCommentId}
                 onReplyAdded={handleReplyAdded}
                 onDelete={handleDeleteComment}
+                onNavigate={handleNavigate}
               />
 
               {/* Nested Replies */}
@@ -362,6 +385,7 @@ const Comment: React.FC<CommentProps> = ({ videoId, videoOwnerId, onClose, hideC
                       rootCommentId={reply.rootCommentId}
                       onReplyAdded={handleReplyAdded}
                       onDelete={handleDeleteComment}
+                      onNavigate={handleNavigate}
                     />
                   ))}
                 </div>

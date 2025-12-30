@@ -9,6 +9,7 @@ interface FormDataType {
     password: string
     verifyPassword: string
     verifyCode: string
+    age: string
 }
 
 interface FormErrors {
@@ -17,6 +18,7 @@ interface FormErrors {
     password?: string
     verifyPassword?: string
     verifyCode?: string
+    age?: string
 }
 
 const RegisterPage = () => {
@@ -25,7 +27,8 @@ const RegisterPage = () => {
         username: '',
         password: '',
         verifyPassword: '',
-        verifyCode: ''
+        verifyCode: '',
+        age: ''
     })
     const [errors, setErrors] = useState<FormErrors>({})
 
@@ -71,6 +74,14 @@ const RegisterPage = () => {
             newErrors.verifyCode = 'Verification code must be 6 digits'
         }
 
+        if (!formData.age) {
+            newErrors.age = 'Age is required'
+        } else if (isNaN(Number(formData.age)) || Number(formData.age) <= 0) {
+            newErrors.age = 'Please enter a valid age'
+        } else if (Number(formData.age) < 13) {
+            newErrors.age = 'You must be at least 13 years old'
+        }
+
         setErrors(newErrors)
         return Object.keys(newErrors).length === 0
     }
@@ -86,6 +97,7 @@ const RegisterPage = () => {
             email: formData.email,
             username: formData.username,
             password: formData.password,
+            age: Number(formData.age)
         })
     }
 
@@ -121,6 +133,14 @@ const RegisterPage = () => {
                             value={formData.username}
                             onChange={handleChange("username")}
                             error={errors.username}
+                        />
+                        <FormInput
+                            label="Age"
+                            type="number"
+                            placeholder="Age"
+                            value={formData.age}
+                            onChange={handleChange("age")}
+                            error={errors.age}
                         />
                         <FormInput
                             label="Password"

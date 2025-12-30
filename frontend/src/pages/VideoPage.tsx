@@ -1,13 +1,16 @@
 import VideoCard from "@/components/Video/VideoCard";
 import Comment from "@/components/Comment/Comment";
 import { useGetVideoById } from "@/hooks/video/useGetVideoById";
-import { NavLink, useParams } from "react-router-dom";
+import { NavLink, useParams, useNavigate } from "react-router-dom";
 import LoadingPage from "@/components/Auth/LoadingPage";
-import { Heart, MessageCircle, Play, UserIcon } from "lucide-react";
+import { Ellipsis, Heart, MessageCircle, Play, UserIcon, ChevronLeft } from "lucide-react";
 import { useAuth } from "@/hooks/auth/useAuth";
 import useIsFollowing from "@/hooks/follow/useIsFollowing";
 import useFollow from "@/hooks/follow/useFollow";
 import useUnfollow from "@/hooks/follow/useUnfollow";
+import { useState } from "react";
+import DeleteVideoModal from "@/components/Layout/DeleteVideoModal";
+import { deleteVideo } from "@/api/video";
 
 const VideoPage = () => {
     const { id: videoId } = useParams();
@@ -26,6 +29,10 @@ const VideoPage = () => {
 
     const { mutate: followUser, isPending: isFollowing } = useFollow();
     const { mutate: unfollowUser, isPending: isUnfollowing } = useUnfollow();
+
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const navigate = useNavigate();
+    const [openDeleteOption, setDeleteOption] = useState(false);
 
     const handleFollowToggle = () => {
         if (!currentUser) return;
@@ -53,16 +60,41 @@ const VideoPage = () => {
     const numericVideoId = Number.parseInt(String(videoData.id), 10) || 0;
     const numericOwnerId = Number.parseInt(String(videoData.user.id), 10) || 0;
 
+    const deleteOption = (
+        <div className="absolute right-0 top-full z-50 w-32 rounded-lg bg-[#FE2C55] shadow-xl border border-white/10">
+            <button className="flex w-full px-2 py-2 text-left text-base text-white hover:bg-white/5 font-semibold justify-center cursor-pointer"
+                onClick={() => {setShowDeleteModal(true)}}>
+                Delete Video
+            </button>
+        </div>
+    )
+
+    const handleDeleteConfirm = async () => {
+        try {
+            await deleteVideo(parseInt(videoId ? videoId : '-1'));
+            setShowDeleteModal(false);
+            navigate(`/users/${currentUser?.username}`);
+        } catch (error) {
+            console.error("Failed to delete video:", error);
+        }
+    }
+
     return (
-        <div className="flex h-screen text-white">
-            <div className="flex flex-[3] items-center justify-center">
+        <div className="flex flex-col lg:flex-row h-screen text-white overflow-hidden">
+            <div className="relative flex-1 lg:flex-[3] flex items-center justify-center bg-black min-h-0">
+                <button
+                    onClick={() => navigate(-1)}
+                    className="absolute top-4 left-4 z-50 p-2 bg-gray-800/50 rounded-full hover:bg-gray-800 transition-colors cursor-pointer"
+                >
+                    <ChevronLeft size={24} color="white" />
+                </button>
                 <div className="flex h-full w-full items-center justify-center">
-                    <VideoCard video={videoData} loadMode="active" />
+                    <VideoCard video={videoData} loadMode="active" isFeed={false} />
                 </div>
             </div>
 
-            <div className="flex w-[420px] flex-[2] flex-col bg-[#121212]">
-                <div className="flex items-center justify-between gap-3 px-4 py-3">
+            <div className="flex w-full lg:w-[420px] lg:flex-[2] flex-col bg-[#121212] h-[60vh] lg:h-full border-t lg:border-l border-white/10">
+                <div className="flex items-center justify-between gap-3 px-4 py-3 shrink-0">
                     <NavLink to={`/users/${videoData.user.username}`} className="flex gap-3">
                         <div className="h-10 w-10 overflow-hidden rounded-full bg-white flex items-center justify-center">
                             {videoData.user.avatar ? (
@@ -79,9 +111,9 @@ const VideoPage = () => {
                             <span className="truncate text-sm font-semibold">{videoData.user.username}</span>
                             <span className="truncate text-xs text-white/60">Người sáng tạo</span>
                         </div>
-                    </NavLink>
-                    {(creatorId != currentUser?.id) &&
-                        <button
+                    </NavLink>  
+                    {(creatorId != currentUser?.id) ? 
+                        (<button
                             onClick={handleFollowToggle}
                             disabled={isFollowing || isUnfollowing}
                             className={`px-4 py-1 text-sm rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${isFollowingUser
@@ -95,10 +127,18 @@ const VideoPage = () => {
                                     ? 'Unfollow'
                                     : 'Follow'
                             }
-                        </button>}
+                        </button>) : 
+                        (
+                            <div className="relative">
+                                <Ellipsis onClick={() => setDeleteOption(!openDeleteOption)} className="cursor-pointer" size={25}/>
+                                { openDeleteOption && deleteOption}
+                            </div>
+                            
+                        )}
+                    
                 </div>
 
-                <div className="px-4 py-3 text-sm">
+                <div className="px-4 py-3 text-sm shrink-0">
                     <h1 className="text-lg font-bold mb-2">
                         {videoData.title}
                     </h1>
@@ -112,7 +152,7 @@ const VideoPage = () => {
                     </div>
                 </div>
 
-                <div className="flex-1">
+                <div className="flex-1 min-h-0 overflow-hidden">
                     <Comment
                         videoId={numericVideoId}
                         videoOwnerId={numericOwnerId}
@@ -121,6 +161,14 @@ const VideoPage = () => {
                     />
                 </div>
             </div>
+
+            {showDeleteModal && (
+                <DeleteVideoModal
+                username={currentUser?.username ? currentUser.username : "null"}
+                onClose={() => setShowDeleteModal(false)}
+                onConfirm={handleDeleteConfirm}
+            />
+      )}
         </div>
     );
 };

@@ -40,7 +40,7 @@ const AnalysisPieChart : React.FC = () => {
     }, [])
     const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8'];
     return (
-        <div className="w-full h-80 flex-2 bg-white pl-5 pb-10 rounded-xl shadow-md border border-gray-200">
+        <div className="w-full h-80 lg:flex-[2] bg-white pl-5 pb-10 rounded-xl shadow-md border border-gray-200">
             <h3 className="font-bold text-lg text-gray-700">Age</h3>
             <ResponsiveContainer width="100%" height="100%">
                 <PieChart>

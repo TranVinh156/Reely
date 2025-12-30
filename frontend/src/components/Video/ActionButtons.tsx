@@ -1,5 +1,6 @@
 // frontend/src/components/Video/ActionButtons.tsx
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import { useLocation } from "react-router-dom";
 import { useMediaQuery } from "@/hooks/feed/useMediaQuery";
 import { useFeedStore } from "@/store/feedStore";
 import Comment from "@/components/Comment/Comment";
@@ -33,6 +34,11 @@ export function ActionButtons({ video }: Props) {
   const activeCommentVideoId = useFeedStore((s) => s.activeCommentVideoId);
   const openComment = useFeedStore((s) => s.openComment);
   const closeComment = useFeedStore((s) => s.closeComment);
+  const location = useLocation();
+
+  useEffect(() => {
+    closeComment();
+  }, [location.pathname, closeComment]);
 
   // Initialize store with video.isLiked if not present
   useEffect(() => {
@@ -213,9 +219,22 @@ export function ActionButtons({ video }: Props) {
 
       {/* Comment Drawer */}
       {isCommentOpen && (
-        <div className="fixed right-0 top-0 bottom-0 z-50 w-[450px] shadow-xl bg-[#1e1e1e] border-l border-white/10">
-          <Comment videoId={videoIdNumber} videoOwnerId={videoOwnerIdNumber} onClose={closeComment} />
-        </div>
+        <>
+          {isSmallScreen && (
+            <div 
+              className="fixed inset-0 bg-black/50 z-40"
+              onClick={closeComment}
+            />
+          )}
+          <div className={`fixed z-50 shadow-xl bg-[#1e1e1e] transition-all duration-300 ease-in-out
+            ${isSmallScreen 
+              ? "inset-x-0 bottom-0 h-[70vh] rounded-t-2xl border-t border-white/10" 
+              : "right-0 top-0 bottom-0 w-[450px] border-l border-white/10"
+            }
+          `}>
+            <Comment videoId={videoIdNumber} videoOwnerId={videoOwnerIdNumber} onClose={closeComment} />
+          </div>
+        </>
       )}
     </>
   );

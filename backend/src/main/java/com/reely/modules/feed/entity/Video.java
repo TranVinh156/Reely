@@ -45,14 +45,9 @@ public class Video {
     private LocalDateTime updatedAt;
 
     @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-        name = "video_tags",
-        joinColumns = @JoinColumn(name = "video_id"),
-        inverseJoinColumns = @JoinColumn(name = "tag_id"),
-        uniqueConstraints = {
-            @UniqueConstraint(name = "uk_video_tags", columnNames = {"video_id", "tag_id"})
-        }
-    )
+    @JoinTable(name = "video_tags", joinColumns = @JoinColumn(name = "video_id"), inverseJoinColumns = @JoinColumn(name = "tag_id"), uniqueConstraints = {
+            @UniqueConstraint(name = "uk_video_tags", columnNames = { "video_id", "tag_id" })
+    })
     @Builder.Default
     private Set<Tag> tags = new HashSet<>();
 
