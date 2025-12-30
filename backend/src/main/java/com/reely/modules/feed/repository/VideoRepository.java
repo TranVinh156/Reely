@@ -96,6 +96,44 @@ public interface VideoRepository extends JpaRepository<Video, Long> {
   Page<Video> searchPublicVideos(@Param("q") String q, Pageable pageable);
 
 
+  /**
+   * Search public videos by query, constrained to a specific tag.
+   */
+  @Query(value = """
+      SELECT v.*
+      FROM videos v
+      JOIN video_tags vt ON vt.video_id = v.id
+      JOIN tags t ON t.id = vt.tag_id
+      WHERE v.visibility = 'PUBLIC'
+        AND t.name COLLATE utf8mb4_0900_ai_ci = :tagName
+        AND (
+          v.title COLLATE utf8mb4_0900_ai_ci LIKE CONCAT('%', :q, '%')
+          OR v.description COLLATE utf8mb4_0900_ai_ci LIKE CONCAT('%', :q, '%')
+          OR t.name COLLATE utf8mb4_0900_ai_ci LIKE CONCAT('%', :q, '%')
+        )
+      GROUP BY v.id
+      ORDER BY (
+          MAX(CASE WHEN t.name COLLATE utf8mb4_0900_ai_ci LIKE CONCAT('%', :q, '%') THEN 4 ELSE 0 END)
+        + MAX(CASE WHEN v.title COLLATE utf8mb4_0900_ai_ci LIKE CONCAT('%', :q, '%') THEN 3 ELSE 0 END)
+        + MAX(CASE WHEN v.description COLLATE utf8mb4_0900_ai_ci LIKE CONCAT('%', :q, '%') THEN 2 ELSE 0 END)
+      ) DESC,
+      v.created_at DESC
+      """, countQuery = """
+      SELECT COUNT(DISTINCT v.id)
+      FROM videos v
+      JOIN video_tags vt ON vt.video_id = v.id
+      JOIN tags t ON t.id = vt.tag_id
+      WHERE v.visibility = 'PUBLIC'
+        AND t.name COLLATE utf8mb4_0900_ai_ci = :tagName
+        AND (
+          v.title COLLATE utf8mb4_0900_ai_ci LIKE CONCAT('%', :q, '%')
+          OR v.description COLLATE utf8mb4_0900_ai_ci LIKE CONCAT('%', :q, '%')
+          OR t.name COLLATE utf8mb4_0900_ai_ci LIKE CONCAT('%', :q, '%')
+        )
+      """, nativeQuery = true)
+  Page<Video> searchPublicVideosByTag(@Param("q") String q, @Param("tagName") String tagName, Pageable pageable);
+
+
     /**
      * List public videos by tag name, ordered by a "relevance" = engagement score.
      * (Useful for TagPage: click hashtag -> list videos)

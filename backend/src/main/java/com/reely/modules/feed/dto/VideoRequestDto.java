@@ -1,5 +1,6 @@
 package com.reely.modules.feed.dto;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import com.reely.modules.feed.entity.Video;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -21,6 +22,8 @@ public class VideoRequestDto {
     private Video.Visibility visibility;
     private String originalS3Key;
     private String defaultRenditionId;
+
+    @JsonAlias({"duration"})
     private Integer durationSeconds;
 
     private List<String> tags;

@@ -8,7 +8,7 @@ import com.reely.modules.search.dto.PublicUserDTO;
 import com.reely.modules.search.dto.TagResultDTO;
 
 public interface SearchService {
-    PageResponse<FeedVideoDTO> searchVideos(String q, Pageable pageable, Long viewerId);
+    PageResponse<FeedVideoDTO> searchVideos(String q, String tag, Pageable pageable, Long viewerId);
     PageResponse<PublicUserDTO> searchUsers(String q, Pageable pageable);
     PageResponse<TagResultDTO> searchTags(String q, Pageable pageable);
 

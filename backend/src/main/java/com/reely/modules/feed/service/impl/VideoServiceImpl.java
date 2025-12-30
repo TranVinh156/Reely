@@ -4,7 +4,9 @@ import com.reely.modules.feed.dto.VideoRequestDto;
 import com.reely.modules.feed.dto.VideoResponseDto;
 import com.reely.modules.feed.dto.VideoViewResponseDto;
 import com.reely.modules.feed.dto.ViewStat;
+import com.reely.modules.feed.entity.Tag;
 import com.reely.modules.feed.entity.Video;
+import com.reely.modules.feed.repository.TagRepository;
 import com.reely.modules.feed.repository.VideoRepository;
 import com.reely.modules.interaction.repository.CommentRepository;
 import com.reely.modules.interaction.repository.LikeRepository;
@@ -28,14 +30,20 @@ import org.springframework.data.domain.Pageable;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
 public class VideoServiceImpl implements VideoService {
     private final VideoRepository videoRepository;
+    private final TagRepository tagRepository;
     private final MinioClient minioClient;
     private final LikeRepository likeRepository;
     private final CommentRepository commentRepository;
@@ -43,17 +51,61 @@ public class VideoServiceImpl implements VideoService {
     @Value("${minio.bucket-name}")
     private String bucketname;
 
-    public VideoServiceImpl(VideoRepository videoRepository, MinioClient minioClient, LikeRepository likeRepository, CommentRepository commentRepository) {
+    public VideoServiceImpl(VideoRepository videoRepository, TagRepository tagRepository, MinioClient minioClient, LikeRepository likeRepository, CommentRepository commentRepository) {
         this.videoRepository = videoRepository;
+        this.tagRepository = tagRepository;
         this.minioClient = minioClient;
         this.likeRepository = likeRepository;
         this.commentRepository = commentRepository;
     }
 
     @Override
+    @Transactional
     public Video addVideo(VideoRequestDto videoRequestDto) {
+        if (videoRequestDto == null) throw new RuntimeException("Video payload is required");
         Video video = new Video(videoRequestDto);
+
+        Set<Tag> tags = resolveTags(videoRequestDto.getTags());
+        video.setTags(tags);
+
         return videoRepository.save(video);
+    }
+
+    private Set<Tag> resolveTags(List<String> requestedNames) {
+        if (requestedNames == null || requestedNames.isEmpty()) return new HashSet<>();
+
+        // normalize: trim, drop leading '#', skip blanks, keep order-agnostic uniqueness
+        List<String> normalized = requestedNames.stream()
+                .filter(Objects::nonNull)
+                .map(String::trim)
+                .map(s -> s.startsWith("#") ? s.substring(1).trim() : s)
+                .filter(s -> !s.isBlank())
+                .distinct()
+                .toList();
+
+        if (normalized.isEmpty()) return new HashSet<>();
+
+        List<Tag> existing = tagRepository.findByNameIn(normalized);
+        Map<String, Tag> byName = new HashMap<>();
+        for (Tag t : existing) {
+            if (t != null && t.getName() != null) byName.put(t.getName(), t);
+        }
+
+        List<Tag> toCreate = new ArrayList<>();
+        for (String name : normalized) {
+            if (!byName.containsKey(name)) {
+                toCreate.add(Tag.builder().name(name).build());
+            }
+        }
+
+        if (!toCreate.isEmpty()) {
+            List<Tag> created = tagRepository.saveAll(toCreate);
+            for (Tag t : created) {
+                if (t != null && t.getName() != null) byName.put(t.getName(), t);
+            }
+        }
+
+        return new HashSet<>(byName.values());
     }
 
     @Override
