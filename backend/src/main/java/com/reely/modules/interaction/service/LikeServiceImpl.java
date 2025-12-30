@@ -175,14 +175,13 @@ public class LikeServiceImpl implements LikeService{
             ObjectMapper objectMapper = new ObjectMapper();
 
             String content = "đã thích video của bạn";
-            Map<String, Object> payloadMap = Map.of(
-                    "actorId", user.getId(),
-                    "actorUsername", user.getUsername(),
-                    "actorAvatar", user.getAvatarUrl(),
-                    "message", content,
-                    "videoId", video.getId(),
-                    "LikeId", like.getId()
-            );
+            Map<String, Object> payloadMap = new HashMap<>();
+            payloadMap.put("actorId", user.getId());
+            payloadMap.put("actorUsername", user.getUsername());
+            payloadMap.put("actorAvatar", user.getAvatarUrl());
+            payloadMap.put("message", content);
+            payloadMap.put("videoId", video.getId());
+            payloadMap.put("LikeId", like.getId());
 
             String payload = objectMapper.writeValueAsString(payloadMap);
 

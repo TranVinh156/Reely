@@ -1,5 +1,6 @@
 package com.reely.modules.user.service.impl;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -93,12 +94,11 @@ public class UserFollowImpl implements UserFollowService {
             ObjectMapper objectMapper = new ObjectMapper();
 
             String content = "đã follow bạn";
-            Map<String, Object> payloadMap = Map.of(
-                    "actorId", follower.getId(),
-                    "actorUsername", follower.getUsername(),
-                    "actorAvatar", follower.getAvatarUrl(),
-                    "message", content
-            );
+            Map<String, Object> payloadMap = new HashMap<>();
+            payloadMap.put("actorId", follower.getId());
+            payloadMap.put("actorUsername", follower.getUsername());
+            payloadMap.put("actorAvatar", follower.getAvatarUrl());
+            payloadMap.put("message", content);
 
             String payload = objectMapper.writeValueAsString(payloadMap);
 
