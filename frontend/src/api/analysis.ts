@@ -11,6 +11,7 @@ export interface Video {
     likeCount: number
     commentCount: number
     createdAt: string
+    id: number
 }
 
 

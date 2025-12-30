@@ -85,3 +85,7 @@ export const getLikedVideosOfUser = async (userId: number, page: number = 0, siz
     });
     return response.data;
 }
+  
+export const deleteVideo = async (id: number): Promise<any> => {
+    await axiosClient.delete(`/videos/${id}`)
+}
