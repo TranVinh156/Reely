@@ -21,12 +21,6 @@ const AnalysisNavigateBar: React.FC<{searchTime:string, setSearchTime: React.Dis
                         </select>
                         <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none w-5 h-5" />
                 </div>
-
-                <NavLink to={`/users/${user?.username}`}>
-                    <div className="flex flex-col justify-cente  cursor-pointer">
-                        <img src={`${storageUrl}/${user?.avatarUrl}`} alt="User Avatar" className="w-10 h-10 rounded-full flex-shrink-0 object-cover border-2 border-gray-300" />
-                    </div>
-                </NavLink>
             </div>
         </nav>
     );
