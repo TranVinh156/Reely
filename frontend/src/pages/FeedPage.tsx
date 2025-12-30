@@ -14,7 +14,7 @@ export default function FeedPage() {
 
   useEffect(() => {
     if (user && mode === "public") setMode("personal");
-    if (!user && mode === "personal") setMode("public");
+    if (!user && (mode === "personal" || mode === "following")) setMode("public");
   }, [user, mode, setMode]);
 
   return (

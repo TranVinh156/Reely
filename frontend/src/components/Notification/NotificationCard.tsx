@@ -20,11 +20,11 @@ const NotificationCard: React.FC<NotificationCardProps> = ({
     <div className="flex gap-3 px-3 py-2 w-full min-h-18 max-h-70 bg-[#161823]">
       {/* Avatar */}
       <div className="flex flex-col justify-center">
-          <img
-            src={avatarUrl || '/system-avatar.png'}
-            alt={username ? `${username} system`: 'system'}
-            className="w-13 h-13 rounded-full flex-shrink-0 object-cover"
-          />
+        <img
+          src={avatarUrl || '/system-avatar.png'}
+          alt={username ? `${username} system` : 'system'}
+          className="w-13 h-13 rounded-full flex-shrink-0 object-cover"
+        />
       </div>
 
       {/* Content */}

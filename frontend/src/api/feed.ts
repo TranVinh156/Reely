@@ -2,7 +2,7 @@ import axiosClient from "@/utils/axios.client";
 import type { FeedResponse, Video } from "@/types/video";
 import { resolveMediaUrl } from "@/utils/media";
 
-export type FeedMode = "personal" | "public" | "trending";
+export type FeedMode = "personal" | "public" | "trending" | "following";
 
 type BackendFeedVideoDTO = {
   videoId: number;
@@ -71,7 +71,11 @@ export async function fetchFeed(
   const page = cursor ? Math.max(0, parseInt(cursor, 10)) : 0;
 
   const endpoint =
-    mode === "trending" ? "/feed/trending" : mode === "public" ? "/feed/public" : "/feed";
+    mode === "trending"
+      ? "/feed/trending"
+      : mode === "public"
+        ? "/feed/public"
+        : "/feed"; // "personal" and "following" both use /feed for now
 
   const res = await axiosClient.get(endpoint, {
     params: { page, size: pageSize },
