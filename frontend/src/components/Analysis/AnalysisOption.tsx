@@ -46,7 +46,7 @@ const AnalysisOption: React.FC<{activeBar: string, setActiveBar: React.Dispatch<
 
        
     return (
-        <div className="flex w-full rounded-sm bg-[#161823] shadow-sm mb-5">
+        <div className="flex flex-col sm:flex-row w-full rounded-sm bg-[#161823] shadow-sm mb-5">
             { options.map((item, index) => {
                 const isActive = item.id == activeBar;
 
@@ -56,7 +56,7 @@ const AnalysisOption: React.FC<{activeBar: string, setActiveBar: React.Dispatch<
                         onClick={() => setActiveBar(item.id)}
                         className={`flex-1 flex flex-col items-center justify-center py-4 px-2 cursor-pointer relative border-b border-white/15
                         hover:shadow-[inset_0_3px_0_0_#dfdede8f] 
-                        ${index !== options.length - 1 ? 'border-r' : ''}
+                        ${index !== options.length - 1 ? 'sm:border-r' : ''}
                         `}
                     >
                         {isActive && (

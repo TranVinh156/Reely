@@ -8,7 +8,6 @@ import { useAuth } from "@/hooks/auth/useAuth";
 import useIsFollowing from "@/hooks/follow/useIsFollowing";
 import useFollow from "@/hooks/follow/useFollow";
 import useUnfollow from "@/hooks/follow/useUnfollow";
-import { div } from "motion/react-client";
 import { useState } from "react";
 import DeleteVideoModal from "@/components/Layout/DeleteVideoModal";
 import { deleteVideo } from "@/api/video";
@@ -81,14 +80,14 @@ const VideoPage = () => {
     }
 
     return (
-        <div className="flex h-screen text-white">
-            <div className="flex flex-[3] items-center justify-center">
+        <div className="flex flex-col lg:flex-row h-screen text-white bg-black">
+            <div className="flex-1 lg:flex-[3] flex items-center justify-center bg-black min-h-0">
                 <div className="flex h-full w-full items-center justify-center">
-                    <VideoCard video={videoData} loadMode="active" />
+                    <VideoCard video={videoData} loadMode="active" isFeed={false} />
                 </div>
             </div>
 
-            <div className="flex w-[420px] flex-[2] flex-col bg-[#121212]">
+            <div className="flex w-full lg:w-[420px] lg:flex-[2] flex-col bg-[#121212] h-[50%] lg:h-full border-t lg:border-t-0 lg:border-l border-white/10">
                 <div className="flex items-center justify-between gap-3 px-4 py-3">
                     <NavLink to={`/users/${videoData.user.username}`} className="flex gap-3">
                         <div className="h-10 w-10 overflow-hidden rounded-full bg-white flex items-center justify-center">
