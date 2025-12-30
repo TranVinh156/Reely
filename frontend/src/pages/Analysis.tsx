@@ -10,14 +10,14 @@ const Analysis: React.FC = () => {
     const [activeBar, setActiveBar] = useState("views"); 
     const [searchTime, setSearchTime] = useState("7")
     return (
-        <div className='flex gap-6 bg-neutral-900'>
+        <div className='flex bg-neutral-900'>
             <Sidebar />
-            <div className="bg-[#161823] min-h-screen flex-1">
+            <div className="bg-[#161823] min-h-screen flex-1 px-4 md:px-10 lg:px-20">
                 <AnalysisNavigateBar searchTime={searchTime} setSearchTime={setSearchTime}/>
                 <AnalysisOption activeBar={activeBar} setActiveBar={setActiveBar}/>
                 <AnalysisLineChart activeBar={activeBar} searchTime={searchTime}/>
 
-                <div className="flex mt-5 gap-10">
+                <div className="flex flex-col lg:flex-row mt-5 gap-10">
                     <AnalysisPieChart></AnalysisPieChart>
                     <LastestPost>
                     </LastestPost>

@@ -27,7 +27,7 @@ export default function FeedList() {
         return (
           <div
             key={v.id}
-            className="feed-item w-full"
+            className="feed-item w-full h-screen"
             data-feed-item
             data-video-id={v.id}
             data-feed-index={idx}

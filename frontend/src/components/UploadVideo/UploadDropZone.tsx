@@ -53,14 +53,14 @@ const UploadDropZone: React.FC<Props> = ({ onFileSelect }) => {
           onDragEnter={handleDragEnter}
         >
           <div className={`flex items-center justify-center mb-6 transition-transform duration-200`}>
-              <div className='rounded-full bg-gray-800 p-6'>
-                  <FileUp size={50} color='#FE2C55' opacity={0.9} className='sm:w-[70px] sm:h-[70px] md:w-[80px] md:h-[80px]'/>
+              <div className='rounded-full bg-gray-600 p-6'>
+                  <FileUp size={50} color="white" opacity={0.9} className='sm:w-[70px] sm:h-[70px] md:w-[80px] md:h-[80px]'/>
               </div>  
           </div>
           <p className="text-lg sm:text-xl md:text-2xl font-semibold mb-2">Select the video to upload</p>
           <p className="pb-10 text-base sm:text-lg">Or drag and drop here</p>
           <input type="file" accept="video/*" className="hidden" id="fileInput" onChange={handleChange} />
-          <label htmlFor="fileInput" className="btn text-sm sm:text-lg mt-4 cursor-pointer bg-[#FE2C55] text-white hover:bg-[#FE2C55]/80 hover:text-white/80 px-6 py-2 rounded">
+          <label htmlFor="fileInput" className="font-semibold btn text-sm sm:text-lg mt-4 cursor-pointer bg-gray-600 text-white hover:bg-black hover:text-white/80 px-6 py-2 rounded">
               Select Video
           </label>
       </div>
@@ -70,14 +70,14 @@ const UploadDropZone: React.FC<Props> = ({ onFileSelect }) => {
           <Video className='mt-0.5'/>
           <div>
             <h3 className='font-bold text-lg'>Capacity and duration</h3>
-            <p className='text-white/80'>Maximum storage capacity: 30 GB, video duration: 60 minutes. </p>
+            <p className='text-white/80'>Maximum storage capacity: 1GB, video duration:  minutes. </p>
           </div>
         </div>
 
         <div className='flex gap-3 flex-1'>
           <FolderClosedIcon className='mt-0.5'/>
           <div>
-            <h3 className='font-bold text-lg'>Capacity and duration</h3>
+            <h3 className='font-bold text-lg'>Video format</h3>
             <p className='text-white/80'>Suggested format: “.mp4”. Other major formats are supported. </p>
           </div>
         </div>

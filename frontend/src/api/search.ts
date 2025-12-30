@@ -42,9 +42,9 @@ export type SearchTagDTO = {
   videoCount?: number | null;
 };
 
-export async function searchVideos(q: string, page = 0, size = 10) {
+export async function searchVideos(q: string, page = 0, size = 10, tag?: string) {
   const res = await axiosClient.get<PageResponse<SearchVideoDTO>>("/search/videos", {
-    params: { q, page, size },
+    params: { q, page, size, tag },
   });
   return res.data;
 }

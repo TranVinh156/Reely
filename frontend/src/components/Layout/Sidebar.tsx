@@ -98,13 +98,13 @@ export default function Sidebar() {
 
   return (
     <>
-      <aside className={`bg-primary text-white flex flex-col h-screen sticky top-0 border-r border-white/10 transition-all duration-300 ${isNotificationOpen ? 'w-20 p-4' : 'w-20 md:w-72 p-4 md:p-6'}`}>
+      <aside className={`bg-primary text-white hidden md:flex flex-col h-screen sticky top-0 border-r border-white/10 transition-all duration-300 ${isNotificationOpen ? 'w-20 p-4' : 'w-20 lg:w-72 p-4 lg:p-6'}`}>
         <div className={isNotificationOpen ? " origin-center" : ""}>
           <Logo collapsed={isNotificationOpen} />
         </div>
 
         <div className="flex flex-col -between w-full mt-8">
-          <div className={`relative mb-4 ${isNotificationOpen ? 'hidden' : 'hidden md:flex'}`}>
+          <div className={`relative mb-4 ${isNotificationOpen ? 'hidden' : 'hidden lg:flex'}`}>
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-600" size={18} />
             <input
               type="text"
@@ -129,7 +129,7 @@ export default function Sidebar() {
 
           <NavLink
             to="/search"
-            className={`flex py-3 justify-center hover:text-red-500 hover:bg-primary-hover hover:rounded-xl cursor-pointer ${isNotificationOpen ? 'flex' : 'md:hidden'}`}
+            className={`flex py-3 justify-center hover:text-red-500 hover:bg-primary-hover hover:rounded-xl cursor-pointer ${isNotificationOpen ? '' : 'lg:hidden'}`}
           >
             <Search className="text-white hover:text-red-500" size={24} />
           </NavLink>
@@ -149,7 +149,7 @@ export default function Sidebar() {
                   key={index}
                   onClick={item.onClick}
                   className={({ isActive }) =>
-                    `flex gap-4 py-3 mt-1 hover:text-red-500 hover:bg-primary-hover hover:rounded-xl transition-all ${isNotificationOpen ? 'justify-center' : 'justify-center md:justify-normal md:pl-8'
+                    `flex items-center gap-4 py-3 mt-1 hover:text-red-500 hover:bg-primary-hover hover:rounded-xl transition-all [&>svg]:w-7 [&>svg]:h-7 ${isNotificationOpen ? 'justify-center' : 'justify-center lg:justify-start lg:pl-8'
                     } ${isModeNav && isActiveMode && isOnFeedRoute
                       ? 'bg-white/15 rounded-xl'
                       : !isModeNav && !isNotificationNav && isActive
@@ -161,14 +161,14 @@ export default function Sidebar() {
                   }
                 >
                   {item.icon}
-                  <p className={`font-semibold ${isNotificationOpen ? 'hidden' : 'hidden md:flex'}`}>{item.text}</p>
+                  <p className={`font-semibold hidden ${isNotificationOpen ? 'hidden' : 'hidden lg:flex' } `}>{item.text}</p>
                 </NavLink>
               );
             })}
           </div>
 
           {isAuthenticated &&
-            <div className={`following mt-6 ${isNotificationOpen ? 'hidden' : 'hidden md:block'}`}>
+            <div className={`following mt-6 ${isNotificationOpen ? 'hidden' : 'hidden lg:block'}`}>
               <p className="font-semibold text-md mb-2">Following accounts</p>
               {following.map((follower, index) => {
                 return <FollowingCard key={index} follower={follower} />;
@@ -178,10 +178,53 @@ export default function Sidebar() {
         </div>
       </aside>
 
-      <div
-        className={`fixed left-20 top-0 h-screen w-[350px] bg-primary border-r border-white/10 z-50 shadow-2xl overflow-hidden transition-transform duration-300 ease-in-out ${isNotificationOpen ? 'translate-x-0' : '-translate-x-full'}`}
-        style={{ transform: isNotificationOpen ? 'translateX(0)' : 'translateX(-100%)'}}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 h-16 bg-black border-t border-white/10 flex justify-around items-center px-2 z-40">
+        <NavLink
+          to="/"
+          onClick={() => setMode(user ? "personal" : "public")}
+          className={({ isActive }) => `flex flex-col items-center justify-center w-full h-full ${isActive && location.pathname === '/' ? 'text-white' : 'text-gray-500'}`}
         >
+          <Sparkle size={24} />
+          <span className="text-[10px] mt-1">Home</span>
+        </NavLink>
+
+        <NavLink
+          to="/search"
+          className={({ isActive }) => `flex flex-col items-center justify-center w-full h-full ${isActive ? 'text-white' : 'text-gray-500'}`}
+        >
+          <Search size={24} />
+          <span className="text-[10px] mt-1">Search</span>
+        </NavLink>
+
+        <NavLink
+          to="/analysis"
+          className={({ isActive }) => `flex flex-col items-center justify-center w-full h-full ${isActive ? 'text-white' : 'text-gray-500'}`}
+        >
+          <ChartNoAxesCombined size={24} />
+          <span className="text-[10px] mt-1">Analysis</span>
+        </NavLink>
+
+        <button
+          onClick={toggleNotification}
+          className={`flex flex-col items-center justify-center w-full h-full ${isNotificationOpen ? 'text-white' : 'text-gray-500'}`}
+        >
+          <Bell size={24} />
+          <span className="text-[10px] mt-1">Inbox</span>
+        </button>
+
+        <NavLink
+          to={user ? `/users/${user.username}` : "/login"}
+          className={({ isActive }) => `flex flex-col items-center justify-center w-full h-full ${isActive ? 'text-white' : 'text-gray-500'}`}
+        >
+          <User2 size={24} />
+          <span className="text-[10px] mt-1">Profile</span>
+        </NavLink>
+      </nav>
+
+      <div
+        className={`fixed md:left-20 left-0 top-0 h-[calc(100vh-4rem)] md:h-screen w-full md:w-[350px] bg-primary border-r border-white/10 z-50 shadow-2xl overflow-hidden transition-transform duration-300 ease-in-out ${isNotificationOpen ? 'translate-x-0' : '-translate-x-full'}`}
+        style={{ transform: isNotificationOpen ? 'translateX(0)' : 'translateX(-100%)' }}
+      >
         <Notification onClose={() => setIsNotificationOpen(false)} />
       </div>
     </>

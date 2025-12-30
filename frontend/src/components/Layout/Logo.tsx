@@ -12,7 +12,7 @@ const Logo = ({ collapsed, variant = 'light' }: { collapsed?: boolean, variant?:
                     className={`w-12 h-12 filter brightness-0 ${variant === 'light' ? 'invert' : ''}`}
                 />
                 {!collapsed && (
-                    <p className={`font-black hidden md:flex text-3xl ${variant === 'light' ? 'text-white' : 'text-black'}`}>
+                    <p className={`font-black hidden lg:flex text-3xl ${variant === 'light' ? 'text-white' : 'text-black'}`}>
                         Reely
                     </p>
                 )}

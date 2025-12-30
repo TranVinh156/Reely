@@ -13,9 +13,13 @@ public interface FeedMapper {
     @Mapping(target = "username", source = "user.username")
     @Mapping(target = "avatarUrl", source = "user.avatarUrl")
     @Mapping(target = "videoUrl", expression = "java(buildVideoUrl(video.getOriginalS3Key()))")
+    @Mapping(target = "likeCount", source = "video.likeCount")
+    @Mapping(target = "commentCount", source = "video.commentCount")
     @Mapping(target = "thumbnailUrl", ignore = true)
     @Mapping(target = "durationSeconds", source = "video.durationSeconds")
-    @Mapping(target = "tags", ignore = true)
+        @Mapping(
+            target = "tags",
+            expression = "java(video.getTags() == null ? java.util.List.of() : video.getTags().stream().map(com.reely.modules.feed.entity.Tag::getName).toList())")
     @Mapping(target = "createdAt", source = "video.createdAt")
     @Mapping(target = "isFollowed", ignore = true)
     @Mapping(target = "isLiked", ignore = true)
