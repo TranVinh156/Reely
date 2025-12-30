@@ -10,7 +10,7 @@ const AnalysisNavigateBar: React.FC<{searchTime:string, setSearchTime: React.Dis
 
     return (
         <nav className="flex items-center justify-between p-4 bg-[#181C32] text-white ">
-            <div className="flex items-center justify-end w-full px-2 gap-20">
+            <div className="flex items-center justify-end w-full px-2 gap-4 md:gap-20">
                 <div className="relative flex">
                         <select value={searchTime}
                             onChange={(e) => setSearchTime(e.target.value)}
