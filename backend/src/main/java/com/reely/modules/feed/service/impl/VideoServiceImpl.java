@@ -119,6 +119,7 @@ public class VideoServiceImpl implements VideoService {
         return  videoRepository.findTop5ByUserIdOrderByCreatedAtDesc(userId)
                 .stream()
                 .map(video -> new VideoResponseDto(
+                        video.getId(),
                         video.getTitle(),
                         video.getViewCount(),
                         video.getLikeCount(),

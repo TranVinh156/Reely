@@ -122,7 +122,7 @@ const Notification: React.FC<NotificationProps> = ({ onClose }) => {
     : notifications.filter(n => n.type === activeTab);
 
   return (
-    <div className="w-[450px] h-screen bg-[#161823] text-white flex flex-col border-l border-gray-800">
+    <div className="w-[350px] h-screen bg-[#161823] text-white flex flex-col border-l border-gray-800">
       <div className="flex items-center justify-between px-6 py-4 border-b border-gray-800">
         <h1 className="text-2xl font-bold">Thông báo</h1>
         <button className="p-2 hover:bg-gray-800 rounded-full transition-colors"
@@ -181,6 +181,8 @@ const Notification: React.FC<NotificationProps> = ({ onClose }) => {
                 message={JSON.parse(notification.payload).message}
                 timestamp={formatTimestamp(notification.timestamp)}
                 avatarUrl={JSON.parse(notification.payload).actorAvatar}
+                videoId={JSON.parse(notification.payload).videoId}
+                type={notification.type}
               />
             </div>
           ))}

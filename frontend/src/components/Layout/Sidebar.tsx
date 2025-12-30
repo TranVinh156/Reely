@@ -168,7 +168,7 @@ export default function Sidebar() {
       </aside>
 
       <div
-        className={`fixed left-20 top-0 h-screen w-[450px] bg-primary border-r border-white/10 z-50 shadow-2xl overflow-hidden transition-transform duration-300 ease-in-out ${isNotificationOpen ? 'translate-x-0' : '-translate-x-full'}`}
+        className={`fixed left-20 top-0 h-screen w-[350px] bg-primary border-r border-white/10 z-50 shadow-2xl overflow-hidden transition-transform duration-300 ease-in-out ${isNotificationOpen ? 'translate-x-0' : '-translate-x-full'}`}
         style={{ transform: isNotificationOpen ? 'translateX(0)' : 'translateX(-100%)' }}
       >
         <Notification onClose={() => setIsNotificationOpen(false)} />

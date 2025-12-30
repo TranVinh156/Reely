@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 public class VideoResponseDto {
+    private Long id;
     private String title;
     private Long viewCount;
     private Long likeCount;

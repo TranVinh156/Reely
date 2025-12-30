@@ -126,7 +126,7 @@ const CommentCard: React.FC<CommentCardProps> = ({
       {/* Main Comment */}
       <div className="flex gap-3 px-4 py-2 w-full bg-[#1e1e1e]">
         {/* Avatar */}
-        <div className="flex flex-col justify-start pt-1">
+        <NavLink to={`/users/${username}`} className="flex flex-col justify-start pt-1">
           {avatarSrc ? <img
             src={avatarSrc}
             alt={username ? `${username} avatar` : 'avatar'}
@@ -136,7 +136,7 @@ const CommentCard: React.FC<CommentCardProps> = ({
               <UserIcon color="black" size={30} />
             </div>
           }
-        </div>
+        </NavLink>
 
         {/* Content */}
         <div className="flex-1 min-w-0 flex flex-col gap-y-1">
@@ -164,7 +164,7 @@ const CommentCard: React.FC<CommentCardProps> = ({
           </div>
 
           {/* Comment Text */}
-          <p className="text-sm text-white/95 leading-tight">
+          <p className="text-sm text-white/95 leading-tight break-words whitespace-pre-wrap">
             {comment || ''}
           </p>
 
