@@ -47,7 +47,6 @@ public class SecurityConfig {
                 .authorizeHttpRequests(
                         (authz) -> authz
                                 .requestMatchers("/hello").hasAuthority("SUPER_ADMIN")
-                                .requestMatchers("/api/v1/users/**").hasAuthority("SUPER_ADMIN")
                                 .anyRequest().permitAll())
                 .addFilterBefore(headerAuthenticationFilter(), AuthorizationFilter.class)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));

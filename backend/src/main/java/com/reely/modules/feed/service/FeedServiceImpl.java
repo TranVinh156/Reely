@@ -116,6 +116,7 @@ public class FeedServiceImpl implements FeedService {
 
         return VideoDetailDTO.builder()
                 .videoId(video.getId())
+                .userId(video.getUserId())
                 .title(video.getTitle())
                 .description(video.getDescription())
                 .videoUrl("https://s3.reely.vn/videos/" + video.getOriginalS3Key())
