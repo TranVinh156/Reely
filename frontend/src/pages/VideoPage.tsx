@@ -3,7 +3,7 @@ import Comment from "@/components/Comment/Comment";
 import { useGetVideoById } from "@/hooks/video/useGetVideoById";
 import { NavLink, useParams, useNavigate } from "react-router-dom";
 import LoadingPage from "@/components/Auth/LoadingPage";
-import { Ellipsis, Heart, MessageCircle, Play, UserIcon } from "lucide-react";
+import { Ellipsis, Heart, MessageCircle, Play, UserIcon, ChevronLeft } from "lucide-react";
 import { useAuth } from "@/hooks/auth/useAuth";
 import useIsFollowing from "@/hooks/follow/useIsFollowing";
 import useFollow from "@/hooks/follow/useFollow";
@@ -80,15 +80,21 @@ const VideoPage = () => {
     }
 
     return (
-        <div className="flex flex-col lg:flex-row h-screen text-white bg-black">
-            <div className="flex-1 lg:flex-[3] flex items-center justify-center bg-black min-h-0">
+        <div className="flex flex-col lg:flex-row h-screen text-white overflow-hidden">
+            <div className="relative flex-1 lg:flex-[3] flex items-center justify-center bg-black min-h-0">
+                <button
+                    onClick={() => navigate(-1)}
+                    className="absolute top-4 left-4 z-50 p-2 bg-gray-800/50 rounded-full hover:bg-gray-800 transition-colors cursor-pointer"
+                >
+                    <ChevronLeft size={24} color="white" />
+                </button>
                 <div className="flex h-full w-full items-center justify-center">
                     <VideoCard video={videoData} loadMode="active" isFeed={false} />
                 </div>
             </div>
 
-            <div className="flex w-full lg:w-[420px] lg:flex-[2] flex-col bg-[#121212] h-[50%] lg:h-full border-t lg:border-t-0 lg:border-l border-white/10">
-                <div className="flex items-center justify-between gap-3 px-4 py-3">
+            <div className="flex w-full lg:w-[420px] lg:flex-[2] flex-col bg-[#121212] h-[60vh] lg:h-full border-t lg:border-l border-white/10">
+                <div className="flex items-center justify-between gap-3 px-4 py-3 shrink-0">
                     <NavLink to={`/users/${videoData.user.username}`} className="flex gap-3">
                         <div className="h-10 w-10 overflow-hidden rounded-full bg-white flex items-center justify-center">
                             {videoData.user.avatar ? (
@@ -132,7 +138,7 @@ const VideoPage = () => {
                     
                 </div>
 
-                <div className="px-4 py-3 text-sm">
+                <div className="px-4 py-3 text-sm shrink-0">
                     <h1 className="text-lg font-bold mb-2">
                         {videoData.title}
                     </h1>
@@ -146,7 +152,7 @@ const VideoPage = () => {
                     </div>
                 </div>
 
-                <div className="flex-1">
+                <div className="flex-1 min-h-0 overflow-hidden">
                     <Comment
                         videoId={numericVideoId}
                         videoOwnerId={numericOwnerId}

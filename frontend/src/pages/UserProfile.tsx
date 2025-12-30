@@ -76,23 +76,23 @@ const UserProfile = () => {
         )
     } else {
         content = (
-            <div className="user-info flex flex-col gap-8 md:gap-12 pb-20 md:pb-0">
+            <div className="user-info flex flex-col gap-8 md:gap-12">
                 <div className="flex flex-col md:flex-row gap-6 items-center md:items-start">
-                    <div className="w-24 h-24 md:w-35 md:h-35 flex-shrink-0">
+                    <div className="w-24 h-24 md:w-36 md:h-36 shrink-0">
                         {!user?.avatarUrl ?
                             <div className="bg-white w-full h-full rounded-full flex items-center justify-center">
-                                <UserIcon className="text-black md:w-20 md:h-20" size={40}  />
+                                <UserIcon className="text-black w-12 h-12 md:w-20 md:h-20" />
                             </div>
                             :
                             <img src={`${storageUrl}/${user?.avatarUrl}`} alt={user?.username} className="w-full h-full rounded-full object-cover" />
                         }
                     </div>
                     <div className="flex flex-col items-center md:items-start w-full">
-                        <div className="flex gap-4 items-center">
+                        <div className="flex flex-col md:flex-row gap-1 md:gap-4 items-center">
                             <p className="font-bold text-xl">@{user?.username}</p>
-                            <p className="text-sm">{user?.displayName}</p>
+                            <p className="text-sm text-gray-300">{user?.displayName}</p>
                         </div>
-                        <div className="text-xs font-bold flex flex-wrap justify-center md:justify-start gap-2 mt-2 w-full">
+                        <div className="text-xs font-bold flex flex-wrap justify-center md:justify-start gap-2 mt-4 md:mt-2 w-full md:w-auto">
                             {params.username !== currentUser?.username ?
                                 <>
                                     <button
@@ -124,23 +124,23 @@ const UserProfile = () => {
                                 </>
                             }
                         </div>
-                        <div className="mt-4 flex gap-6 justify-center md:justify-start">
+                        <div className="mt-4 md:mt-2 flex gap-6 md:gap-3 justify-center md:justify-start w-full md:w-auto">
                             <span
                                 onClick={() => setModalTab('following')}
-                                className="cursor-pointer hover:text-gray-300 flex items-center gap-1"
+                                className="cursor-pointer hover:text-gray-300 flex flex-col md:flex-row items-center gap-1"
                             >
-                                <span className="font-bold text-lg">{followingCount}</span>
-                                <span className="text-gray-400 text-sm">Following</span>
+                                <p className="font-semibold text-xl">{followingCount}</p>
+                                <span className="text-sm md:text-base">Following</span>
                             </span>
                             <span
                                 onClick={() => setModalTab('followers')}
-                                className="cursor-pointer hover:text-gray-300 flex items-center gap-1"
+                                className="cursor-pointer hover:text-gray-300 flex flex-col md:flex-row items-center gap-1"
                             >
-                                <span className="font-bold text-lg">{followerCount}</span>
-                                <span className="text-gray-400 text-sm">Followers</span>
+                                <p className="font-semibold text-xl">{followerCount}</p>
+                                <span className="text-sm md:text-base">Followers</span>
                             </span>
                         </div>
-                        <p className="mt-4 text-center md:text-left max-w-md">{user?.bio}</p>
+                        <p className="mt-4 md:mt-2 text-center md:text-left max-w-md">{user?.bio}</p>
                     </div>
                 </div>
                 <VideoSection userId={user?.id || 0} />
@@ -152,7 +152,7 @@ const UserProfile = () => {
         <div className="flex min-h-screen w-full text-white">
             <Sidebar />
 
-            <div className="flex-1 min-h-screen bg-primary p-4">
+            <div className="flex-1 min-h-screen bg-primary p-4 pb-20 md:pb-4">
                 {content}
             </div>
 
