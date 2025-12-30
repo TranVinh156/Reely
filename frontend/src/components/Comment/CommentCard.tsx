@@ -7,6 +7,7 @@ import { useAuth } from "@/hooks/auth/useAuth";
 import { h4 } from "motion/react-client";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useFeedStore } from "@/store/feedStore";
+import UserAvatar from "../Profile/UserAvatar";
 
 
 interface CommentCardProps {
@@ -135,15 +136,7 @@ const CommentCard: React.FC<CommentCardProps> = ({
       <div className="flex gap-3 px-4 py-2 w-full bg-[#1e1e1e]">
         {/* Avatar */}
         <NavLink to={`/users/${username}`} onClick={onNavigate} className="flex flex-col justify-start pt-1">
-          {avatarSrc ? <img
-            src={avatarSrc}
-            alt={username ? `${username} avatar` : 'avatar'}
-            className={`${avatarSize} rounded-full flex-shrink-0 object-cover`}
-          /> :
-            <div className="bg-white rounded-full">
-              <UserIcon color="black" size={30} />
-            </div>
-          }
+          <UserAvatar size={40}/>
         </NavLink>
 
         {/* Content */}
