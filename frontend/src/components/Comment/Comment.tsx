@@ -5,6 +5,7 @@ import { formatTimestamp } from "../../utils/formatTimestamp.ts";
 import axiosClient from "@/utils/axios.client.ts";
 import { useAuth } from "@/hooks/auth/useAuth.ts";
 import { useFeedStore } from "@/store/feedStore";
+import { useNavigate } from "react-router-dom";
 
 interface Reply {
   id: string;
@@ -52,9 +53,11 @@ const Comment: React.FC<CommentProps> = ({ videoId, videoOwnerId, onClose, hideC
   const [currentPage, setCurrentPage] = useState(0);
   const [hasMoreComments, setHasMoreComments] = useState(true);
 
-  const { user } = useAuth();
+  const { user, isAuthenticated } = useAuth();
   const incrementCommentCount = useFeedStore((s) => s.incrementCommentCount);
   const decrementCommentCount = useFeedStore((s) => s.decrementCommentCount);
+
+  const navigate = useNavigate()
 
   useEffect(() => {
     setComments([]);
@@ -190,6 +193,12 @@ const Comment: React.FC<CommentProps> = ({ videoId, videoOwnerId, onClose, hideC
   const closeMenu = () => setActiveMenuId(null);
 
   const handleSubmitComment = async () => {
+
+    if (!isAuthenticated) {
+      onClose();
+      navigate('/login');
+      return;
+    }
     if (commentText.trim()) {
       try {
         const response = await axiosClient.post('/comments', {
