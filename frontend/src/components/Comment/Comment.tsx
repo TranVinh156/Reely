@@ -54,6 +54,7 @@ const Comment: React.FC<CommentProps> = ({ videoId, videoOwnerId, onClose, hideC
 
   const { user } = useAuth();
   const incrementCommentCount = useFeedStore((s) => s.incrementCommentCount);
+  const decrementCommentCount = useFeedStore((s) => s.decrementCommentCount);
 
   useEffect(() => {
     setComments([]);
@@ -72,7 +73,7 @@ const Comment: React.FC<CommentProps> = ({ videoId, videoOwnerId, onClose, hideC
 
   useEffect(() => {
     if (deleteCommentId[1]) {
-      // Xóa reply khỏi repliesData
+      decrementCommentCount(videoId.toString(), 1);
       setRepliesData(prev => ({
         ...prev,
         [deleteCommentId[1]]: prev[deleteCommentId[1]]?.filter(r => r.id !== deleteCommentId[0]) || []
@@ -93,6 +94,11 @@ const Comment: React.FC<CommentProps> = ({ videoId, videoOwnerId, onClose, hideC
       }));
 
     } else {
+      const commentToDelete = comments.find(c => c.id === deleteCommentId[0]);
+      if (commentToDelete) {
+          const total = 1 + (commentToDelete.replyCount || 0);
+          decrementCommentCount(videoId.toString(), total);
+      }
       // Xoá comment khỏi danh sách
       setComments(prev => prev.filter(c => c.id !== deleteCommentId[0]));
 
@@ -111,7 +117,8 @@ const Comment: React.FC<CommentProps> = ({ videoId, videoOwnerId, onClose, hideC
       });
 
     }
-  }, [deleteCommentId]);
+    setDeleteCommentId(["", ""]);
+  }, [deleteCommentId, comments, videoId, decrementCommentCount]);
 
 
 
