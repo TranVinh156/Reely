@@ -76,23 +76,23 @@ const UserProfile = () => {
         )
     } else {
         content = (
-            <div className="user-info flex flex-col gap-12">
-                <div className="flex gap-6">
-                    <div className="w-35 h-35">
+            <div className="user-info flex flex-col gap-8 md:gap-12">
+                <div className="flex flex-col md:flex-row gap-6 items-center md:items-start">
+                    <div className="w-24 h-24 md:w-36 md:h-36 shrink-0">
                         {!user?.avatarUrl ?
                             <div className="bg-white w-full h-full rounded-full flex items-center justify-center">
-                                <UserIcon className="text-black" size={80} />
+                                <UserIcon className="text-black w-12 h-12 md:w-20 md:h-20" />
                             </div>
                             :
                             <img src={`${storageUrl}/${user?.avatarUrl}`} alt={user?.username} className="w-full h-full rounded-full object-cover" />
                         }
                     </div>
-                    <div>
-                        <div className="flex gap-4 items-center">
+                    <div className="flex flex-col items-center md:items-start w-full">
+                        <div className="flex flex-col md:flex-row gap-1 md:gap-4 items-center">
                             <p className="font-bold text-xl">@{user?.username}</p>
-                            <p className="text-sm">{user?.displayName}</p>
+                            <p className="text-sm text-gray-300">{user?.displayName}</p>
                         </div>
-                        <div className="text-xs font-bold flex gap-2 mt-2">
+                        <div className="text-xs font-bold flex flex-wrap justify-center md:justify-start gap-2 mt-4 md:mt-2 w-full md:w-auto">
                             {params.username !== currentUser?.username ?
                                 <>
                                     <button
@@ -124,23 +124,23 @@ const UserProfile = () => {
                                 </>
                             }
                         </div>
-                        <div className="mt-2 flex gap-3">
+                        <div className="mt-4 md:mt-2 flex gap-6 md:gap-3 justify-center md:justify-start w-full md:w-auto">
                             <span
                                 onClick={() => setModalTab('following')}
-                                className="cursor-pointer hover:text-gray-300"
+                                className="cursor-pointer hover:text-gray-300 flex flex-col md:flex-row items-center gap-1"
                             >
-                                <p className="inline-block font-semibold text-xl pr-1">{followingCount}</p>
-                                Following
+                                <p className="font-semibold text-xl">{followingCount}</p>
+                                <span className="text-sm md:text-base">Following</span>
                             </span>
                             <span
                                 onClick={() => setModalTab('followers')}
-                                className="cursor-pointer hover:text-gray-300"
+                                className="cursor-pointer hover:text-gray-300 flex flex-col md:flex-row items-center gap-1"
                             >
-                                <p className="inline-block font-semibold text-xl pr-1">{followerCount}</p>
-                                Followers
+                                <p className="font-semibold text-xl">{followerCount}</p>
+                                <span className="text-sm md:text-base">Followers</span>
                             </span>
                         </div>
-                        <p className="mt-2">{user?.bio}</p>
+                        <p className="mt-4 md:mt-2 text-center md:text-left max-w-md">{user?.bio}</p>
                     </div>
                 </div>
                 <VideoSection userId={user?.id || 0} />
@@ -152,7 +152,7 @@ const UserProfile = () => {
         <div className="flex min-h-screen w-full text-white">
             <Sidebar />
 
-            <div className="flex-1 min-h-screen bg-primary p-4">
+            <div className="flex-1 min-h-screen bg-primary p-4 pb-20 md:pb-4">
                 {content}
             </div>
 
