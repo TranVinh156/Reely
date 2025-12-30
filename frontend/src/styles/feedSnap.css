@@ -14,6 +14,7 @@
 
 /* Each feed item snaps to center; do not force height to allow flexible layouts */
 .feed-item {
+  height: 100vh;
   scroll-snap-align: center;
   scroll-snap-stop: always;
 }

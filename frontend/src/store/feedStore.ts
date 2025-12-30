@@ -24,6 +24,7 @@ interface FeedState {
   toggleSave: (id: string) => void;
   setCommentCount: (id: string, count: number) => void;
   incrementCommentCount: (id: string) => void;
+  decrementCommentCount: (id: string, amount?: number) => void;
   setMode: (mode: FeedMode) => void;
 }
 
@@ -58,6 +59,13 @@ export const useFeedStore = create<FeedState>((set) => ({
       commentCounts: {
         ...s.commentCounts,
         [id]: (s.commentCounts[id] || 0) + 1,
+      },
+    })),
+  decrementCommentCount: (id, amount = 1) =>
+    set((s) => ({
+      commentCounts: {
+        ...s.commentCounts,
+        [id]: Math.max((s.commentCounts[id] || 0) - amount, 0),
       },
     })),
   setMode: (mode) => set(() => ({ mode })),

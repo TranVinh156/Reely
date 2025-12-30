@@ -9,9 +9,10 @@ import { useFeedStore } from "@/store/feedStore";
 interface Props {
   video: Video;
   loadMode?: "active" | "preload" | "idle";
+  isFeed?: boolean;
 }
 
-export default function VideoCard({ video, loadMode = "idle" }: Props) {
+export default function VideoCard({ video, loadMode = "idle", isFeed = true }: Props) {
   const isSmallScreen = useMediaQuery("(max-width: 768px)");
   const activeCommentVideoId = useFeedStore((s) => s.activeCommentVideoId);
   const isCommentOpen = !!activeCommentVideoId;
@@ -22,10 +23,14 @@ export default function VideoCard({ video, loadMode = "idle" }: Props) {
     setOrientation(newOrientation);
   };
 
-  const containerClasses = {
+  const containerClasses = isFeed ? {
     landscape: "max-w-[90vh] h-[60%]",
     portrait: "w-auto h-[80%] max-w-[50vh]", // Ví dụ: cao 90% viewport, rộng tối đa 50vh
     square: "w-[70%] h-[60%]", // Giống landscape
+  } : {
+    landscape: "w-full h-full",
+    portrait: "w-full h-full",
+    square: "w-full h-full",
   };
 
   // If comments are open, shift the video container to the left
@@ -40,7 +45,7 @@ export default function VideoCard({ video, loadMode = "idle" }: Props) {
   const shiftStyle = isCommentOpen && !isSmallScreen ? { transform: "translateX(-225px)" } : {};
 
   return (
-    <div className="relative flex h-screen w-full items-center justify-center bg-[#161823]">
+    <div className="relative flex h-full w-full items-center justify-center bg-[#161823]">
       <div
         className={`relative flex flex-col ${containerClasses[orientation]} justify-center overflow-hidden rounded-2xl bg-black transition-transform duration-300 ease-in-out`}
         style={shiftStyle}

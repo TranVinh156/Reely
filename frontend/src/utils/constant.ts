@@ -1,1 +1,1 @@
-export const STORAGE_URL = "localhost:9000"
+export const STORAGE_URL = "http://localhost:9000"

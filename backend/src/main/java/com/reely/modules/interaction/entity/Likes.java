@@ -36,5 +36,4 @@ public class Likes {
     public void prePersist() {
         createdAt = Instant.now();
     }
-
 }

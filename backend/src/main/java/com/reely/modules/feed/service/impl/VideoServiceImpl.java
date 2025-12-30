@@ -8,9 +8,9 @@ import com.reely.modules.feed.entity.Tag;
 import com.reely.modules.feed.entity.Video;
 import com.reely.modules.feed.repository.TagRepository;
 import com.reely.modules.feed.repository.VideoRepository;
+import com.reely.modules.interaction.entity.Likes;
 import com.reely.modules.interaction.repository.CommentRepository;
 import com.reely.modules.interaction.repository.LikeRepository;
-
 import com.reely.modules.feed.service.VideoService;
 import io.minio.GetPresignedObjectUrlArgs;
 import io.minio.MinioClient;
@@ -21,11 +21,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import jakarta.transaction.Transactional;
 
-
 import com.reely.modules.auth.dto.PaginationResponse;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -39,6 +40,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import org.hibernate.Hibernate;
 
 @Service
 public class VideoServiceImpl implements VideoService {
@@ -133,6 +135,22 @@ public class VideoServiceImpl implements VideoService {
     }
 
     @Override
+    public PaginationResponse<Video> getLikedVideosOfUser(Long userId, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Likes> likesPage = likeRepository.findAllByUserId(userId, pageable);
+
+        List<Video> videos = likesPage.getContent().stream()
+                .map(Likes::getVideo)
+                .filter(Objects::nonNull)
+                .map(video -> (Video) Hibernate.unproxy(video))
+                .collect(Collectors.toList());
+
+        Page<Video> videoPage = new PageImpl<>(videos, pageable, likesPage.getTotalElements());
+
+        return new PaginationResponse<>(videoPage);
+    }
+
+    @Override
     public Long getTotalViewsByUserId(Long userId) {
         Long totalViews = videoRepository.getTotalViewsByUserId(userId);
         return totalViews != null ? totalViews : 0L;
@@ -155,11 +173,13 @@ public class VideoServiceImpl implements VideoService {
         LocalDate startDate = LocalDate.now(ZoneId.of("Asia/Ho_Chi_Minh")).minusDays(days);
         List<ViewStat> viewStats = videoRepository.getViewsByUserIdAndDate(userId, startDate);
 
-        Map<String, Long> mapData = viewStats.stream().collect(Collectors.toMap(stat -> stat.getDate().toString(), stat -> stat.getCount()));
+        Map<String, Long> mapData = viewStats.stream()
+                .collect(Collectors.toMap(stat -> stat.getDate().toString(), stat -> stat.getCount()));
 
         List<ViewStat> finalResult = new ArrayList<>();
 
-        for (LocalDate date = startDate; !date.isAfter(LocalDate.now(ZoneId.of("Asia/Ho_Chi_Minh"))); date = date.plusDays(1)) {
+        for (LocalDate date = startDate; !date.isAfter(LocalDate.now(ZoneId.of("Asia/Ho_Chi_Minh"))); date = date
+                .plusDays(1)) {
             Long count = mapData.getOrDefault(date.toString(), 0L);
             finalResult.add(new ViewStat(java.sql.Date.valueOf(date), count));
         }
@@ -168,23 +188,23 @@ public class VideoServiceImpl implements VideoService {
 
     @Override
     public List<VideoResponseDto> getTop5ByUserIdOrderByCreatedAtDesc(Long userId) {
-        return  videoRepository.findTop5ByUserIdOrderByCreatedAtDesc(userId)
+        return videoRepository.findTop5ByUserIdOrderByCreatedAtDesc(userId)
                 .stream()
                 .map(video -> new VideoResponseDto(
+                        video.getId(),
                         video.getTitle(),
                         video.getViewCount(),
                         video.getLikeCount(),
                         video.getCommentCount(),
-                        video.getCreatedAt()
-                ))
+                        video.getCreatedAt()))
                 .collect(Collectors.toList());
     }
 
-    
     @Override
     @Transactional
     public VideoViewResponseDto incrementView(Long videoId) {
-        if (videoId == null) throw new RuntimeException("VideoId is required");
+        if (videoId == null)
+            throw new RuntimeException("VideoId is required");
         videoRepository.incrementViewCount(videoId);
         Video v = videoRepository.findById(videoId).orElseThrow(() -> new RuntimeException("Video not found"));
         Long vc = v.getViewCount() == null ? 0L : v.getViewCount();

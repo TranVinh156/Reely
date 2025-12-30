@@ -14,12 +14,12 @@ import java.util.*;
 @Repository
 public interface VideoRepository extends JpaRepository<Video, Long> {
 
-    // Feed public
-    @Query("SELECT v FROM Video v WHERE v.visibility = 'PUBLIC' ORDER BY v.createdAt DESC")
-    Page<Video> findPublicFeed(Pageable pageable);
+  // Feed public
+  @Query("SELECT v FROM Video v WHERE v.visibility = 'PUBLIC' ORDER BY v.createdAt DESC")
+  Page<Video> findPublicFeed(Pageable pageable);
 
-    // Feed follower
-    @Query("""
+  // Feed follower
+  @Query("""
 
             SELECT v FROM Video v
       WHERE v.userId IN :followeeIds
@@ -57,12 +57,12 @@ public interface VideoRepository extends JpaRepository<Video, Long> {
   // Feed cá nhân hóa
 
   /**
-     * Search public videos by query over title/description/tags
-     *
-     * @param q
-     * @param pageable
-     * @return
-     */
+   * Search public videos by query over title/description/tags
+   *
+   * @param q
+   * @param pageable
+   * @return
+   */
   @Query(value = """
       SELECT v.*
       FROM videos v
@@ -179,6 +179,5 @@ public interface VideoRepository extends JpaRepository<Video, Long> {
   @Modifying
   @Query("UPDATE Video v SET v.viewCount = COALESCE(v.viewCount, 0) + 1 WHERE v.id = :videoId")
   int incrementViewCount(@Param("videoId") Long videoId);
-
 
 }

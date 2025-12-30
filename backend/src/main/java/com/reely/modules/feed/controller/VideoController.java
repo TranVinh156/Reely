@@ -39,7 +39,8 @@ public class VideoController {
     }
 
     @GetMapping("/user/stat-views")
-    public ResponseEntity<List<ViewStat>> getTotalViewsByUserId(@RequestHeader("X-UserId") Long userId, @RequestParam Long days) {
+    public ResponseEntity<List<ViewStat>> getTotalViewsByUserId(@RequestHeader("X-UserId") Long userId,
+            @RequestParam Long days) {
         return ResponseEntity.ok(videoService.countViewsByUserIdAndDate(userId, days));
     }
 
@@ -59,6 +60,14 @@ public class VideoController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
         return ResponseEntity.ok(videoService.getVideosByUserId(userId, page, size));
+    }
+
+    @GetMapping("/liked/{userId}")
+    public ResponseEntity<PaginationResponse<Video>> getLikedVideosOfUser(
+            @RequestHeader(value = "X-UserId", required = false) Long userId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return ResponseEntity.ok(videoService.getLikedVideosOfUser(userId, page, size));
     }
 
     @GetMapping("/users/top5")

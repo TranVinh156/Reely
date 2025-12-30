@@ -5,8 +5,9 @@ import Delete from "./Delete";
 import axiosClient from "@/utils/axios.client";
 import { useAuth } from "@/hooks/auth/useAuth";
 import { h4 } from "motion/react-client";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { useFeedStore } from "@/store/feedStore";
+import UserAvatar from "../Profile/UserAvatar";
 
 
 interface CommentCardProps {
@@ -29,6 +30,7 @@ interface CommentCardProps {
   rootCommentId: string;
   onReplyAdded?: (rootCommentId: string) => void;
   onDelete?: (CommentId: string, rootCommentId: string) => void;
+  onNavigate?: () => void;
 }
 
 const CommentCard: React.FC<CommentCardProps> = ({
@@ -50,16 +52,23 @@ const CommentCard: React.FC<CommentCardProps> = ({
   commentId,
   rootCommentId,
   onReplyAdded,
-  onDelete
+  onDelete,
+  onNavigate
 }) => {
   const [replyText, setReplyText] = useState("");
   const [showReportModal, setShowReportModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const { user } = useAuth();
+  const { user, isAuthenticated } = useAuth();
   const incrementCommentCount = useFeedStore((s) => s.incrementCommentCount);
   const avatarSrc = avatarUrl ? `http://localhost:9000/${avatarUrl}` : undefined;
+  const navigate = useNavigate()
 
   const handleSubmitReply = async () => {
+    if (!isAuthenticated) {
+      onNavigate?.()
+      navigate('/login')
+      return;
+    }
     if (replyText.trim()) {
       try {
         const response = await axiosClient.post('/comments', {
@@ -126,23 +135,15 @@ const CommentCard: React.FC<CommentCardProps> = ({
       {/* Main Comment */}
       <div className="flex gap-3 px-4 py-2 w-full bg-[#1e1e1e]">
         {/* Avatar */}
-        <div className="flex flex-col justify-start pt-1">
-          {avatarSrc ? <img
-            src={avatarSrc}
-            alt={username ? `${username} avatar` : 'avatar'}
-            className={`${avatarSize} rounded-full flex-shrink-0 object-cover`}
-          /> :
-            <div className="bg-white rounded-full">
-              <UserIcon color="black" size={30} />
-            </div>
-          }
-        </div>
+        <NavLink to={`/users/${username}`} onClick={onNavigate} className="flex flex-col justify-start pt-1">
+          <UserAvatar size={40}/>
+        </NavLink>
 
         {/* Content */}
         <div className="flex-1 min-w-0 flex flex-col gap-y-1">
           {/* Username */}
           <div className="flex items-center gap-3">
-            <NavLink to={`/users/${username}`}
+            <NavLink to={`/users/${username}`} onClick={onNavigate}
               className={`${isReply ? 'text-sm' : 'text-base'} font-semibold text-white cursor-pointer hover:underline`}>
               {username || 'Unknown'}
             </NavLink>
@@ -164,7 +165,7 @@ const CommentCard: React.FC<CommentCardProps> = ({
           </div>
 
           {/* Comment Text */}
-          <p className="text-sm text-white/95 leading-tight">
+          <p className="text-sm text-white/95 leading-tight break-words whitespace-pre-wrap">
             {comment || ''}
           </p>
 
