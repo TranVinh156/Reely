@@ -5,6 +5,7 @@ import Sidebar from "@/components/Layout/Sidebar";
 import LoadingPage from "@/components/Auth/LoadingPage";
 import { searchTags, searchUsers, searchVideos } from "../api/search";
 import SearchVideoCard from "../components/Search/SearchVideoCard";
+import ActionBar from "@/components/Layout/ActionBar";
 
 type Tab = "videos" | "users" | "tags";
 
@@ -83,9 +84,9 @@ export default function SearchPage() {
     <div className="bg-primary min-h-screen text-white">
       <div className="flex gap-6">
         <Sidebar />
-        <div className="flex-1 mt-3">
+        <div className="flex-1 mt-6">
           <div className="bg-primary/95 sticky top-0 z-10 backdrop-blur">
-            <div className="flex md:hidden mx-auto max-w-3xl items-center gap-2 p-3">
+            <div className="flex md:hidden mx-auto max-w-7xl items-center gap-2 p-3">
               <input
                 value={q}
                 onChange={(e) => setQ(e.target.value)}
@@ -103,14 +104,14 @@ export default function SearchPage() {
                 Cancel
               </button>
             </div>
-            <div className="mx-auto flex max-w-3xl items-center gap-2 px-3 pb-3">
+            <div className="mx-auto flex max-w-7xl items-center gap-2 px-3 pb-3">
               <TabButton active={tab === "videos"} label="Videos" onClick={() => setTab("videos")} />
               <TabButton active={tab === "users"} label="Users" onClick={() => setTab("users")} />
               <TabButton active={tab === "tags"} label="Tags" onClick={() => setTab("tags")} />
             </div>
           </div>
 
-          <div className="mx-auto max-w-3xl p-3">
+          <div className="mx-auto max-w-7xl p-3">
             {!canSearch ? (
               <div className="rounded-2xl border border-white/10 bg-white/5 p-6 text-white/70">
                 Type something to search.
@@ -120,7 +121,7 @@ export default function SearchPage() {
                 {videosQuery.isLoading ? (
                   <LoadingPage />
                 ) : videosQuery.data?.content?.length ? (
-                  <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
                     {videosQuery.data.content.map((v) => (
                       <SearchVideoCard key={v.videoId} v={v} />
                     ))}
@@ -183,6 +184,7 @@ export default function SearchPage() {
           </div>
         </div>
       </div>
+      <ActionBar />
     </div>
   );
 }
