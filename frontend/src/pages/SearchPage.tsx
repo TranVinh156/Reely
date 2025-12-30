@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router";
 import { useQuery } from "@tanstack/react-query";
 import Sidebar from "@/components/Layout/Sidebar";
+import LoadingPage from "@/components/Auth/LoadingPage";
 import { searchTags, searchUsers, searchVideos } from "../api/search";
 import SearchVideoCard from "../components/Search/SearchVideoCard";
 
@@ -18,9 +19,8 @@ function TabButton({
 }) {
   return (
     <button
-      className={`rounded-full px-4 py-2 text-sm ${
-        active ? "bg-white/15" : "bg-white/5 hover:bg-white/10"
-      }`}
+      className={`rounded-full px-4 py-2 text-sm ${active ? "bg-white/15" : "bg-white/5 hover:bg-white/10"
+        }`}
       onClick={onClick}
     >
       {label}
@@ -83,9 +83,9 @@ export default function SearchPage() {
     <div className="bg-primary min-h-screen text-white">
       <div className="flex gap-6">
         <Sidebar />
-        <div className="flex-1">
-          <div className="bg-primary/95 sticky top-0 z-10 border-b border-white/10 backdrop-blur">
-            <div className="mx-auto flex max-w-3xl items-center gap-2 p-3">
+        <div className="flex-1 mt-3">
+          <div className="bg-primary/95 sticky top-0 z-10 backdrop-blur">
+            <div className="flex md:hidden mx-auto max-w-3xl items-center gap-2 p-3">
               <input
                 value={q}
                 onChange={(e) => setQ(e.target.value)}
@@ -103,7 +103,6 @@ export default function SearchPage() {
                 Cancel
               </button>
             </div>
-
             <div className="mx-auto flex max-w-3xl items-center gap-2 px-3 pb-3">
               <TabButton active={tab === "videos"} label="Videos" onClick={() => setTab("videos")} />
               <TabButton active={tab === "users"} label="Users" onClick={() => setTab("users")} />
@@ -119,7 +118,7 @@ export default function SearchPage() {
             ) : tab === "videos" ? (
               <div>
                 {videosQuery.isLoading ? (
-                  <div className="text-white/70">Loading…</div>
+                  <LoadingPage />
                 ) : videosQuery.data?.content?.length ? (
                   <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
                     {videosQuery.data.content.map((v) => (
@@ -133,7 +132,7 @@ export default function SearchPage() {
             ) : tab === "users" ? (
               <div>
                 {usersQuery.isLoading ? (
-                  <div className="text-white/70">Loading…</div>
+                  <LoadingPage />
                 ) : usersQuery.data?.content?.length ? (
                   <div className="flex flex-col gap-2">
                     {usersQuery.data.content.map((u) => (
@@ -160,7 +159,7 @@ export default function SearchPage() {
             ) : (
               <div>
                 {tagsQuery.isLoading ? (
-                  <div className="text-white/70">Loading…</div>
+                  <LoadingPage />
                 ) : tagsQuery.data?.content?.length ? (
                   <div className="flex flex-col gap-2">
                     {tagsQuery.data.content.map((t) => (
