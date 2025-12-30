@@ -78,3 +78,10 @@ export const getVideoById = async (id: number): Promise<Video> => {
     const data = response.data as BackendVideoDetailDTO;
     return mapVideoDetailToVideo(data);
 }
+
+export const getLikedVideosOfUser = async (userId: number, page: number = 0, size: number = 10): Promise<PaginationResponse<VideoDTO>> => {
+    const response = await axiosClient.get(`/videos/liked/${userId}`, {
+        params: { page, size }
+    });
+    return response.data;
+}
