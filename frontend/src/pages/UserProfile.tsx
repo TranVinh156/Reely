@@ -15,6 +15,7 @@ import { useParams } from "react-router-dom"
 import EditProfileModal from "@/components/Profile/EditProfileModal"
 import ChangePasswordModal from "@/components/Profile/ChangePasswordModal"
 import VideoSection from "@/components/Profile/VideoSection"
+import ActionBar from "@/components/Layout/ActionBar"
 
 type ModalTab = 'followers' | 'following' | null
 
@@ -155,8 +156,6 @@ const UserProfile = () => {
                 {content}
             </div>
 
-
-
             <FollowModal
                 userId={user?.id || 0}
                 username={user?.username || 'user'}
@@ -168,7 +167,7 @@ const UserProfile = () => {
             <EditProfileModal isOpen={isEditProfileOpen} onClose={() => setIsEditProfileOpen(false)} />
             <ChangePasswordModal isOpen={isChangePasswordOpen} onClose={() => setIsChangePasswordOpen(false)} />
 
-
+            <ActionBar/>
         </div>
     )
 }

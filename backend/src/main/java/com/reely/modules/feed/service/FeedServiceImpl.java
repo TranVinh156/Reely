@@ -11,6 +11,7 @@ import com.reely.modules.user.repository.UserFollowRepository;
 import com.reely.modules.user.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import java.util.*;
@@ -26,7 +27,6 @@ public class FeedServiceImpl implements FeedService {
     private final LikeRepository likeRepository;
     private final CommentRepository commentRepository;
     private final FeedMapper feedMapper;
-
     /**
      * Public Feed
      * 
@@ -116,6 +116,7 @@ public class FeedServiceImpl implements FeedService {
 
         return VideoDetailDTO.builder()
                 .videoId(video.getId())
+                .userId(video.getUserId())
                 .title(video.getTitle())
                 .description(video.getDescription())
                 .videoUrl("https://s3.reely.vn/videos/" + video.getOriginalS3Key())

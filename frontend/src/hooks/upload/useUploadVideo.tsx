@@ -25,6 +25,24 @@ export const UploadContext = createContext<UploadContextType | undefined>(
   undefined,
 );
 
+export const getVideoDuration = (file: File): Promise<number> => {
+    return new Promise((resolve) => {
+      const video = document.createElement("video");
+      video.preload = "metadata";
+
+      video.onloadedmetadata = () => {
+        window.URL.revokeObjectURL(video.src);
+        resolve(Math.round(video.duration));
+      };
+
+      video.onerror = () => {
+        resolve(0);
+      };
+
+      video.src = URL.createObjectURL(file);
+    });
+  };
+
 export const UploadProvider = ({ children }: { children: React.ReactNode }) => {
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -119,23 +137,7 @@ export const UploadProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  const getVideoDuration = (file: File): Promise<number> => {
-    return new Promise((resolve) => {
-      const video = document.createElement("video");
-      video.preload = "metadata";
-
-      video.onloadedmetadata = () => {
-        window.URL.revokeObjectURL(video.src);
-        resolve(Math.round(video.duration));
-      };
-
-      video.onerror = () => {
-        resolve(0);
-      };
-
-      video.src = URL.createObjectURL(file);
-    });
-  };
+  
   return (
     <UploadContext.Provider value={{ uploadVideo, uploading, progress }}>
       {children}
@@ -150,3 +152,5 @@ export const useUpload = () => {
   }
   return context;
 };
+
+

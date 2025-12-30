@@ -19,6 +19,7 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
     List<Comment> findByVideo_Id(Long videoId);
     Page<Comment> findByVideo_IdAndRootCommentIsNull(Long videoId, Pageable pageable);
     Page<Comment> findByRootComment_IdOrderByCreatedAtDesc(Long rootCommentId, Pageable pageable);
+    void deleteByVideo_Id(Long videoId);
 
     @Query(value = "SELECT DATE(c.created_at) as date, COUNT(*) as count " +
             "FROM comment c " +

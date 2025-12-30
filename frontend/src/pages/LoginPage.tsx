@@ -3,6 +3,7 @@ import FormInput from '../components/Auth/FormInput'
 import useLogin, { type LoginCredentials } from '../hooks/auth/useLogin'
 import backgroundImage from '../assets/background.png'
 import { useNavigate, Link, NavLink } from 'react-router'
+import Logo from '../components/Layout/Logo'
 
 const GOOGLE_LOGO = 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/768px-Google_%22G%22_logo.svg.png'
 
@@ -34,8 +35,7 @@ const LoginPage: React.FC = () => {
         <main className="flex h-screen">
             <section className="mx-8 md:mx-10 login-form flex-3 flex flex-col w-full max-w-xl">
                 <header className="logo flex gap-2 items-center mt-3">
-                    <img src={GOOGLE_LOGO} alt="logo" className="h-6" />
-                    <p className="text-2xl font-extrabold">Reely</p>
+                    <Logo variant="dark" />
                 </header>
 
                 <div className="shrink my-auto lg:px-15">

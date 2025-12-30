@@ -5,7 +5,6 @@ import { AuthProvider } from "./contexts/AuthContext";
 import LoginPage from "./pages/LoginPage";
 import "./index.css";
 import RegisterPage from "./pages/RegisterPage";
-import App from "./App";
 import AuthGuard from "./components/Auth/AuthGuard";
 import GuestGuard from "./components/Auth/GuestGuard";
 import UserProfile from "./pages/UserProfile";
@@ -15,11 +14,11 @@ import { UploadProvider } from "./hooks/upload/useUploadVideo";
 import IndexPage from "./pages/FeedPage";
 import Comment from "./components/Comment/Comment";
 import FeedPage from "./pages/FeedPage";
-import { Search } from "lucide-react";
 import SearchPage from "./pages/SearchPage";
 import TagPage from "./pages/TagePage";
 import ForgetPasswordPage from "./pages/ForgetPasswordPage";
 import Analysis from "./pages/Analysis";
+import VideoPage from "./pages/VideoPage";
 
 const queryClient = new QueryClient();
 
@@ -93,7 +92,7 @@ ReactDOM.createRoot(root).render(
                                 <ForgetPasswordPage />
                             }
                         />
-                      
+
                         <Route
                             path="/feed"
                             element={
@@ -104,14 +103,14 @@ ReactDOM.createRoot(root).render(
                         <Route
                             path="/comment"
                             element={
-                                <Comment videoOwnerId={22} videoId={1} onClose={() => {}}/>
+                                <Comment videoOwnerId={22} videoId={1} onClose={() => { }} />
                             }
                         />
 
                         <Route
                             path="/noti"
                             element={
-                                <Notification onClose={() => {}}/>
+                                <Notification onClose={() => { }} />
                             }
                         />
 
@@ -122,7 +121,12 @@ ReactDOM.createRoot(root).render(
                             }
                         />
 
-                        
+                        <Route
+                            path="/videos/:id"
+                            element={
+                                <VideoPage />
+                            }
+                        />
 
                     </Routes>
                 </BrowserRouter>

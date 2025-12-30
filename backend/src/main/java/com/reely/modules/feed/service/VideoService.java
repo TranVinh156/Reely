@@ -1,6 +1,7 @@
 package com.reely.modules.feed.service;
 
 import com.reely.modules.feed.dto.VideoRequestDto;
+import com.reely.modules.feed.dto.VideoResponseDto;
 import com.reely.modules.feed.dto.VideoViewResponseDto;
 import com.reely.modules.feed.dto.ViewStat;
 import com.reely.modules.feed.entity.Video;
@@ -17,6 +18,8 @@ public interface VideoService {
 
     PaginationResponse<Video> getVideosByUserId(Long userId, int page, int size);
 
+    PaginationResponse<Video> getLikedVideosOfUser(Long userId, int page, int size);
+
     Long getTotalViewsByUserId(Long userId);
 
     Long getTotalCommentsByUserId(Long userId);
@@ -24,7 +27,10 @@ public interface VideoService {
     Long getTotalLikesByUserId(Long userId);
 
     List<ViewStat> countViewsByUserIdAndDate(Long userId, Long days);
-    
+
     VideoViewResponseDto incrementView(Long videoId);
 
+    List<VideoResponseDto> getTop5ByUserIdOrderByCreatedAtDesc(Long userId);
+
+    void deleteVideo(Long videoId, Long userId);
 }

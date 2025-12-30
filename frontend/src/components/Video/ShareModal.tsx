@@ -7,13 +7,10 @@ interface Props {
 }
 
 export const ShareModel: React.FC<Props> = ({onClose, videoUrl}) => {
-    const [isCopied, setIsCopied] = React.useState(false);
     const encodedUrl = encodeURIComponent(videoUrl);
 
     const handleCopy = () => {
         navigator.clipboard.writeText(videoUrl);
-        setIsCopied(true);
-        setTimeout(() => setIsCopied(false), 2000);
     };
 
     const handleDownload = async () => {

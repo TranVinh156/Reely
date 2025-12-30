@@ -22,7 +22,7 @@ export default function TagPage() {
         <Sidebar />
         <div className="flex-1">
           <div className="bg-primary/95 sticky top-0 z-10 border-b border-white/10 backdrop-blur">
-            <div className="mx-auto flex max-w-3xl items-center justify-between gap-2 p-3">
+            <div className="mx-auto flex max-w-7xl items-center justify-between gap-2 p-3">
               <div>
                 <div className="text-sm text-white/60">Hashtag</div>
                 <div className="text-xl font-semibold">#{tagName}</div>
@@ -34,16 +34,16 @@ export default function TagPage() {
                 Back
               </button>
             </div>
-            <div className="mx-auto max-w-3xl px-3 pb-3 text-sm text-white/60">
+            <div className="mx-auto max-w-7xl px-3 pb-3 text-sm text-white/60">
               Sorted by relevance (engagement).
             </div>
           </div>
 
-          <div className="mx-auto max-w-3xl p-3">
+          <div className="mx-auto max-w-7xl p-3">
             {q.isLoading ? (
               <div className="text-white/70">Loading…</div>
             ) : q.data?.content?.length ? (
-              <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
                 {q.data.content.map((v) => (
                   <SearchVideoCard key={v.videoId} v={v} />
                 ))}

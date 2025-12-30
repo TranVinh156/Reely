@@ -21,6 +21,7 @@ export interface User {
 export interface Video {
   id: string;
   user: User;
+  title: string;
   src: string; // url to video (mp4/hls)
   poster: string; // poster image
   description: string;

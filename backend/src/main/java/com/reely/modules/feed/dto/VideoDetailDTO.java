@@ -4,10 +4,14 @@ import lombok.*;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Getter @Setter @Builder
-@NoArgsConstructor @AllArgsConstructor
+@Getter
+@Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class VideoDetailDTO {
     private Long videoId;
+    private Long userId;
     private String title;
     private String description;
     private String videoUrl;

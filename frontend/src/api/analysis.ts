@@ -5,6 +5,15 @@ interface Stat {
     count: number
 }
 
+export interface Video {
+    title: string
+    viewCount: number
+    likeCount: number
+    commentCount: number
+    createdAt: string
+    id: number
+}
+
 
 export const getLikeStat = async (days: number) : Promise<Stat[]> => {
     const response = await axiosClient.get('/likes', {params: {days: days}})
@@ -39,6 +48,11 @@ export const getTotalView = async (): Promise<number> => {
 
 export const getTotalComment = async (): Promise<number> => {
     const response = await axiosClient.get('/videos/user/total-comments');
+    return response.data
+}
+
+export const get5LastestVideo = async (): Promise<Video[]> => {
+    const response = await axiosClient.get('/videos/users/top5')
     return response.data
 }
 
