@@ -6,65 +6,64 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.reely.modules.feed.entity.Video;
 import com.reely.modules.upload.dto.PresignedUrlResponse;
 import com.reely.modules.upload.dto.VideoChunkCompleteRequest;
 import com.reely.modules.upload.dto.VideoChunkCompleteResponse;
 import com.reely.modules.upload.dto.VideoChunkInitRespone;
 import com.reely.modules.upload.service.UploadService;
 
-import io.minio.ComposeObjectArgs;
-import io.minio.ComposeSource;
-import io.minio.PutObjectArgs;
-import io.minio.RemoveObjectArgs;
-import io.minio.ListObjectsArgs;
-import io.minio.Result;
-import io.minio.GetPresignedObjectUrlArgs;
-import io.minio.MinioClient;
-import io.minio.http.Method;
-import io.minio.messages.Item;
+import software.amazon.awssdk.core.sync.RequestBody;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.*;
+import software.amazon.awssdk.services.s3.presigner.S3Presigner;
+import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
 @Service
 public class UploadServiceImpl implements UploadService {
-    private static final String AVATAR_BUCKET = "avatars";
-    private static final String VIDEO_BUCKET = "videos";
-    private static final int EXPIRY_TIME = 600;
+    private static final int EXPIRY_TIME = 10; // Minutes
     private static final long DEFAULT_CHUNK_SIZE = 5L * 1024 * 1024;
 
-    private final MinioClient minioClient;
+    private final S3Client s3Client;
+    private final S3Presigner s3Presigner;
 
-    @Value("${minio.url}")
-    private String minioUrl;
+    @Value("${aws.s3.bucket-name}")
+    private String bucketName;
 
-    public UploadServiceImpl(MinioClient minioClient) {
-        this.minioClient = minioClient;
+    public UploadServiceImpl(S3Client s3Client, S3Presigner s3Presigner) {
+        this.s3Client = s3Client;
+        this.s3Presigner = s3Presigner;
     }
 
     @Override
     public PresignedUrlResponse getAvatarPresignedUrl(String fileName) {
-        return generatePresignedUrl(AVATAR_BUCKET, fileName);
+        return generatePresignedUrl(bucketName, "avatars/" + fileName);
     }
 
     @Override
     public PresignedUrlResponse getVideoPresignedUrl(String fileName) {
-        return generatePresignedUrl(VIDEO_BUCKET, fileName);
+        return generatePresignedUrl(bucketName, "videos/" + fileName);
     }
 
-    private PresignedUrlResponse generatePresignedUrl(String bucketName, String fileName) {
-        String objectName = UUID.randomUUID() + "_" + fileName;
+    private PresignedUrlResponse generatePresignedUrl(String bucketName, String objectName) {
+        String finalObjectName = UUID.randomUUID() + "_" + objectName;
         try {
-            String uploadUrl = minioClient.getPresignedObjectUrl(
-                    GetPresignedObjectUrlArgs.builder()
-                            .method(Method.PUT)
-                            .bucket(bucketName)
-                            .object(objectName)
-                            .expiry(EXPIRY_TIME)
-                            .build());
+            PutObjectRequest objectRequest = PutObjectRequest.builder()
+                    .bucket(bucketName)
+                    .key(finalObjectName)
+                    .build();
 
-            String fileUrl = String.format("%s/%s", bucketName, objectName);
+            PutObjectPresignRequest presignRequest = PutObjectPresignRequest.builder()
+                    .signatureDuration(Duration.ofMinutes(EXPIRY_TIME))
+                    .putObjectRequest(objectRequest)
+                    .build();
+
+            String uploadUrl = s3Presigner.presignPutObject(presignRequest).url().toString();
+
+            String fileUrl = finalObjectName;
 
             return PresignedUrlResponse.builder()
                     .uploadUrl(uploadUrl)
@@ -82,12 +81,12 @@ public class UploadServiceImpl implements UploadService {
     @Override
     public VideoChunkInitRespone initVideoChunkUpload(String fileName) {
         String uploadId = UUID.randomUUID().toString();
-        String objectName = UUID.randomUUID() + "_" + fileName;
+        String objectName = "videos/" + UUID.randomUUID() + "_" + fileName;
 
         return VideoChunkInitRespone.builder()
                 .uploadId(uploadId)
                 .objectName(objectName)
-                .fileUrl("/" + VIDEO_BUCKET + "/" + objectName)
+                .fileUrl(objectName)
                 .chunkSize(DEFAULT_CHUNK_SIZE) // 5 MB
                 .build();
     }
@@ -101,17 +100,16 @@ public class UploadServiceImpl implements UploadService {
         if (chunk == null || chunk.isEmpty()) {
             throw new IllegalArgumentException("Chunk cannot be null or empty");
         }
-        
+
         String chunkObjectKey = chunkObjectKey(uploadId, partNumber);
-        
+
         try {
-            minioClient.putObject(
-                    PutObjectArgs.builder()
-                            .bucket(VIDEO_BUCKET)
-                            .object(chunkObjectKey)
-                            .stream(chunk.getInputStream(), chunk.getSize(), -1)
-                            .contentType("application/octet-stream")
-                            .build());
+            s3Client.putObject(
+                    PutObjectRequest.builder()
+                            .bucket(bucketName)
+                            .key(chunkObjectKey)
+                            .build(),
+                    RequestBody.fromInputStream(chunk.getInputStream(), chunk.getSize()));
         } catch (Exception e) {
             throw new RuntimeException("Failed to upload video chunk", e);
         }
@@ -130,33 +128,58 @@ public class UploadServiceImpl implements UploadService {
         String objectName = request.getObjectName();
         int totalParts = request.getTotalParts();
 
-        List<ComposeSource> sources = new ArrayList<>(totalParts);
-        for (int i = 1; i <= totalParts; i++) {
-            sources.add(ComposeSource.builder()
-                    .bucket(VIDEO_BUCKET)
-                    .object(chunkObjectKey(uploadId, i))
-                    .build());
-        }
-
         try {
-            minioClient.composeObject(
-                    io.minio.ComposeObjectArgs.builder()
-                            .bucket(VIDEO_BUCKET)
-                            .object(objectName)
-                            .sources(sources)
+            // 1. Initiate Multipart Upload
+            CreateMultipartUploadResponse createResponse = s3Client.createMultipartUpload(
+                    CreateMultipartUploadRequest.builder()
+                            .bucket(bucketName)
+                            .key(objectName)
+                            .build());
+            String s3UploadId = createResponse.uploadId();
+
+            List<CompletedPart> completedParts = new ArrayList<>();
+
+            // 2. Copy parts
+            for (int i = 1; i <= totalParts; i++) {
+                String partKey = chunkObjectKey(uploadId, i);
+
+                UploadPartCopyResponse copyResponse = s3Client.uploadPartCopy(
+                        UploadPartCopyRequest.builder()
+                                .sourceBucket(bucketName)
+                                .sourceKey(partKey)
+                                .destinationBucket(bucketName)
+                                .destinationKey(objectName)
+                                .uploadId(s3UploadId)
+                                .partNumber(i)
+                                .build());
+
+                completedParts.add(CompletedPart.builder()
+                        .partNumber(i)
+                        .eTag(copyResponse.copyPartResult().eTag())
+                        .build());
+            }
+
+            // 3. Complete Multipart Upload
+            s3Client.completeMultipartUpload(
+                    CompleteMultipartUploadRequest.builder()
+                            .bucket(bucketName)
+                            .key(objectName)
+                            .uploadId(s3UploadId)
+                            .multipartUpload(CompletedMultipartUpload.builder()
+                                    .parts(completedParts)
+                                    .build())
                             .build());
 
-            // Cleanup chunk objects
+            // 4. Cleanup chunk objects
             for (int i = 1; i <= totalParts; i++) {
-                minioClient.removeObject(
-                        io.minio.RemoveObjectArgs.builder()
-                                .bucket(VIDEO_BUCKET)
-                                .object(chunkObjectKey(uploadId, i))
-                                .build());
+                s3Client.deleteObject(DeleteObjectRequest.builder()
+                        .bucket(bucketName)
+                        .key(chunkObjectKey(uploadId, i))
+                        .build());
             }
 
             return VideoChunkCompleteResponse.builder()
-                    .fileUrl("/" + VIDEO_BUCKET + "/" + objectName)
+                    .fileUrl(objectName)
                     .build();
         } catch (Exception e) {
             throw new RuntimeException("Failed to complete chunked upload", e);
@@ -167,20 +190,17 @@ public class UploadServiceImpl implements UploadService {
     public void abortVideoChunkUpload(String uploadId) {
         String prefix = "multipart/" + uploadId + "/";
         try {
-            Iterable<Result<Item>> results = minioClient.listObjects(
-                    io.minio.ListObjectsArgs.builder()
-                            .bucket(VIDEO_BUCKET)
+            ListObjectsV2Response listResponse = s3Client.listObjectsV2(
+                    ListObjectsV2Request.builder()
+                            .bucket(bucketName)
                             .prefix(prefix)
-                            .recursive(true)
                             .build());
 
-            for (Result<Item> result : results) {
-                io.minio.messages.Item item = result.get();
-                minioClient.removeObject(
-                        io.minio.RemoveObjectArgs.builder()
-                                .bucket(VIDEO_BUCKET)
-                                .object(item.objectName())
-                                .build());
+            for (S3Object s3Object : listResponse.contents()) {
+                s3Client.deleteObject(DeleteObjectRequest.builder()
+                        .bucket(bucketName)
+                        .key(s3Object.key())
+                        .build());
             }
         } catch (Exception e) {
             throw new RuntimeException("Failed to abort chunked upload", e);
