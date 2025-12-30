@@ -1,6 +1,6 @@
 import { User } from "lucide-react";
 import React from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 
 interface NotificationCardProps {
   username?: string;
@@ -20,6 +20,7 @@ const NotificationCard: React.FC<NotificationCardProps> = ({
   videoId,
   type
 }) => {
+  const navigate = useNavigate();
   const isHasAvatar = avatarUrl !== null;
 
   const content = (
@@ -58,11 +59,15 @@ const NotificationCard: React.FC<NotificationCardProps> = ({
       </div>
     );
   }
+
+  const handleCardClick = (e: React.MouseEvent) => {
+    if (videoId) navigate(`/videos/${videoId}`);
+  };
   
   return (
-     <NavLink to={`/videos/${videoId}`} key={videoId} className="flex gap-3 px-3 py-2 w-full min-h-18 max-h-70 bg-[#161823] border-b border-b-gray-800">
+     <div onClick={handleCardClick} key={videoId} className="cursor-pointer flex gap-3 px-3 py-2 w-full min-h-18 max-h-70 bg-[#161823] border-b border-b-gray-800">
       {content}
-    </NavLink>
+    </div>
   );
 };
 
