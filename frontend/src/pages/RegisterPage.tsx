@@ -1,8 +1,7 @@
 import { useState } from "react"
 import FormInput from "../components/Auth/FormInput"
 import useRegister from "../hooks/auth/useRegister"
-
-const GOOGLE_LOGO = 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/768px-Google_%22G%22_logo.svg.png'
+import Logo from "../components/Layout/Logo"
 
 interface FormDataType {
     email: string
@@ -94,10 +93,9 @@ const RegisterPage = () => {
         <main className="flex h-screen">
             <aside className="hidden md:flex bg-blue-500 min-h-20 md:flex-4 flex-1" aria-hidden="true" />
             <section className="mx-8 md:px-20 login-form flex-3 flex flex-col w-full max-w-xl">
-                <header className="logo flex gap-2 items-center mt-3 justify-end">
-                    <img src={GOOGLE_LOGO} alt="logo" className="h-6" />
-                    <p className="text-2xl font-extrabold">Reely</p>
-                </header>
+                <div className="logo gap-2 items-center mt-3 flex justify-start">
+                    <Logo variant="dark" />
+                </div>
 
                 <div className="shrink my-auto flex flex-col gap-8">
                     <h1 className="text-4xl font-extrabold text-center">Sign Up</h1>

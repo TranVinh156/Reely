@@ -7,6 +7,9 @@ import Comment from "@/components/Comment/Comment";
 import type { Video } from "@/types/video";
 import { likeVideo, unlikeVideo } from "@/api/feed";
 import { ShareModel } from "./ShareModal";
+import { UserIcon, Plus, Check } from "lucide-react";
+import { follow, isFollowing, unfollow } from "@/api/follow";
+import { useAuth } from "@/hooks/auth/useAuth";
 
 function formatCount(n: number) {
   if (n >= 1_000_000) return `${Math.round(n / 1_000_000)}M`;
@@ -27,7 +30,7 @@ export function ActionButtons({ video }: Props) {
 
   const commentCountInStore = useFeedStore((s) => s.commentCounts[video.id]);
   const setCommentCountInStore = useFeedStore((s) => s.setCommentCount);
-  
+
   const activeCommentVideoId = useFeedStore((s) => s.activeCommentVideoId);
   const openComment = useFeedStore((s) => s.openComment);
   const closeComment = useFeedStore((s) => s.closeComment);
@@ -78,6 +81,37 @@ export function ActionButtons({ video }: Props) {
     return Number.isFinite(n) ? n : 0;
   }, [video.user.id]);
 
+  const { user: currentUser } = useAuth();
+  const [isFollowed, setIsFollowed] = useState(false);
+  const [justFollowed, setJustFollowed] = useState(false);
+
+  useEffect(() => {
+    let mounted = true;
+    if (currentUser && videoOwnerIdNumber && currentUser.id !== videoOwnerIdNumber) {
+      isFollowing(Number(currentUser.id), videoOwnerIdNumber).then(status => {
+        if (mounted) setIsFollowed(status);
+      }).catch(err => console.error(err));
+    }
+    return () => { mounted = false; };
+  }, [currentUser, videoOwnerIdNumber]);
+
+  const handleFollow = async () => {
+    if (!currentUser) return;
+    try {
+      if (isFollowed) {
+        await unfollow(Number(currentUser.id), videoOwnerIdNumber);
+        setIsFollowed(false);
+        setJustFollowed(false);
+      } else {
+        await follow(Number(currentUser.id), videoOwnerIdNumber);
+        setIsFollowed(true);
+        setJustFollowed(true);
+      }
+    } catch (error) {
+      console.error("Failed to toggle follow", error);
+    }
+  };
+
   const handleToggleLike = async () => {
     if (likeLockRef.current) return;
     likeLockRef.current = true;
@@ -115,18 +149,33 @@ export function ActionButtons({ video }: Props) {
   return (
     <>
       <div
-        className={`${
-          isSmallScreen ? "absolute right-3.5" : "relative ml-5"
-        } flex flex-col items-center space-y-8 text-white transition-transform duration-300 ease-in-out`}
+        className={`${isSmallScreen ? "absolute right-3.5" : "relative ml-5"
+          } flex flex-col items-center space-y-8 text-white transition-transform duration-300 ease-in-out`}
         style={shiftStyle}
       >
         {/* Avatar */}
-        <div className="h-12 w-12 overflow-hidden rounded-full border-2 border-white/20">
-          <img
-            src={video.user.avatar}
-            alt={video.user.username}
-            className="h-full w-full object-cover"
-          />
+        <div className="relative">
+          <div className="h-12 w-12 overflow-hidden rounded-full border-2 border-white/20">
+            {video.user.avatar ? (
+              <img
+                src={video.user.avatar}
+                alt={video.user.username}
+                className="h-full w-full object-cover"
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center bg-white">
+                <UserIcon color="black" />
+              </div>
+            )}
+          </div>
+          {currentUser && currentUser.id !== videoOwnerIdNumber && (!isFollowed || justFollowed) && (
+            <button
+              onClick={handleFollow}
+              className="absolute -bottom-2 left-1/2 -translate-x-1/2 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-white shadow-sm transition-transform hover:scale-110"
+            >
+              {isFollowed ? <Check size={12} /> : <Plus size={12} />}
+            </button>
+          )}
         </div>
 
         {/* Like */}
@@ -136,9 +185,8 @@ export function ActionButtons({ video }: Props) {
           aria-label="Like"
         >
           <div
-            className={`icon-[mdi--heart] h-6 w-6 ${
-              liked ? "text-red-500" : "text-white"
-            }`}
+            className={`icon-[mdi--heart] h-6 w-6 ${liked ? "text-red-500" : "text-white"
+              }`}
           />
           <div className="absolute top-10 mt-1 text-xs font-bold text-white">
             {formatCount(likeCount)}
@@ -172,7 +220,7 @@ export function ActionButtons({ video }: Props) {
       {/* Comment Drawer */}
       {isCommentOpen && (
         <div className="fixed right-0 top-0 bottom-0 z-50 w-[450px] shadow-xl bg-[#1e1e1e] border-l border-white/10">
-            <Comment videoId={videoIdNumber} videoOwnerId={videoOwnerIdNumber} onClose={closeComment} />
+          <Comment videoId={videoIdNumber} videoOwnerId={videoOwnerIdNumber} onClose={closeComment} />
         </div>
       )}
     </>

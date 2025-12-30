@@ -82,7 +82,14 @@ export default function Sidebar() {
         setMode("trending");
       },
     },
-    { icon: <UserRoundPlus />, text: "Following", link: "/following" },
+    {
+      icon: <UserRoundPlus />,
+      text: "Following",
+      link: "/",
+      onClick: () => {
+        setMode("following")
+      }
+    },
     { icon: <User2 />, text: "Profile", link: user ? `/users/${user.username}` : "/login" },
     // { icon: <Upload />, text: "Upload", link: "/upload" }
     { icon: <ChartNoAxesCombined />, text: "Analysis", link: "/analysis" },
@@ -129,10 +136,11 @@ export default function Sidebar() {
 
           <div className="nav-items">
             {NAV_ITEMS.map((item, index) => {
-              const isModeNav = item.text === "For You" || item.text === "Trending";
+              const isModeNav = item.text === "For You" || item.text === "Trending" || item.text === "Following";
               const isActiveMode =
                 (item.text === "For You" && (mode === "personal" || mode === "public")) ||
-                (item.text === "Trending" && mode === "trending");
+                (item.text === "Trending" && mode === "trending") ||
+                (item.text === "Following" && mode === "following");
               const isOnFeedRoute = location.pathname === "/" || location.pathname === "/feed";
               const isNotificationNav = item.text === "Notification";
               return (
@@ -142,8 +150,7 @@ export default function Sidebar() {
                   onClick={item.onClick}
                   className={({ isActive }) =>
                     `flex gap-4 py-3 mt-1 hover:text-red-500 hover:bg-primary-hover hover:rounded-xl transition-all ${isNotificationOpen ? 'justify-center' : 'justify-center md:justify-normal md:pl-8'
-                    } ${
-                    isModeNav && isActiveMode && isOnFeedRoute
+                    } ${isModeNav && isActiveMode && isOnFeedRoute
                       ? 'bg-white/15 rounded-xl'
                       : !isModeNav && !isNotificationNav && isActive
                         ? 'bg-white/15 rounded-xl'
