@@ -76,23 +76,23 @@ const UserProfile = () => {
         )
     } else {
         content = (
-            <div className="user-info flex flex-col gap-12">
-                <div className="flex gap-6">
-                    <div className="w-35 h-35">
+            <div className="user-info flex flex-col gap-8 md:gap-12 pb-20 md:pb-0">
+                <div className="flex flex-col md:flex-row gap-6 items-center md:items-start">
+                    <div className="w-24 h-24 md:w-35 md:h-35 flex-shrink-0">
                         {!user?.avatarUrl ?
                             <div className="bg-white w-full h-full rounded-full flex items-center justify-center">
-                                <UserIcon className="text-black" size={80} />
+                                <UserIcon className="text-black md:w-20 md:h-20" size={40}  />
                             </div>
                             :
                             <img src={`${storageUrl}/${user?.avatarUrl}`} alt={user?.username} className="w-full h-full rounded-full object-cover" />
                         }
                     </div>
-                    <div>
+                    <div className="flex flex-col items-center md:items-start w-full">
                         <div className="flex gap-4 items-center">
                             <p className="font-bold text-xl">@{user?.username}</p>
                             <p className="text-sm">{user?.displayName}</p>
                         </div>
-                        <div className="text-xs font-bold flex gap-2 mt-2">
+                        <div className="text-xs font-bold flex flex-wrap justify-center md:justify-start gap-2 mt-2 w-full">
                             {params.username !== currentUser?.username ?
                                 <>
                                     <button
@@ -124,23 +124,23 @@ const UserProfile = () => {
                                 </>
                             }
                         </div>
-                        <div className="mt-2 flex gap-3">
+                        <div className="mt-4 flex gap-6 justify-center md:justify-start">
                             <span
                                 onClick={() => setModalTab('following')}
-                                className="cursor-pointer hover:text-gray-300"
+                                className="cursor-pointer hover:text-gray-300 flex items-center gap-1"
                             >
-                                <p className="inline-block font-semibold text-xl pr-1">{followingCount}</p>
-                                Following
+                                <span className="font-bold text-lg">{followingCount}</span>
+                                <span className="text-gray-400 text-sm">Following</span>
                             </span>
                             <span
                                 onClick={() => setModalTab('followers')}
-                                className="cursor-pointer hover:text-gray-300"
+                                className="cursor-pointer hover:text-gray-300 flex items-center gap-1"
                             >
-                                <p className="inline-block font-semibold text-xl pr-1">{followerCount}</p>
-                                Followers
+                                <span className="font-bold text-lg">{followerCount}</span>
+                                <span className="text-gray-400 text-sm">Followers</span>
                             </span>
                         </div>
-                        <p className="mt-2">{user?.bio}</p>
+                        <p className="mt-4 text-center md:text-left max-w-md">{user?.bio}</p>
                     </div>
                 </div>
                 <VideoSection userId={user?.id || 0} />
