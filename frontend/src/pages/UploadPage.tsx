@@ -5,6 +5,7 @@ import UploadPreview from '../components/UploadVideo/UploadPreview';
 import { usePreview } from '@/hooks/upload/usePreview';
 import Sidebar from '@/components/Layout/Sidebar';
 import Cancel from '@/components/UploadVideo/Cancel';
+import ActionBar from '@/components/Layout/ActionBar';
 
 const UploadVideo: React.FC = () => {
     const { file, preview, handleSelectFile, confirmCancel, thumbnail, showCancel, onShowCancel ,offShowCancel} = usePreview();
@@ -16,7 +17,7 @@ const UploadVideo: React.FC = () => {
         
                 onDrop={(e) => {e.preventDefault()}}
                 onDragOver={(e) => {e.preventDefault()}}>
-                    <NavigateBarUpload />
+                    <ActionBar/>
                     {/* <div className="text-center text-white pt-15 pb-15 gap-y-6 flex flex-col">
                         <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold">Upload Your Video</h1>
                     </div> */}

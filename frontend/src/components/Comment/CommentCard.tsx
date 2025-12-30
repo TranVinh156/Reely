@@ -5,7 +5,7 @@ import Delete from "./Delete";
 import axiosClient from "@/utils/axios.client";
 import { useAuth } from "@/hooks/auth/useAuth";
 import { h4 } from "motion/react-client";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { useFeedStore } from "@/store/feedStore";
 
 
@@ -57,11 +57,17 @@ const CommentCard: React.FC<CommentCardProps> = ({
   const [replyText, setReplyText] = useState("");
   const [showReportModal, setShowReportModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const { user } = useAuth();
+  const { user, isAuthenticated } = useAuth();
   const incrementCommentCount = useFeedStore((s) => s.incrementCommentCount);
   const avatarSrc = avatarUrl ? `http://localhost:9000/${avatarUrl}` : undefined;
+  const navigate = useNavigate()
 
   const handleSubmitReply = async () => {
+    if (!isAuthenticated) {
+      onNavigate?.()
+      navigate('/login')
+      return;
+    }
     if (replyText.trim()) {
       try {
         const response = await axiosClient.post('/comments', {

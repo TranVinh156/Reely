@@ -7,7 +7,6 @@ interface Props {
 }
 
 export const ShareModel: React.FC<Props> = ({onClose, videoUrl}) => {
-    console.log(videoUrl)
     const encodedUrl = encodeURIComponent(videoUrl);
 
     const handleCopy = () => {
