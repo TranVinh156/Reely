@@ -75,6 +75,8 @@ const Comment: React.FC<CommentProps> = ({ videoId, videoOwnerId, onClose, hideC
   }, [lastReplyAddedTo]);
 
   useEffect(() => {
+    if (!deleteCommentId[0]) return;
+
     if (deleteCommentId[1]) {
       decrementCommentCount(videoId.toString(), 1);
       setRepliesData(prev => ({
@@ -99,8 +101,8 @@ const Comment: React.FC<CommentProps> = ({ videoId, videoOwnerId, onClose, hideC
     } else {
       const commentToDelete = comments.find(c => c.id === deleteCommentId[0]);
       if (commentToDelete) {
-          const total = 1 + (commentToDelete.replyCount || 0);
-          decrementCommentCount(videoId.toString(), total);
+        const total = 1 + (commentToDelete.replyCount || 0);
+        decrementCommentCount(videoId.toString(), total);
       }
       // Xoá comment khỏi danh sách
       setComments(prev => prev.filter(c => c.id !== deleteCommentId[0]));
@@ -466,8 +468,8 @@ const Comment: React.FC<CommentProps> = ({ videoId, videoOwnerId, onClose, hideC
           onClick={handleSubmitComment}
           disabled={!commentText.trim()}
           className={`text-sm font-semibold px-4 py-1 rounded transition-colors flex items-center gap-2 cursor-pointer flex-shrink-0 ${commentText.trim()
-              ? 'text-[#FE2C55] hover:text-[#FE2C55]/60'
-              : 'text-white/40 cursor-not-allowed'
+            ? 'text-[#FE2C55] hover:text-[#FE2C55]/60'
+            : 'text-white/40 cursor-not-allowed'
             }`}
         >
           Post <Send size={20} />

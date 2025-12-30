@@ -15,7 +15,12 @@ export default function SearchVideoCard({ v }: { v: SearchVideoDTO }) {
         muted
         loop
         playsInline
-        onMouseEnter={(e) => e.currentTarget.play()}
+        onMouseEnter={(e) => {
+          const p = e.currentTarget.play();
+          if (p !== undefined) {
+            p.catch(() => { });
+          }
+        }}
         onMouseLeave={(e) => {
           e.currentTarget.pause();
           e.currentTarget.currentTime = 0;

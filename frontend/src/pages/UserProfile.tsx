@@ -16,6 +16,7 @@ import EditProfileModal from "@/components/Profile/EditProfileModal"
 import ChangePasswordModal from "@/components/Profile/ChangePasswordModal"
 import VideoSection from "@/components/Profile/VideoSection"
 import ActionBar from "@/components/Layout/ActionBar"
+import { STORAGE_URL } from "@/utils/constant"
 
 type ModalTab = 'followers' | 'following' | null
 
@@ -25,7 +26,6 @@ const UserProfile = () => {
     const [modalTab, setModalTab] = useState<ModalTab>(null)
     const [isEditProfileOpen, setIsEditProfileOpen] = useState(false)
     const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false)
-    const storageUrl = 'http://localhost:9000'
 
     const { data: user, error, isLoading, isError } = useGetUserByUsername(params.username || "")
     const { data: followingCount = 0 } = useGetFollowingCount(user?.id || 0)
@@ -39,7 +39,7 @@ const UserProfile = () => {
 
     const { mutate: followUser, isPending: isFollowing } = useFollow()
     const { mutate: unfollowUser, isPending: isUnfollowing } = useUnfollow()
-    
+
     const handleFollowToggle = () => {
         if (!currentUser || !user) return
 
@@ -84,7 +84,7 @@ const UserProfile = () => {
                                 <UserIcon className="text-black w-12 h-12 md:w-20 md:h-20" />
                             </div>
                             :
-                            <img src={`${storageUrl}/${user?.avatarUrl}`} alt={user?.username} className="w-full h-full rounded-full object-cover" />
+                            <img src={`${STORAGE_URL}/${user?.avatarUrl}`} alt={user?.username} className="w-full h-full rounded-full object-cover" />
                         }
                     </div>
                     <div className="flex flex-col items-center md:items-start w-full">
@@ -167,7 +167,7 @@ const UserProfile = () => {
             <EditProfileModal isOpen={isEditProfileOpen} onClose={() => setIsEditProfileOpen(false)} />
             <ChangePasswordModal isOpen={isChangePasswordOpen} onClose={() => setIsChangePasswordOpen(false)} />
 
-            <ActionBar/>
+            <ActionBar />
         </div>
     )
 }
