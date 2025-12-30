@@ -1,5 +1,6 @@
 // frontend/src/components/Video/ActionButtons.tsx
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import { useLocation } from "react-router-dom";
 import { useMediaQuery } from "@/hooks/feed/useMediaQuery";
 import { useFeedStore } from "@/store/feedStore";
 import Comment from "@/components/Comment/Comment";
@@ -30,6 +31,11 @@ export function ActionButtons({ video }: Props) {
   const activeCommentVideoId = useFeedStore((s) => s.activeCommentVideoId);
   const openComment = useFeedStore((s) => s.openComment);
   const closeComment = useFeedStore((s) => s.closeComment);
+  const location = useLocation();
+
+  useEffect(() => {
+    closeComment();
+  }, [location.pathname, closeComment]);
 
   // Initialize store with video.isLiked if not present
   useEffect(() => {

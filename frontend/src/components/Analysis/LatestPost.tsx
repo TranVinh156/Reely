@@ -2,6 +2,7 @@ import { get5LastestVideo, type Video } from "@/api/analysis";
 import { formatTimestamp } from "@/utils/formatTimestamp";
 import React, { useEffect, useState } from "react";
 import { Eye, Heart, MessageCircle, Calendar } from "lucide-react";
+import { NavLink } from "react-router-dom";
 
 const LatestPost: React.FC = () => {
     const [data, setData] = useState<Video[]>([]);
@@ -24,9 +25,9 @@ const LatestPost: React.FC = () => {
             <h2 className="text-xl font-bold text-gray-700 mb-4">Latest Videos</h2>
             <div className="flex flex-col">
                 {data.map((video, index) => (
-                    <div key={index} className="flex items-center justify-between p-3 bg-white rounded-lg border border-gray-300">
+                    <NavLink to={`/videos/${video.id}`} key={index} className="flex items-center justify-between p-3 bg-white rounded-lg border border-gray-300">
                         <div className="flex-1 min-w-0 mr-4">
-                            <h3 className="text-gray-700 font-medium truncate text-sm" title={video.title}>
+                            <h3 className="text-gray-700 font-medium truncate text-sm hover:underline" title={video.title}>
                                 {video.title || "Untitled Video"}
                             </h3>
                             <div className="flex items-center text-gray-400 text-xs mt-1">
@@ -49,7 +50,7 @@ const LatestPost: React.FC = () => {
                                 <span>{video.commentCount}</span>
                             </div>
                         </div>
-                    </div>
+                    </NavLink>
                 ))}
                 
                 {data.length === 0 && (

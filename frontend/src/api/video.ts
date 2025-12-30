@@ -78,3 +78,7 @@ export const getVideoById = async (id: number): Promise<Video> => {
     const data = response.data as BackendVideoDetailDTO;
     return mapVideoDetailToVideo(data);
 }
+
+export const deleteVideo = async (id: number): Promise<any> => {
+    await axiosClient.delete(`/videos/${id}`)
+}

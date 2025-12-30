@@ -1,13 +1,17 @@
 import VideoCard from "@/components/Video/VideoCard";
 import Comment from "@/components/Comment/Comment";
 import { useGetVideoById } from "@/hooks/video/useGetVideoById";
-import { NavLink, useParams } from "react-router-dom";
+import { NavLink, useParams, useNavigate } from "react-router-dom";
 import LoadingPage from "@/components/Auth/LoadingPage";
-import { Heart, MessageCircle, Play, UserIcon } from "lucide-react";
+import { Ellipsis, Heart, MessageCircle, Play, UserIcon } from "lucide-react";
 import { useAuth } from "@/hooks/auth/useAuth";
 import useIsFollowing from "@/hooks/follow/useIsFollowing";
 import useFollow from "@/hooks/follow/useFollow";
 import useUnfollow from "@/hooks/follow/useUnfollow";
+import { div } from "motion/react-client";
+import { useState } from "react";
+import DeleteVideoModal from "@/components/Layout/DeleteVideoModal";
+import { deleteVideo } from "@/api/video";
 
 const VideoPage = () => {
     const { id: videoId } = useParams();
@@ -26,6 +30,10 @@ const VideoPage = () => {
 
     const { mutate: followUser, isPending: isFollowing } = useFollow();
     const { mutate: unfollowUser, isPending: isUnfollowing } = useUnfollow();
+
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const navigate = useNavigate();
+    const [openDeleteOption, setDeleteOption] = useState(false);
 
     const handleFollowToggle = () => {
         if (!currentUser) return;
@@ -53,6 +61,25 @@ const VideoPage = () => {
     const numericVideoId = Number.parseInt(String(videoData.id), 10) || 0;
     const numericOwnerId = Number.parseInt(String(videoData.user.id), 10) || 0;
 
+    const deleteOption = (
+        <div className="absolute right-0 top-full z-50 w-32 rounded-lg bg-[#FE2C55] shadow-xl border border-white/10">
+            <button className="flex w-full px-2 py-2 text-left text-base text-white hover:bg-white/5 font-semibold justify-center cursor-pointer"
+                onClick={() => {setShowDeleteModal(true)}}>
+                Delete Video
+            </button>
+        </div>
+    )
+
+    const handleDeleteConfirm = async () => {
+        try {
+            await deleteVideo(parseInt(videoId ? videoId : '-1'));
+            setShowDeleteModal(false);
+            navigate(`/users/${currentUser?.username}`);
+        } catch (error) {
+            console.error("Failed to delete video:", error);
+        }
+    }
+
     return (
         <div className="flex h-screen text-white">
             <div className="flex flex-[3] items-center justify-center">
@@ -79,9 +106,9 @@ const VideoPage = () => {
                             <span className="truncate text-sm font-semibold">{videoData.user.username}</span>
                             <span className="truncate text-xs text-white/60">Người sáng tạo</span>
                         </div>
-                    </NavLink>
-                    {(creatorId != currentUser?.id) &&
-                        <button
+                    </NavLink>  
+                    {(creatorId != currentUser?.id) ? 
+                        (<button
                             onClick={handleFollowToggle}
                             disabled={isFollowing || isUnfollowing}
                             className={`px-4 py-1 text-sm rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${isFollowingUser
@@ -95,7 +122,15 @@ const VideoPage = () => {
                                     ? 'Unfollow'
                                     : 'Follow'
                             }
-                        </button>}
+                        </button>) : 
+                        (
+                            <div className="relative">
+                                <Ellipsis onClick={() => setDeleteOption(!openDeleteOption)} className="cursor-pointer" size={25}/>
+                                { openDeleteOption && deleteOption}
+                            </div>
+                            
+                        )}
+                    
                 </div>
 
                 <div className="px-4 py-3 text-sm">
@@ -121,6 +156,14 @@ const VideoPage = () => {
                     />
                 </div>
             </div>
+
+            {showDeleteModal && (
+                <DeleteVideoModal
+                username={currentUser?.username ? currentUser.username : "null"}
+                onClose={() => setShowDeleteModal(false)}
+                onConfirm={handleDeleteConfirm}
+            />
+      )}
         </div>
     );
 };
