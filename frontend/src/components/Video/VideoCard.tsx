@@ -40,7 +40,7 @@ export default function VideoCard({ video, loadMode = "idle" }: Props) {
   const shiftStyle = isCommentOpen && !isSmallScreen ? { transform: "translateX(-225px)" } : {};
 
   return (
-    <div className="relative flex h-screen w-full items-center justify-center bg-[#161823]">
+    <div className="relative flex h-full w-full items-center justify-center bg-[#161823]">
       <div
         className={`relative flex flex-col ${containerClasses[orientation]} justify-center overflow-hidden rounded-2xl bg-black transition-transform duration-300 ease-in-out`}
         style={shiftStyle}
