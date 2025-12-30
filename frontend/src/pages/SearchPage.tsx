@@ -1,11 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
-import { useNavigate, useSearchParams } from "react-router";
+import { NavLink, useNavigate, useSearchParams } from "react-router";
 import { useQuery } from "@tanstack/react-query";
 import Sidebar from "@/components/Layout/Sidebar";
 import LoadingPage from "@/components/Auth/LoadingPage";
 import { searchTags, searchUsers, searchVideos } from "../api/search";
 import SearchVideoCard from "../components/Search/SearchVideoCard";
 import ActionBar from "@/components/Layout/ActionBar";
+import UserAvatar from "@/components/Profile/UserAvatar";
+import FollowButton from "@/components/Search/FollowButton";
 
 type Tab = "videos" | "users" | "tags";
 
@@ -38,7 +40,6 @@ export default function SearchPage() {
   const [q, setQ] = useState(qParam);
   useEffect(() => setQ(qParam), [qParam]);
 
-  // Debounce: update URL 300ms after typing
   useEffect(() => {
     const t = setTimeout(() => {
       const next = new URLSearchParams(sp);
@@ -48,7 +49,6 @@ export default function SearchPage() {
       setSp(next, { replace: true });
     }, 300);
     return () => clearTimeout(t);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [q]);
 
   const tab: Tab = useMemo(() => {
@@ -140,16 +140,23 @@ export default function SearchPage() {
                       <button
                         key={u.id}
                         className="rounded-2xl border border-white/10 bg-white/5 p-4 text-left hover:bg-white/10"
-                        onClick={() => navigate(`/users/${u.username}`)}
                       >
-                        <div className="flex items-center gap-3">
-                          <div className="h-10 w-10 rounded-full bg-white/10" />
-                          <div className="min-w-0">
-                            <div className="truncate font-semibold">{u.displayName || u.username}</div>
-                            <div className="truncate text-sm text-white/70">@{u.username}</div>
+                        <div className="flex items-center gap-3 justify-between items-center">
+                          <div className="">
+                            <div className="flex gap-3">
+                              <UserAvatar avatarUrl={u.avatarUrl ?? ""} size={42} />
+                              <div className="min-w-0">
+                                <div className="truncate font-semibold">{u.displayName || u.username}</div>
+                                <div className="truncate text-sm text-white">@{u.username}</div>
+                              </div>
+                            </div>
+                            {!!u.bio && <div className="mt-2 line-clamp-2 text-sm text-white">{u.bio}</div>}
+                          </div>
+                          <div className="flex flex-col gap-2 font-semibold text-white">
+                            <FollowButton user={u} />
+                            <NavLink to={`/users/${u.username}`} className="px-6 py-1 rounded-lg bg-gray-600 text-center">View Profile</NavLink>
                           </div>
                         </div>
-                        {!!u.bio && <div className="mt-2 line-clamp-2 text-sm text-white/70">{u.bio}</div>}
                       </button>
                     ))}
                   </div>
