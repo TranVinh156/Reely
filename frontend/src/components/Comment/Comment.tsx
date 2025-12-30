@@ -143,7 +143,7 @@ const Comment: React.FC<CommentProps> = ({ videoId, videoOwnerId, onClose, hideC
     }
   };
 
-  // ✅ Function mới: Re-fetch replies
+  //  Function mới: Re-fetch replies
   const refetchReplies = async (commentId: string) => {
     setLoadingReplies(prev => ({ ...prev, [commentId]: true }));
 
@@ -284,6 +284,12 @@ const Comment: React.FC<CommentProps> = ({ videoId, videoOwnerId, onClose, hideC
     }
   };
 
+  const handleNavigate = () => {
+    if (!hideCloseButton) {
+      onClose();
+    }
+  };
+
   return (
     <div className="w-full h-full bg-[#1e1e1e] text-white flex flex-col">
       {/* Header */}
@@ -342,6 +348,7 @@ const Comment: React.FC<CommentProps> = ({ videoId, videoOwnerId, onClose, hideC
                 rootCommentId={comment.rootCommentId}
                 onReplyAdded={handleReplyAdded}
                 onDelete={handleDeleteComment}
+                onNavigate={handleNavigate}
               />
 
               {/* Nested Replies */}
@@ -369,6 +376,7 @@ const Comment: React.FC<CommentProps> = ({ videoId, videoOwnerId, onClose, hideC
                       rootCommentId={reply.rootCommentId}
                       onReplyAdded={handleReplyAdded}
                       onDelete={handleDeleteComment}
+                      onNavigate={handleNavigate}
                     />
                   ))}
                 </div>

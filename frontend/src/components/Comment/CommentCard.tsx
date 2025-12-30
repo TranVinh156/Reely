@@ -29,6 +29,7 @@ interface CommentCardProps {
   rootCommentId: string;
   onReplyAdded?: (rootCommentId: string) => void;
   onDelete?: (CommentId: string, rootCommentId: string) => void;
+  onNavigate?: () => void;
 }
 
 const CommentCard: React.FC<CommentCardProps> = ({
@@ -50,7 +51,8 @@ const CommentCard: React.FC<CommentCardProps> = ({
   commentId,
   rootCommentId,
   onReplyAdded,
-  onDelete
+  onDelete,
+  onNavigate
 }) => {
   const [replyText, setReplyText] = useState("");
   const [showReportModal, setShowReportModal] = useState(false);
@@ -126,7 +128,7 @@ const CommentCard: React.FC<CommentCardProps> = ({
       {/* Main Comment */}
       <div className="flex gap-3 px-4 py-2 w-full bg-[#1e1e1e]">
         {/* Avatar */}
-        <NavLink to={`/users/${username}`} className="flex flex-col justify-start pt-1">
+        <NavLink to={`/users/${username}`} onClick={onNavigate} className="flex flex-col justify-start pt-1">
           {avatarSrc ? <img
             src={avatarSrc}
             alt={username ? `${username} avatar` : 'avatar'}
@@ -142,7 +144,7 @@ const CommentCard: React.FC<CommentCardProps> = ({
         <div className="flex-1 min-w-0 flex flex-col gap-y-1">
           {/* Username */}
           <div className="flex items-center gap-3">
-            <NavLink to={`/users/${username}`}
+            <NavLink to={`/users/${username}`} onClick={onNavigate}
               className={`${isReply ? 'text-sm' : 'text-base'} font-semibold text-white cursor-pointer hover:underline`}>
               {username || 'Unknown'}
             </NavLink>
