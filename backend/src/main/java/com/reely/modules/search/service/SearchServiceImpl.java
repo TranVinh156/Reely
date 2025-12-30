@@ -35,14 +35,28 @@ public class SearchServiceImpl implements SearchService {
     private final FeedMapper feedMapper;
 
     @Override
-    public PageResponse<FeedVideoDTO> searchVideos(String q, Pageable pageable, Long viewerId) {
-        if (q == null || q.trim().isEmpty()) {
+    public PageResponse<FeedVideoDTO> searchVideos(String q, String tag, Pageable pageable, Long viewerId) {
+        String qTrim = q == null ? "" : q.trim();
+        String tagTrim = tag == null ? null : tag.trim();
+        if (tagTrim != null && tagTrim.startsWith("#")) tagTrim = tagTrim.substring(1).trim();
+
+        boolean hasQuery = !qTrim.isEmpty();
+        boolean hasTag = tagTrim != null && !tagTrim.isEmpty();
+
+        if (!hasQuery && !hasTag) {
             return new PageResponse<>(pageable.getPageNumber(), pageable.getPageSize(), 0, List.of());
         }
 
         Pageable noSort = Pageable.ofSize(pageable.getPageSize()).withPage(pageable.getPageNumber());
 
-        Page<Video> page = videoRepository.searchPublicVideos(q.trim(), noSort);
+        Page<Video> page;
+        if (hasQuery && hasTag) {
+            page = videoRepository.searchPublicVideosByTag(qTrim, tagTrim, noSort);
+        } else if (hasTag) {
+            page = videoRepository.findPublicVideosByTagName(tagTrim, noSort);
+        } else {
+            page = videoRepository.searchPublicVideos(qTrim, noSort);
+        }
 
         List<FeedVideoDTO> dtos = page.getContent().stream()
             .map(v -> toFeedDTO(v, viewerId))

@@ -28,11 +28,12 @@ public class SearchController {
     @GetMapping("/search/videos")
     public PageResponse<FeedVideoDTO> searchVideos(
             @RequestParam(name = "q", defaultValue = "") String q,
+            @RequestParam(name = "tag", required = false) String tag,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestHeader(value = "X-UserId", required = false) Long viewerId) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
-        return searchService.searchVideos(q, pageable, viewerId);
+        return searchService.searchVideos(q, tag, pageable, viewerId);
     }
 
     @GetMapping("/search/users")

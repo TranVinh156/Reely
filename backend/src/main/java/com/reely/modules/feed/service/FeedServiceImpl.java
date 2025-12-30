@@ -125,6 +125,8 @@ public class FeedServiceImpl implements FeedService {
                 .viewCount(video.getViewCount())
                 .likeCount(video.getLikeCount())
                 .commentCount(video.getCommentCount())
+            .durationSeconds(video.getDurationSeconds())
+            .tags(video.getTags() == null ? List.of() : video.getTags().stream().map(Tag::getName).toList())
                 .createdAt(video.getCreatedAt())
                 // .comments(commentDTOs)
                 .build();
