@@ -1,6 +1,4 @@
 import React, { useState } from "react";
-import logo from "../../assets/logo.png";
-import testAvatar from "../../assets/testAvatar.jpeg";
 import { useAuth } from "@/hooks/auth/useAuth";
 import { NavLink } from "react-router-dom";
 import { ChevronDown } from "lucide-react";

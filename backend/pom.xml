@@ -117,6 +117,8 @@
             <groupId>io.minio</groupId>
             <artifactId>minio</artifactId>
             <version>8.6.0</version>
+        </dependency>
+
         <!-- https://mvnrepository.com/artifact/io.lettuce/lettuce-core -->
         <dependency>
             <groupId>io.lettuce</groupId>

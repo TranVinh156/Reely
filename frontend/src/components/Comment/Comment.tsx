@@ -1,4 +1,4 @@
-import React, {useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import CommentCard from "./CommentCard";
 import { X, ChevronDown, Paperclip, Smile, Send, ChevronUp } from "lucide-react";
 import { formatTimestamp } from "../../utils/formatTimestamp.ts";
@@ -23,13 +23,19 @@ interface CommentData {
   username: string;
   comment: string;
   timestamp: string;
-  avatarUrl: string;  
+  avatarUrl: string;
   replyCount?: number;
   rootCommentId: string;
 }
+interface CommentProps {
+  videoId: number;
+  videoOwnerId: number;
+  onClose: () => void;
+  hideCloseButton?: boolean;
+}
 
-const Comment: React.FC<{ videoId: number, videoOwnerId: number , onClose: () => void }> = ({ videoId, videoOwnerId, onClose }) => {
-  
+const Comment: React.FC<CommentProps> = ({ videoId, videoOwnerId, onClose, hideCloseButton = false }) => {
+
   const [comments, setComments] = useState<CommentData[]>([]);
   const [isLoadingComments, setIsLoadingComments] = useState(false);
 
@@ -46,9 +52,9 @@ const Comment: React.FC<{ videoId: number, videoOwnerId: number , onClose: () =>
   const [currentPage, setCurrentPage] = useState(0);
   const [hasMoreComments, setHasMoreComments] = useState(true);
 
-  const {user} = useAuth();
+  const { user } = useAuth();
   const incrementCommentCount = useFeedStore((s) => s.incrementCommentCount);
-  
+
   useEffect(() => {
     setComments([]);
     fetchComments(0);
@@ -72,9 +78,9 @@ const Comment: React.FC<{ videoId: number, videoOwnerId: number , onClose: () =>
         [deleteCommentId[1]]: prev[deleteCommentId[1]]?.filter(r => r.id !== deleteCommentId[0]) || []
       }));
 
-      setComments(prev => 
-        prev.map(c => 
-          c.id === deleteCommentId[1] 
+      setComments(prev =>
+        prev.map(c =>
+          c.id === deleteCommentId[1]
             ? { ...c, replyCount: Math.max(0, (c.replyCount || 0) - 1) }
             : c
         )
@@ -86,7 +92,7 @@ const Comment: React.FC<{ videoId: number, videoOwnerId: number , onClose: () =>
         [deleteCommentId[1]]: Math.max(0, (prev[deleteCommentId[1]] || 0) - 1)
       }));
 
-  } else {
+    } else {
       // Xoá comment khỏi danh sách
       setComments(prev => prev.filter(c => c.id !== deleteCommentId[0]));
 
@@ -96,14 +102,14 @@ const Comment: React.FC<{ videoId: number, videoOwnerId: number , onClose: () =>
         delete newData[deleteCommentId[0]];
         return newData;
       });
-    
+
       // Xóa showReplies của comment đó
       setShowReplies(prev => {
         const newState = { ...prev };
         delete newState[deleteCommentId[0]];
         return newState;
       });
-      
+
     }
   }, [deleteCommentId]);
 
@@ -137,7 +143,7 @@ const Comment: React.FC<{ videoId: number, videoOwnerId: number , onClose: () =>
     try {
       const response = await axiosClient.get(`/comments/replies?rootCommentId=${commentId}`);
       let replies: Reply[] = response.data.data;
-      
+
       // Update repliesData
       setRepliesData(prev => ({
         ...prev,
@@ -151,9 +157,9 @@ const Comment: React.FC<{ videoId: number, videoOwnerId: number , onClose: () =>
       }));
 
       // Update replyCount của root comment
-      setComments(prev => 
-        prev.map(c => 
-          c.id === commentId 
+      setComments(prev =>
+        prev.map(c =>
+          c.id === commentId
             ? { ...c, replyCount: replies.length }
             : c
         )
@@ -176,7 +182,7 @@ const Comment: React.FC<{ videoId: number, videoOwnerId: number , onClose: () =>
 
   const closeMenu = () => setActiveMenuId(null);
 
-  const handleSubmitComment = async() => {
+  const handleSubmitComment = async () => {
     if (commentText.trim()) {
       try {
         const response = await axiosClient.post('/comments', {
@@ -190,7 +196,7 @@ const Comment: React.FC<{ videoId: number, videoOwnerId: number , onClose: () =>
         incrementCommentCount(videoId.toString());
       } catch (error) {
         console.error('Error submitting comment:', error);
-      }   
+      }
     }
     closeMenu();
   };
@@ -205,9 +211,9 @@ const Comment: React.FC<{ videoId: number, videoOwnerId: number , onClose: () =>
 
     try {
       const response = await axiosClient.get(`/comments/replies?rootCommentId=${commentId}`);
-      
+
       let replies: Reply[] = response.data.data;
-      
+
       // Lưu replies vào state
       setRepliesData(prev => ({
         ...prev,
@@ -230,8 +236,8 @@ const Comment: React.FC<{ videoId: number, videoOwnerId: number , onClose: () =>
   const toggleShowMoreReplies = (commentId: string) => {
     const currentCount = showReplies[commentId] || 0;
     const totalReplies = repliesData[commentId]?.length || 0;
-    
-    
+
+
     setShowReplies(prev => ({
       ...prev,
       [commentId]: Math.min(currentCount + 5, totalReplies),
@@ -267,25 +273,28 @@ const Comment: React.FC<{ videoId: number, videoOwnerId: number , onClose: () =>
     if (scrollTop + clientHeight >= scrollHeight - 50) {
       if (hasMoreComments && !isLoadingComments) {
         fetchComments(currentPage + 1);
+      }
     }
-  }};
+  };
 
   return (
     <div className="w-full h-full bg-[#1e1e1e] text-white flex flex-col">
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-4">
         <h2 className="text-lg font-semibold">Comment</h2>
-        <button className="p-2 hover:bg-white/10 rounded-full transition-colors" onClick={onClose}>
-          <X size={20} />
-        </button>
+        {!hideCloseButton && (
+          <button className="p-2 hover:bg-white/10 rounded-full transition-colors" onClick={onClose}>
+            <X size={20} />
+          </button>
+        )}
       </div>
 
       {/* Comment List */}
-      <div 
+      <div
         className="flex-1 overflow-y-auto overflow-x-hidden [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-white/20 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:hover:bg-white/30"
         onScroll={handleScroll}
       >
-        
+
         {/* ✅ Loading State */}
         {isLoadingComments && (
           <div className="flex items-center justify-center h-32">
@@ -306,104 +315,104 @@ const Comment: React.FC<{ videoId: number, videoOwnerId: number , onClose: () =>
           const isLoading = loadingReplies[comment.id] || false;
 
           return (
-          <div key={comment.id}>
-            {/* Main Comment */}
-            <CommentCard
-              videoOwnerId={videoOwnerId}
-              ownerId={comment.ownerId}
-              username={comment.username}
-              comment={comment.comment}
-              timestamp={formatTimestamp(comment.timestamp)}
-              avatarUrl={comment.avatarUrl}
-              showReplyInput={activeReplyId === comment.id}
-              onReplyClick={() => setActiveReplyId(comment.id)}
-              onReplyClose={() => setActiveReplyId(null)}
-              showMenu={activeMenuId === comment.id}
-              onMenuClick={() => setActiveMenuId(comment.id)}
-              onMenuClose={() => setActiveMenuId(null)}
-              videoId={videoId}
-              commentId={comment.id}
-              rootCommentId={comment.rootCommentId}
-              onReplyAdded={handleReplyAdded}
-              onDelete={handleDeleteComment}
-            />
-            
-            {/* Nested Replies */}
-            {showCount > 0 && replies.length > 0 && (
-              <div className="ml-10">
-                {replies.slice(0, showCount).map((reply) => (
-                  <CommentCard
-                    videoOwnerId={videoOwnerId}
-                    key={reply.id}
-                    ownerId={reply.ownerId}
-                    username={reply.username}
-                    comment={reply.comment}
-                    timestamp={formatTimestamp(reply.timestamp)}
-                    avatarUrl={reply.avatarUrl}
-                    isReply={true}
-                    usernameReplied={reply.usernameReplied}
-                    showReplyInput={activeReplyId === reply.id}
-                    onReplyClick={() => handleReplyClick(reply.id)}
-                    onReplyClose={() => setActiveReplyId(null)}
-                    showMenu={activeMenuId === reply.id}
-                    onMenuClick={() => setActiveMenuId(reply.id)}
-                    onMenuClose={closeMenu}
-                    videoId={videoId}
-                    commentId={reply.id}
-                    rootCommentId={reply.rootCommentId}
-                    onReplyAdded={handleReplyAdded}
-                    onDelete={handleDeleteComment}
-                  />
-                ))}
-              </div>
-            )}
-            
+            <div key={comment.id}>
+              {/* Main Comment */}
+              <CommentCard
+                videoOwnerId={videoOwnerId}
+                ownerId={comment.ownerId}
+                username={comment.username}
+                comment={comment.comment}
+                timestamp={formatTimestamp(comment.timestamp)}
+                avatarUrl={comment.avatarUrl}
+                showReplyInput={activeReplyId === comment.id}
+                onReplyClick={() => setActiveReplyId(comment.id)}
+                onReplyClose={() => setActiveReplyId(null)}
+                showMenu={activeMenuId === comment.id}
+                onMenuClick={() => setActiveMenuId(comment.id)}
+                onMenuClose={() => setActiveMenuId(null)}
+                videoId={videoId}
+                commentId={comment.id}
+                rootCommentId={comment.rootCommentId}
+                onReplyAdded={handleReplyAdded}
+                onDelete={handleDeleteComment}
+              />
 
-            {/* View Replies Button */}
-            {comment.replyCount !== undefined && comment.replyCount > 0 && (
-            <div className="pt-1 ml-20 flex gap-15">
-
-              {/* Loading spinner */}
-              {isLoading && (
-                <div className="flex items-center gap-2 text-xs text-white/60">
-                  <div className="animate-spin rounded-full h-3 w-3 border-b border-white/60"></div>
-                  <span>Loading replies...</span>
+              {/* Nested Replies */}
+              {showCount > 0 && replies.length > 0 && (
+                <div className="ml-10">
+                  {replies.slice(0, showCount).map((reply) => (
+                    <CommentCard
+                      videoOwnerId={videoOwnerId}
+                      key={reply.id}
+                      ownerId={reply.ownerId}
+                      username={reply.username}
+                      comment={reply.comment}
+                      timestamp={formatTimestamp(reply.timestamp)}
+                      avatarUrl={reply.avatarUrl}
+                      isReply={true}
+                      usernameReplied={reply.usernameReplied}
+                      showReplyInput={activeReplyId === reply.id}
+                      onReplyClick={() => handleReplyClick(reply.id)}
+                      onReplyClose={() => setActiveReplyId(null)}
+                      showMenu={activeMenuId === reply.id}
+                      onMenuClick={() => setActiveMenuId(reply.id)}
+                      onMenuClose={closeMenu}
+                      videoId={videoId}
+                      commentId={reply.id}
+                      rootCommentId={reply.rootCommentId}
+                      onReplyAdded={handleReplyAdded}
+                      onDelete={handleDeleteComment}
+                    />
+                  ))}
                 </div>
               )}
 
-              {/* View More button */}
-              {!isLoading && showCount < (repliesData[comment.id]?.length || comment.replyCount) && (
-                <button
-                  onClick={() => handleViewReplies(comment.id)}
-                  className="flex items-center gap-2 text-xs text-white/60 hover:text-white transition-colors"
-                >
-                  <div className="h-px bg-white/20 w-10"></div>
-                  <span className="whitespace-nowrap">
-                    {showCount === 0 
-                      ? `View ${comment.replyCount} replies`
-                      : `View ${comment.replyCount - showCount} more replies`
-                    }
-                  </span>
-                  <ChevronDown size={14} />
-                </button>
-              )}
-              
 
-              {/* Hide button */}
-              {!isLoading && showCount > 0 && (
-                <button
-                  onClick={() => hideReplies(comment.id)}
-                  className="flex items-center gap-2 text-xs text-white/60 hover:text-white transition-colors"
-                >
-                  <span className="whitespace-nowrap">Hide</span>
-                  <ChevronUp size={14} />
-                </button>
+              {/* View Replies Button */}
+              {comment.replyCount !== undefined && comment.replyCount > 0 && (
+                <div className="pt-1 ml-20 flex gap-15">
+
+                  {/* Loading spinner */}
+                  {isLoading && (
+                    <div className="flex items-center gap-2 text-xs text-white/60">
+                      <div className="animate-spin rounded-full h-3 w-3 border-b border-white/60"></div>
+                      <span>Loading replies...</span>
+                    </div>
+                  )}
+
+                  {/* View More button */}
+                  {!isLoading && showCount < (repliesData[comment.id]?.length || comment.replyCount) && (
+                    <button
+                      onClick={() => handleViewReplies(comment.id)}
+                      className="flex items-center gap-2 text-xs text-white/60 hover:text-white transition-colors"
+                    >
+                      <div className="h-px bg-white/20 w-10"></div>
+                      <span className="whitespace-nowrap">
+                        {showCount === 0
+                          ? `View ${comment.replyCount} replies`
+                          : `View ${comment.replyCount - showCount} more replies`
+                        }
+                      </span>
+                      <ChevronDown size={14} />
+                    </button>
+                  )}
+
+
+                  {/* Hide button */}
+                  {!isLoading && showCount > 0 && (
+                    <button
+                      onClick={() => hideReplies(comment.id)}
+                      className="flex items-center gap-2 text-xs text-white/60 hover:text-white transition-colors"
+                    >
+                      <span className="whitespace-nowrap">Hide</span>
+                      <ChevronUp size={14} />
+                    </button>
+                  )}
+                </div>
+
               )}
             </div>
-            
-            )}
-          </div>
-        )
+          )
         }
         )}
       </div>
@@ -432,11 +441,10 @@ const Comment: React.FC<{ videoId: number, videoOwnerId: number , onClose: () =>
         <button
           onClick={handleSubmitComment}
           disabled={!commentText.trim()}
-          className={`text-sm font-semibold px-4 py-1 rounded transition-colors flex items-center gap-2 cursor-pointer flex-shrink-0 ${
-            commentText.trim()
+          className={`text-sm font-semibold px-4 py-1 rounded transition-colors flex items-center gap-2 cursor-pointer flex-shrink-0 ${commentText.trim()
               ? 'text-[#FE2C55] hover:text-[#FE2C55]/60'
               : 'text-white/40 cursor-not-allowed'
-          }`}
+            }`}
         >
           Post <Send size={20} />
         </button>

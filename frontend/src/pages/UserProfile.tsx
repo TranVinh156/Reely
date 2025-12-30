@@ -155,8 +155,6 @@ const UserProfile = () => {
                 {content}
             </div>
 
-
-
             <FollowModal
                 userId={user?.id || 0}
                 username={user?.username || 'user'}

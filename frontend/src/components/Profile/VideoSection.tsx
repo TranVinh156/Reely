@@ -2,6 +2,7 @@ import { useGetUserVideos } from "@/hooks/video/useGetUserVideos"
 import { Heart, Video, Play, Loader2 } from "lucide-react"
 import { useState, useEffect } from "react"
 import { useInView } from "react-intersection-observer"
+import { NavLink } from "react-router-dom";
 
 interface VideoSectionProps {
     userId: number;
@@ -60,7 +61,7 @@ const VideoSection = ({ userId }: VideoSectionProps) => {
                             <div className="col-span-full text-center text-gray-500 py-10">No videos yet</div>
                         ) : (
                             videos.map((video) => (
-                                <div key={video.id} className="aspect-[10/16] bg-gray-900 rounded-lg overflow-hidden relative group cursor-pointer">
+                                <NavLink to={`/videos/${video.id}`} key={video.id} className="aspect-[10/16] bg-gray-900 rounded-lg overflow-hidden relative group cursor-pointer">
                                     <video
                                         src={`${storageUrl}${video.originalS3Key}`}
                                         className="w-full h-full object-cover"
@@ -77,7 +78,7 @@ const VideoSection = ({ userId }: VideoSectionProps) => {
                                         <Play size={12} fill="white" />
                                         <span>{video.viewCount}</span>
                                     </div>
-                                </div>
+                                </NavLink>
                             ))
                         )}
                     </div>

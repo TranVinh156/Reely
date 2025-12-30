@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import type { FeedMode } from "@/api/feed";
 
 interface FeedState {
   autoScroll: boolean;
@@ -10,6 +11,7 @@ interface FeedState {
   currentIndex: number;
   isActionBarVisible: boolean;
   activeCommentVideoId: string | null;
+  mode: FeedMode;
   setCurrentIndex: (i: number) => void
   setActionBarVisible: (visible: boolean) => void;
   openComment: (id: string) => void;
@@ -22,6 +24,7 @@ interface FeedState {
   toggleSave: (id: string) => void;
   setCommentCount: (id: string, count: number) => void;
   incrementCommentCount: (id: string) => void;
+  setMode: (mode: FeedMode) => void;
 }
 
 export const useFeedStore = create<FeedState>((set) => ({
@@ -34,6 +37,7 @@ export const useFeedStore = create<FeedState>((set) => ({
   currentIndex: 0,
   isActionBarVisible: true,
   activeCommentVideoId: null,
+  mode: "public",
   setCurrentIndex: (i) => set(() => ({ currentIndex: i })),
   setActionBarVisible: (visible) => set(() => ({ isActionBarVisible: visible })),
   openComment: (id) => set(() => ({ activeCommentVideoId: id, isActionBarVisible: false })),
@@ -56,4 +60,5 @@ export const useFeedStore = create<FeedState>((set) => ({
         [id]: (s.commentCounts[id] || 0) + 1,
       },
     })),
+  setMode: (mode) => set(() => ({ mode })),
 }));
