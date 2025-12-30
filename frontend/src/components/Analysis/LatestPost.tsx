@@ -21,7 +21,7 @@ const LatestPost: React.FC = () => {
     }, [])
     
     return (
-        <div className="flex-3 bg-white rounded-xl p-6 h-full overflow-y-auto">
+        <div className="lg:flex-[3] w-full bg-white rounded-xl p-6 h-80 overflow-y-auto">
             <h2 className="text-xl font-bold text-gray-700 mb-4">Latest Videos</h2>
             <div className="flex flex-col">
                 {data.map((video, index) => (

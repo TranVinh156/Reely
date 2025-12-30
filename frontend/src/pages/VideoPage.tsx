@@ -8,7 +8,6 @@ import { useAuth } from "@/hooks/auth/useAuth";
 import useIsFollowing from "@/hooks/follow/useIsFollowing";
 import useFollow from "@/hooks/follow/useFollow";
 import useUnfollow from "@/hooks/follow/useUnfollow";
-import { div } from "motion/react-client";
 import { useState } from "react";
 import DeleteVideoModal from "@/components/Layout/DeleteVideoModal";
 import { deleteVideo } from "@/api/video";
@@ -90,7 +89,7 @@ const VideoPage = () => {
                     <ChevronLeft size={24} color="white" />
                 </button>
                 <div className="flex h-full w-full items-center justify-center">
-                    <VideoCard video={videoData} loadMode="active" />
+                    <VideoCard video={videoData} loadMode="active" isFeed={false} />
                 </div>
             </div>
 
