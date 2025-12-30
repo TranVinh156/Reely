@@ -1,9 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
-import { useNavigate, useSearchParams } from "react-router";
+import { NavLink, useNavigate, useSearchParams } from "react-router";
 import { useQuery } from "@tanstack/react-query";
 import Sidebar from "@/components/Layout/Sidebar";
+import LoadingPage from "@/components/Auth/LoadingPage";
 import { searchTags, searchUsers, searchVideos } from "../api/search";
 import SearchVideoCard from "../components/Search/SearchVideoCard";
+import ActionBar from "@/components/Layout/ActionBar";
+import UserAvatar from "@/components/Profile/UserAvatar";
+import FollowButton from "@/components/Search/FollowButton";
 
 type Tab = "videos" | "users" | "tags";
 
@@ -18,9 +22,8 @@ function TabButton({
 }) {
   return (
     <button
-      className={`rounded-full px-4 py-2 text-sm ${
-        active ? "bg-white/15" : "bg-white/5 hover:bg-white/10"
-      }`}
+      className={`rounded-full px-4 py-2 text-sm ${active ? "bg-white/15" : "bg-white/5 hover:bg-white/10"
+        }`}
       onClick={onClick}
     >
       {label}
@@ -37,7 +40,6 @@ export default function SearchPage() {
   const [q, setQ] = useState(qParam);
   useEffect(() => setQ(qParam), [qParam]);
 
-  // Debounce: update URL 300ms after typing
   useEffect(() => {
     const t = setTimeout(() => {
       const next = new URLSearchParams(sp);
@@ -47,7 +49,6 @@ export default function SearchPage() {
       setSp(next, { replace: true });
     }, 300);
     return () => clearTimeout(t);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [q]);
 
   const tab: Tab = useMemo(() => {
@@ -83,9 +84,9 @@ export default function SearchPage() {
     <div className="bg-primary min-h-screen text-white">
       <div className="flex gap-6">
         <Sidebar />
-        <div className="flex-1">
-          <div className="bg-primary/95 sticky top-0 z-10 border-b border-white/10 backdrop-blur">
-            <div className="mx-auto flex max-w-3xl items-center gap-2 p-3">
+        <div className="flex-1 mt-6">
+          <div className="bg-primary/95 sticky top-0 z-10 backdrop-blur">
+            <div className="flex md:hidden mx-auto max-w-7xl items-center gap-2 p-3">
               <input
                 value={q}
                 onChange={(e) => setQ(e.target.value)}
@@ -103,15 +104,14 @@ export default function SearchPage() {
                 Cancel
               </button>
             </div>
-
-            <div className="mx-auto flex max-w-3xl items-center gap-2 px-3 pb-3">
+            <div className="mx-auto flex max-w-7xl items-center gap-2 px-3 pb-3">
               <TabButton active={tab === "videos"} label="Videos" onClick={() => setTab("videos")} />
               <TabButton active={tab === "users"} label="Users" onClick={() => setTab("users")} />
               <TabButton active={tab === "tags"} label="Tags" onClick={() => setTab("tags")} />
             </div>
           </div>
 
-          <div className="mx-auto max-w-3xl p-3">
+          <div className="mx-auto max-w-7xl p-3">
             {!canSearch ? (
               <div className="rounded-2xl border border-white/10 bg-white/5 p-6 text-white/70">
                 Type something to search.
@@ -119,9 +119,9 @@ export default function SearchPage() {
             ) : tab === "videos" ? (
               <div>
                 {videosQuery.isLoading ? (
-                  <div className="text-white/70">Loading…</div>
+                  <LoadingPage />
                 ) : videosQuery.data?.content?.length ? (
-                  <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
                     {videosQuery.data.content.map((v) => (
                       <SearchVideoCard key={v.videoId} v={v} />
                     ))}
@@ -133,23 +133,30 @@ export default function SearchPage() {
             ) : tab === "users" ? (
               <div>
                 {usersQuery.isLoading ? (
-                  <div className="text-white/70">Loading…</div>
+                  <LoadingPage />
                 ) : usersQuery.data?.content?.length ? (
                   <div className="flex flex-col gap-2">
                     {usersQuery.data.content.map((u) => (
                       <button
                         key={u.id}
                         className="rounded-2xl border border-white/10 bg-white/5 p-4 text-left hover:bg-white/10"
-                        onClick={() => navigate(`/users/${u.username}`)}
                       >
-                        <div className="flex items-center gap-3">
-                          <div className="h-10 w-10 rounded-full bg-white/10" />
-                          <div className="min-w-0">
-                            <div className="truncate font-semibold">{u.displayName || u.username}</div>
-                            <div className="truncate text-sm text-white/70">@{u.username}</div>
+                        <div className="flex items-center gap-3 justify-between items-center">
+                          <div className="">
+                            <div className="flex gap-3">
+                              <UserAvatar avatarUrl={u.avatarUrl ?? ""} size={42} />
+                              <div className="min-w-0">
+                                <div className="truncate font-semibold">{u.displayName || u.username}</div>
+                                <div className="truncate text-sm text-white">@{u.username}</div>
+                              </div>
+                            </div>
+                            {!!u.bio && <div className="mt-2 line-clamp-2 text-sm text-white">{u.bio}</div>}
+                          </div>
+                          <div className="flex flex-col gap-2 font-semibold text-white">
+                            <FollowButton user={u} />
+                            <NavLink to={`/users/${u.username}`} className="px-6 py-1 rounded-lg bg-gray-600 text-center">View Profile</NavLink>
                           </div>
                         </div>
-                        {!!u.bio && <div className="mt-2 line-clamp-2 text-sm text-white/70">{u.bio}</div>}
                       </button>
                     ))}
                   </div>
@@ -160,7 +167,7 @@ export default function SearchPage() {
             ) : (
               <div>
                 {tagsQuery.isLoading ? (
-                  <div className="text-white/70">Loading…</div>
+                  <LoadingPage />
                 ) : tagsQuery.data?.content?.length ? (
                   <div className="flex flex-col gap-2">
                     {tagsQuery.data.content.map((t) => (
@@ -184,6 +191,7 @@ export default function SearchPage() {
           </div>
         </div>
       </div>
+      <ActionBar />
     </div>
   );
 }

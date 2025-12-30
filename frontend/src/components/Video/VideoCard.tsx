@@ -23,9 +23,9 @@ export default function VideoCard({ video, loadMode = "idle" }: Props) {
   };
 
   const containerClasses = {
-    landscape: "max-w-[90vh] h-[70%]",
-    portrait: "w-auto h-[90vh] max-w-[50vh]", // Ví dụ: cao 90% viewport, rộng tối đa 50vh
-    square: "w-[70%] h-[70%]", // Giống landscape
+    landscape: "max-w-[90vh] h-[60%]",
+    portrait: "w-auto h-[80%] max-w-[50vh]", // Ví dụ: cao 90% viewport, rộng tối đa 50vh
+    square: "w-[70%] h-[60%]", // Giống landscape
   };
 
   // If comments are open, shift the video container to the left

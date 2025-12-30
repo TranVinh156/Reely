@@ -5,7 +5,7 @@ const useIsFollowing = (followerId: number, followingId: number, enabled: boolea
     return useQuery({
         queryKey: ['isFollowing', followerId, followingId],
         queryFn: () => isFollowing(followerId, followingId),
-        enabled: enabled && followerId > 0 && followingId > 0,
+        enabled: enabled && followerId >= 0 && followingId >= 0,
     })
 }
 

@@ -33,6 +33,7 @@ export type SearchUserDTO = {
   displayName?: string | null;
   avatarUrl?: string | null;
   bio?: string | null;
+  isFollowed?: boolean | null;
 };
 
 export type SearchTagDTO = {

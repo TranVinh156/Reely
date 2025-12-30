@@ -190,15 +190,14 @@ public class CommentServiceImpl implements CommentService {
             }
             ObjectMapper mapper = new ObjectMapper();
 
-            Map<String, Object> payloadMap = Map.of(
-                    "actorId", user.getId(),
-                    "actorUsername", user.getUsername(),
-                    "actorAvatar", user.getAvatarUrl(),
-                    "message", content,
-                    "videoId", video.getId(),
-                    "commentId", comment.getId(),
-                    "replyCommentId", replyComment != null ? replyComment.getId() : -1
-            );
+            Map<String, Object> payloadMap = new HashMap<>();
+            payloadMap.put("actorId", user.getId());
+            payloadMap.put("actorUsername", user.getUsername());
+            payloadMap.put("actorAvatar", user.getAvatarUrl());
+            payloadMap.put("message", content);
+            payloadMap.put("videoId", video.getId());
+            payloadMap.put("commentId", comment.getId());
+            payloadMap.put("replyCommentId", replyComment != null ? replyComment.getId() : -1);
 
             String payload = mapper.writeValueAsString(payloadMap);
 
@@ -208,12 +207,14 @@ public class CommentServiceImpl implements CommentService {
                     .readFlag(0)
                     .payload(payload)
                     .build();
+
+            System.out.println(notificationRequestDto);
             this.rabbitTemplate.convertAndSend(
                     RabbitMQConfig.COMMENT_EXCHANGE,
                     RabbitMQConfig.COMMENT_ROUTING_KEY,
                     notificationRequestDto);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            System.err.println("Failed to send notification: " + e.getMessage());
         }
 
     }

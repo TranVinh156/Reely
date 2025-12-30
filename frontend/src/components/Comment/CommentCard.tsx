@@ -1,4 +1,4 @@
-import { Paperclip, Send, Smile, X, Ellipsis, Flag, ChevronRight} from "lucide-react";
+import { Paperclip, Send, Smile, X, Ellipsis, Flag, ChevronRight, UserIcon } from "lucide-react";
 import React, { useState } from "react";
 import Report from "./Report";
 import Delete from "./Delete";
@@ -6,6 +6,7 @@ import axiosClient from "@/utils/axios.client";
 import { useAuth } from "@/hooks/auth/useAuth";
 import { h4 } from "motion/react-client";
 import { NavLink } from "react-router-dom";
+import { useFeedStore } from "@/store/feedStore";
 
 
 interface CommentCardProps {
@@ -54,9 +55,9 @@ const CommentCard: React.FC<CommentCardProps> = ({
   const [replyText, setReplyText] = useState("");
   const [showReportModal, setShowReportModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const {user} = useAuth();
-
-  avatarUrl = "http://localhost:9000/" + avatarUrl;
+  const { user } = useAuth();
+  const incrementCommentCount = useFeedStore((s) => s.incrementCommentCount);
+  const avatarSrc = avatarUrl ? `http://localhost:9000/${avatarUrl}` : undefined;
 
   const handleSubmitReply = async () => {
     if (replyText.trim()) {
@@ -72,22 +73,23 @@ const CommentCard: React.FC<CommentCardProps> = ({
         onReplyAdded?.(targetRootId);
         setReplyText("");
         if (onReplyClose) onReplyClose();
+        incrementCommentCount(videoId.toString());
       } catch (error) {
         console.error("Error submitting reply:", error);
       }
-      
+
     }
   };
 
   const handleViewMenu = () => {
     if (showMenu) {
-      onMenuClose?.(); 
+      onMenuClose?.();
     } else {
       onMenuClick?.();
     }
   };
 
-   const handleReportClick = () => {
+  const handleReportClick = () => {
     setShowReportModal(true);
     onMenuClose?.(); // Đóng menu report
   };
@@ -125,11 +127,15 @@ const CommentCard: React.FC<CommentCardProps> = ({
       <div className="flex gap-3 px-4 py-2 w-full bg-[#1e1e1e]">
         {/* Avatar */}
         <div className="flex flex-col justify-start pt-1">
-          <img
-            src={avatarUrl}
+          {avatarSrc ? <img
+            src={avatarSrc}
             alt={username ? `${username} avatar` : 'avatar'}
             className={`${avatarSize} rounded-full flex-shrink-0 object-cover`}
-          />
+          /> :
+            <div className="bg-white rounded-full">
+              <UserIcon color="black" size={30} />
+            </div>
+          }
         </div>
 
         {/* Content */}
@@ -138,18 +144,18 @@ const CommentCard: React.FC<CommentCardProps> = ({
           <div className="flex items-center gap-3">
             <NavLink to={`/users/${username}`}
               className={`${isReply ? 'text-sm' : 'text-base'} font-semibold text-white cursor-pointer hover:underline`}>
-                {username || 'Unknown'}
+              {username || 'Unknown'}
             </NavLink>
 
-            { Number(ownerId) === videoOwnerId && (
-              <h4 className={`${isReply ? 'text-sm' : 'text-sm'} font-semibold text-[#FE2C55]/95`}> 
+            {Number(ownerId) === videoOwnerId && (
+              <h4 className={`${isReply ? 'text-sm' : 'text-sm'} font-semibold text-[#FE2C55]/95`}>
                 Tác giả
               </h4>
             )}
-            
+
             {usernameReplied && (
               <div className="flex items-center gap-1">
-                <ChevronRight size={15} className="text-white/60"/>
+                <ChevronRight size={15} className="text-white/60" />
                 <h4 className={`${isReply ? 'text-sm' : 'text-base'} font-semibold text-white`}>
                   {usernameReplied || 'Unknown'}
                 </h4>
@@ -184,7 +190,7 @@ const CommentCard: React.FC<CommentCardProps> = ({
                     onChange={(e) => setReplyText(e.target.value)}
                     placeholder="Thêm câu trả lời..."
                     className="flex-1 bg-transparent text-white text-sm outline-none placeholder:text-white/40"
-                    // autoFocus
+                  // autoFocus
                   />
                   <button className="text-white hover:text-white/60 transition-colors cursor-pointer flex gap-2">
                     <Smile size={20} />
@@ -198,11 +204,10 @@ const CommentCard: React.FC<CommentCardProps> = ({
               <button
                 onClick={handleSubmitReply}
                 disabled={!replyText.trim()}
-                className={`text-sm font-semibold px-1 py-1 rounded transition-colors flex items-center gap-2 cursor-pointer flex-shrink-0 ${
-                  replyText.trim()
-                    ? 'text-[#FE2C55] hover:text-[#FE2C55]/60'
-                    : 'text-white/40 cursor-not-allowed'
-                }`}
+                className={`text-sm font-semibold px-1 py-1 rounded transition-colors flex items-center gap-2 cursor-pointer flex-shrink-0 ${replyText.trim()
+                  ? 'text-[#FE2C55] hover:text-[#FE2C55]/60'
+                  : 'text-white/40 cursor-not-allowed'
+                  }`}
               >
                 Post <Send size={20} />
               </button>
@@ -219,17 +224,17 @@ const CommentCard: React.FC<CommentCardProps> = ({
           )}
         </div>
 
-        <div className="h-20 relative"> 
+        <div className="h-20 relative">
           <button
-          onClick={handleViewMenu}
-          className={`flex justify-start cursor-pointer text-white/60 hover:text-white ${showMenu ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
-            <Ellipsis className="mt-0.5"/>
+            onClick={handleViewMenu}
+            className={`flex justify-start cursor-pointer text-white/60 hover:text-white ${showMenu ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
+            <Ellipsis className="mt-0.5" />
           </button>
           {showMenu && `${user?.id}` !== ownerId && (
-            <div 
-            onClick={handleReportClick}
-            className="flex absolute right-0 w-25 bg-[#2a2a2a] rounded-lg shadow-lg p-2 border border-white/10 hover:text-[#FE2C55] gap-1 justify-center">
-              <Flag className="" size={20}/>
+            <div
+              onClick={handleReportClick}
+              className="flex absolute right-0 w-25 bg-[#2a2a2a] rounded-lg shadow-lg p-2 border border-white/10 hover:text-[#FE2C55] gap-1 justify-center">
+              <Flag className="" size={20} />
               <button className="flex justify-start text-center text-sm font-semibold">
                 Report
               </button>
@@ -237,16 +242,16 @@ const CommentCard: React.FC<CommentCardProps> = ({
           )}
 
           {showMenu && `${user?.id}` === ownerId && (
-            <div 
-            onClick={handleDeleteClick}
-            className="flex absolute right-0 w-25 bg-[#2a2a2a] rounded-lg shadow-lg p-2 border border-white/10 hover:text-[#FE2C55] gap-1 justify-center">
+            <div
+              onClick={handleDeleteClick}
+              className="flex absolute right-0 w-25 bg-[#2a2a2a] rounded-lg shadow-lg p-2 border border-white/10 hover:text-[#FE2C55] gap-1 justify-center">
               <button className="flex justify-start text-center text-sm font-semibold">
                 Delete
               </button>
             </div>
           )}
         </div>
-        
+
       </div>
       {showDeleteModal && (
         <Delete
@@ -257,7 +262,7 @@ const CommentCard: React.FC<CommentCardProps> = ({
 
       {/* Report Modal */}
       {showReportModal && (
-        <Report 
+        <Report
           onClose={handleReportClose}
           onSubmit={handleReportSubmit}
         />

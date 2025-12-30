@@ -1,12 +1,13 @@
 
-import { Bell, Upload, Compass, MessageCircle, Search, Sparkle, UserRoundPlus, Users, User2, UserIcon, ChartNoAxesCombined } from "lucide-react";
+import { Bell, Compass, Search, Sparkle, UserRoundPlus, User2, UserIcon, ChartNoAxesCombined } from "lucide-react";
 import Logo from "./Logo";
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/auth/useAuth";
 import useGetFollowing from "@/hooks/follow/useGetFollowing";
 import type { User } from "@/types/user";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Notification from "../Notification/Notification";
+import { useFeedStore } from "@/store/feedStore";
 
 
 interface NavItem {
@@ -35,11 +36,25 @@ const FollowingCard = ({ follower }: { follower: User }) => {
 
 export default function Sidebar() {
   const navigate = useNavigate();
-
+  const location = useLocation();
 
   const { user, isAuthenticated } = useAuth()
   const { data: following = [] } = useGetFollowing(user?.id || 0)
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
+  const mode = useFeedStore((s) => s.mode);
+  const setMode = useFeedStore((s) => s.setMode);
+  const [searchText, setSearchText] = useState("");
+
+  useEffect(() => {
+    const trimmed = searchText.trim();
+    if (!trimmed) return;
+
+    const timeout = setTimeout(() => {
+      navigate(`/search?q=${encodeURIComponent(trimmed)}&tab=videos`);
+    }, 500);
+
+    return () => clearTimeout(timeout);
+  }, [searchText, navigate]);
 
   const toggleNotification = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -47,80 +62,124 @@ export default function Sidebar() {
   };
 
   const NAV_ITEMS: NavItem[] = [
-    { icon: <Sparkle />, text: "For You", link: "/" },
-    { icon: <Search />, text: "Search", link: "/search" },
-    { icon: <Compass />, text: "Explore", link: "/" },
-    { icon: <UserRoundPlus />, text: "Following", link: "/" },
+    {
+      icon: <Sparkle />,
+      text: "For You",
+      link: "/",
+      onClick: () => {
+        setMode(user ? "personal" : "public");
+      },
+    },
+    {
+      icon: <Compass />,
+      text: "Trending",
+      link: "/",
+      onClick: () => {
+        setMode("trending");
+      },
+    },
+    {
+      icon: <UserRoundPlus />,
+      text: "Following",
+      link: "/",
+      onClick: () => {
+        setMode("following")
+      }
+    },
     { icon: <User2 />, text: "Profile", link: user ? `/users/${user.username}` : "/login" },
-    { icon: <Bell />, text: "Notification", link: "/" },
     // { icon: <Upload />, text: "Upload", link: "/upload" }
     { icon: <ChartNoAxesCombined />, text: "Analysis", link: "/analysis" },
-    { icon: <Bell />, text: "Notification", link: "#", onClick: toggleNotification }    
+    { icon: <Bell />, text: "Notification", link: "#", onClick: toggleNotification }
   ]
 
   return (
     <>
-    <aside className={`bg-primary text-white flex flex-col h-screen sticky top-0 border-r border-white/10 transition-all duration-300 ${isNotificationOpen ? 'w-20 p-4' : 'w-20 md:w-72 p-4 md:p-6'}`}>
-      <div className={isNotificationOpen ? " origin-center" : ""}>
-        <Logo collapsed={isNotificationOpen} />
-      </div>
-
-      <div className="flex flex-col -between w-full mt-8">
-        <div className={`relative mb-4 ${isNotificationOpen ? 'hidden' : 'hidden md:flex'}`}>
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-600" size={18} />
-          <input
-            type="text"
-            placeholder="Search"
-            className="w-full rounded-xl bg-white py-3 pr-4 pl-10 placeholder:text-sm placeholder:font-medium placeholder:text-gray-600"
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                const val = (e.target as HTMLInputElement).value;
-                navigate(`/search?q=${encodeURIComponent(val)}&tab=videos`);
-              }
-            }}
-          />
+      <aside className={`bg-primary text-white flex flex-col h-screen sticky top-0 border-r border-white/10 transition-all duration-300 ${isNotificationOpen ? 'w-20 p-4' : 'w-20 md:w-72 p-4 md:p-6'}`}>
+        <div className={isNotificationOpen ? " origin-center" : ""}>
+          <Logo collapsed={isNotificationOpen} />
         </div>
 
-        <NavLink
-          to="/search"
-          className={`flex py-3 justify-center hover:text-red-500 hover:bg-primary-hover hover:rounded-xl cursor-pointer ${isNotificationOpen ? 'flex' : 'md:hidden'}`}
-        >
-          <Search className="text-white hover:text-red-500" size={24} />
-        </NavLink>
+        <div className="flex flex-col -between w-full mt-8">
+          <div className={`relative mb-4 ${isNotificationOpen ? 'hidden' : 'hidden md:flex'}`}>
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-600" size={18} />
+            <input
+              type="text"
+              placeholder="Search"
+              className="w-full rounded-xl text-black bg-white py-3 pr-4 pl-10 placeholder:text-sm placeholder:font-medium placeholder:text-gray-600"
+              value={searchText}
+              onChange={(e) => setSearchText(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  const trimmed = searchText.trim();
+                  if (trimmed) {
+                    navigate(`/search?q=${encodeURIComponent(trimmed)}&tab=videos`);
+                  }
+                }
+                if (e.key === "Escape") {
+                  setSearchText("");
+                  navigate("/search");
+                }
+              }}
+            />
+          </div>
 
-        <div className="nav-items">
-          {NAV_ITEMS.map((item, index) => {
-            return (
-              <NavLink 
-                to={item.link} 
-                key={index} 
-                onClick={item.onClick}
-                className={`flex gap-4 py-3 mt-1 hover:text-red-500 hover:bg-primary-hover hover:rounded-xl transition-all ${isNotificationOpen ? 'justify-center' : 'justify-center md:justify-normal md:pl-8'}`}
-              >
-                {item.icon}
-                <p className={`font-semibold ${isNotificationOpen ? 'hidden' : 'hidden md:flex'}`}>{item.text}</p>
-              </NavLink>
-            );
-          })}
-        </div>
+          <NavLink
+            to="/search"
+            className={`flex py-3 justify-center hover:text-red-500 hover:bg-primary-hover hover:rounded-xl cursor-pointer ${isNotificationOpen ? 'flex' : 'md:hidden'}`}
+          >
+            <Search className="text-white hover:text-red-500" size={24} />
+          </NavLink>
 
-        {isAuthenticated &&
-          <div className={`following mt-6 ${isNotificationOpen ? 'hidden' : 'hidden md:block'}`}>
-            <p className="font-semibold text-md mb-2">Following accounts</p>
-            {following.map((follower, index) => {
-              return <FollowingCard key={index} follower={follower} />;
+          <div className="nav-items">
+            {NAV_ITEMS.map((item, index) => {
+              const isModeNav = item.text === "For You" || item.text === "Trending" || item.text === "Following";
+              const isActiveMode =
+                (item.text === "For You" && (mode === "personal" || mode === "public")) ||
+                (item.text === "Trending" && mode === "trending") ||
+                (item.text === "Following" && mode === "following");
+              const isOnFeedRoute = location.pathname === "/" || location.pathname === "/feed";
+              const isNotificationNav = item.text === "Notification";
+              return (
+                <NavLink
+                  to={item.link}
+                  key={index}
+                  onClick={item.onClick}
+                  className={({ isActive }) =>
+                    `flex gap-4 py-3 mt-1 hover:text-red-500 hover:bg-primary-hover hover:rounded-xl transition-all ${isNotificationOpen ? 'justify-center' : 'justify-center md:justify-normal md:pl-8'
+                    } ${isModeNav && isActiveMode && isOnFeedRoute
+                      ? 'bg-white/15 rounded-xl'
+                      : !isModeNav && !isNotificationNav && isActive
+                        ? 'bg-white/15 rounded-xl'
+                        : isNotificationNav && isNotificationOpen
+                          ? 'bg-white/15 rounded-xl'
+                          : ''
+                    }`
+                  }
+                >
+                  {item.icon}
+                  <p className={`font-semibold ${isNotificationOpen ? 'hidden' : 'hidden md:flex'}`}>{item.text}</p>
+                </NavLink>
+              );
             })}
           </div>
-        }
-      </div>
-    </aside>
-    
-    <div 
+
+          {isAuthenticated &&
+            <div className={`following mt-6 ${isNotificationOpen ? 'hidden' : 'hidden md:block'}`}>
+              <p className="font-semibold text-md mb-2">Following accounts</p>
+              {following.map((follower, index) => {
+                return <FollowingCard key={index} follower={follower} />;
+              })}
+            </div>
+          }
+        </div>
+      </aside>
+
+      <div
         className={`fixed left-20 top-0 h-screen w-[450px] bg-primary border-r border-white/10 z-50 shadow-2xl overflow-hidden transition-transform duration-300 ease-in-out ${isNotificationOpen ? 'translate-x-0' : '-translate-x-full'}`}
         style={{ transform: isNotificationOpen ? 'translateX(0)' : 'translateX(-100%)' }}
-    >
-       <Notification onClose={() => setIsNotificationOpen(false)} />
-    </div>
+      >
+        <Notification onClose={() => setIsNotificationOpen(false)} />
+      </div>
     </>
   );
 }
