@@ -48,6 +48,7 @@ const VideoPage = () => {
     if (isLoading || !videoData) {
         return <LoadingPage />;
     }
+    console.log(creatorId + " " + currentUser?.id)
 
     const numericVideoId = Number.parseInt(String(videoData.id), 10) || 0;
     const numericOwnerId = Number.parseInt(String(videoData.user.id), 10) || 0;
@@ -79,7 +80,7 @@ const VideoPage = () => {
                             <span className="truncate text-xs text-white/60">Người sáng tạo</span>
                         </div>
                     </NavLink>
-                    {creatorId != currentUser?.id &&
+                    {(creatorId != currentUser?.id) &&
                         <button
                             onClick={handleFollowToggle}
                             disabled={isFollowing || isUnfollowing}

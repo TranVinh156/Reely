@@ -44,6 +44,7 @@ type ViewResponse = {
 function mapDtoToVideo(dto: BackendFeedVideoDTO): Video {
   return {
     id: String(dto.videoId),
+    title: dto.title ?? "",
     user: {
       id: String(dto.userId),
       username: dto.username,
