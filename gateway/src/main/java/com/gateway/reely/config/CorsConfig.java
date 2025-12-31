@@ -11,21 +11,28 @@ import java.util.Arrays;
 
 @Configuration
 public class CorsConfig {
-    @Value("${frontend.url}")
-    private String frontendUrl;
 
     @Bean
     public CorsWebFilter corsWebFilter() {
         CorsConfiguration config = new CorsConfiguration();
+
         config.setAllowCredentials(true);
-        config.setAllowedOrigins(Arrays.asList("https://reely-ruby.vercel.app"));
-        config.setAllowedHeaders(Arrays.asList("*"));
-        config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH",
-                "DELETE", "OPTIONS", "HEAD"));
-        config.setExposedHeaders(Arrays.asList("Authorization", "Content-Type",
+
+        config.setAllowedOriginPatterns(Arrays.asList(
+                "https://reely-ruby.vercel.app",
+                "https://*.vercel.app"));
+
+        config.addAllowedHeader(CorsConfiguration.ALL);
+        config.addAllowedMethod(CorsConfiguration.ALL);
+
+        config.setExposedHeaders(Arrays.asList(
+                "Authorization",
+                "Content-Type",
                 "Set-Cookie"));
+
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
+
         return new CorsWebFilter(source);
     }
 }
