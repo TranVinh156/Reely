@@ -1,1 +1,1 @@
-export const STORAGE_URL = "http://localhost:9000"
+export const STORAGE_URL = "https://reely-bucket-final.s3.ap-southeast-1.amazonaws.com"

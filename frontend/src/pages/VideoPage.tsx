@@ -17,7 +17,7 @@ const VideoPage = () => {
     const { data: videoData, isLoading } = useGetVideoById(Number(videoId));
     const { user: currentUser } = useAuth();
     console.log(videoData)
-    const creatorId = videoData?.user.id !== undefined && videoData?.user.id !== null
+    const creatorId = videoData?.user?.id
         ? Number(videoData.user.id)
         : -1;
 
@@ -63,7 +63,7 @@ const VideoPage = () => {
     const deleteOption = (
         <div className="absolute right-0 top-full z-50 w-32 rounded-lg bg-[#FE2C55] shadow-xl border border-white/10">
             <button className="flex w-full px-2 py-2 text-left text-base text-white hover:bg-white/5 font-semibold justify-center cursor-pointer"
-                onClick={() => {setShowDeleteModal(true)}}>
+                onClick={() => { setShowDeleteModal(true) }}>
                 Delete Video
             </button>
         </div>
@@ -88,9 +88,7 @@ const VideoPage = () => {
                 >
                     <ChevronLeft size={24} color="white" />
                 </button>
-                <div className="flex h-full w-full items-center justify-center">
-                    <VideoCard video={videoData} loadMode="active" isFeed={false} />
-                </div>
+                <VideoCard video={videoData} loadMode="active" isFeed={false} />
             </div>
 
             <div className="flex w-full lg:w-[420px] lg:flex-[2] flex-col bg-[#121212] h-[60vh] lg:h-full border-t lg:border-l border-white/10">
@@ -111,8 +109,8 @@ const VideoPage = () => {
                             <span className="truncate text-sm font-semibold">{videoData.user.username}</span>
                             <span className="truncate text-xs text-white/60">Người sáng tạo</span>
                         </div>
-                    </NavLink>  
-                    {(creatorId != currentUser?.id) ? 
+                    </NavLink>
+                    {(creatorId != currentUser?.id) ?
                         (<button
                             onClick={handleFollowToggle}
                             disabled={isFollowing || isUnfollowing}
@@ -127,15 +125,15 @@ const VideoPage = () => {
                                     ? 'Unfollow'
                                     : 'Follow'
                             }
-                        </button>) : 
+                        </button>) :
                         (
                             <div className="relative">
-                                <Ellipsis onClick={() => setDeleteOption(!openDeleteOption)} className="cursor-pointer" size={25}/>
-                                { openDeleteOption && deleteOption}
+                                <Ellipsis onClick={() => setDeleteOption(!openDeleteOption)} className="cursor-pointer" size={25} />
+                                {openDeleteOption && deleteOption}
                             </div>
-                            
+
                         )}
-                    
+
                 </div>
 
                 <div className="px-4 py-3 text-sm shrink-0">
@@ -164,11 +162,11 @@ const VideoPage = () => {
 
             {showDeleteModal && (
                 <DeleteVideoModal
-                username={currentUser?.username ? currentUser.username : "null"}
-                onClose={() => setShowDeleteModal(false)}
-                onConfirm={handleDeleteConfirm}
-            />
-      )}
+                    username={currentUser?.username ? currentUser.username : "null"}
+                    onClose={() => setShowDeleteModal(false)}
+                    onConfirm={handleDeleteConfirm}
+                />
+            )}
         </div>
     );
 };

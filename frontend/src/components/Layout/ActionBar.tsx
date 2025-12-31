@@ -1,12 +1,12 @@
 import { useAuth } from "@/hooks/auth/useAuth"
 import useLogout from "@/hooks/auth/useLogout"
+import { STORAGE_URL } from "@/utils/constant"
 import { LogOut, Upload, User, UserIcon } from "lucide-react"
 import { useEffect, useRef, useState } from "react"
 import { NavLink, useLocation } from "react-router-dom"
 
 const ActionBar = () => {
     const { user, isAuthenticated } = useAuth()
-    const storageUrl = 'http://localhost:9000'
     const location = useLocation()
 
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false)
@@ -60,7 +60,7 @@ const ActionBar = () => {
                             <UserIcon className="text-black" size={18} />
                         </div>
                         :
-                        <img src={`${storageUrl}/${user?.avatarUrl}`} alt={user?.username} className="w-full h-full rounded-full object-cover" />
+                        <img src={`${STORAGE_URL}/${user?.avatarUrl}`} alt={user?.username} className="w-full h-full rounded-full object-cover" />
                     }
                 </button>
             </div>

@@ -16,11 +16,12 @@ export function useVideoController(videoRef: RefObject<HTMLVideoElement | null>,
 
     // autoplay if allowed and visible (visibility handling done externally)
     if (autoPlay && el.paused) {
-      el.play().then(() => setIsPlaying(true)).catch(() => {});
+      el.play().then(() => setIsPlaying(true)).catch(() => { });
     }
 
     const onPlay = () => {
       setIsPlaying(true);
+      console.log("Video playing:", id);
       const nextVideo = document.querySelectorAll("video[data-id]")[currentIndex + 1] as HTMLVideoElement;
       if (nextVideo) {
         preloadUrl(nextVideo.src);
@@ -53,7 +54,7 @@ export function useVideoController(videoRef: RefObject<HTMLVideoElement | null>,
         el.muted = true;
         await el.play();
         setIsPlaying(true);
-      } catch {}
+      } catch { }
     }
   };
 

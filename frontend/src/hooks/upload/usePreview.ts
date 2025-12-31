@@ -11,23 +11,27 @@ export const usePreview = () => {
   const [onShowCancel, setOnShowCancel] = useState(false);
 
   const handleSelectFile = async (selected: File) => {
+    // Sanitize filename: remove spaces
+    const sanitizedName = selected.name.replace(/\s+/g, '');
+    const sanitizedFile = new File([selected], sanitizedName, { type: selected.type });
+
     const MAX_SIZE = 30 * 1024 * 1024 * 1024;
-    if (selected.size > MAX_SIZE) {
+    if (sanitizedFile.size > MAX_SIZE) {
       alert("File size exceeds 30GB limit.");
       return;
     }
 
-    const duration = await getVideoDuration(selected);
+    const duration = await getVideoDuration(sanitizedFile);
     if (duration > 3600) {
       alert("Video duration exceeds 60 minutes limit.");
       return;
     }
-    
-    setFile(selected);
-    setPreview(URL.createObjectURL(selected));
-    const thumbnail = await extractThumbnail(selected);
+
+    setFile(sanitizedFile);
+    setPreview(URL.createObjectURL(sanitizedFile));
+    const thumbnail = await extractThumbnail(sanitizedFile);
     setThumbnail(thumbnail);
-    console.log('Selected file:', selected);
+    console.log('Selected file:', sanitizedFile);
   };
 
 
@@ -38,7 +42,7 @@ export const usePreview = () => {
   const offShowCancel = () => {
     setOnShowCancel(false);
   }
-  
+
   const confirmCancel = () => {
     setOnShowCancel(false);
     setFile(undefined);
@@ -46,18 +50,18 @@ export const usePreview = () => {
     setThumbnail(undefined);
   };
 
-//   const handleUpload = async () => {
-//     if (!file) return;
-//     setUploading(true);
-//     try {
-//       const result = await uploadVideo(file);
-//       console.log('Uploaded to:', result.url);
-//     } catch (err) {
-//       console.error('Upload failed:', err);
-//     } finally {
-//       setUploading(false);
-//     }
-//   };
+  //   const handleUpload = async () => {
+  //     if (!file) return;
+  //     setUploading(true);
+  //     try {
+  //       const result = await uploadVideo(file);
+  //       console.log('Uploaded to:', result.url);
+  //     } catch (err) {
+  //       console.error('Upload failed:', err);
+  //     } finally {
+  //       setUploading(false);
+  //     }
+  //   };
 
   return {
     file,

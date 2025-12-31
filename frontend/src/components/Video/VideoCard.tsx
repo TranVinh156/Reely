@@ -28,9 +28,9 @@ export default function VideoCard({ video, loadMode = "idle", isFeed = true }: P
     portrait: "w-auto h-[80%] max-w-[50vh]", // Ví dụ: cao 90% viewport, rộng tối đa 50vh
     square: "w-[70%] h-[60%]", // Giống landscape
   } : {
-    landscape: "w-full h-full",
-    portrait: "w-full h-full",
-    square: "w-full h-full",
+    landscape: "w-full max-w-[85%] h-auto max-h-[85%] aspect-video",
+    portrait: "h-full max-h-[85%] w-auto aspect-[9/16]",
+    square: "h-full max-h-[85%] w-auto aspect-square",
   };
 
   // If comments are open, shift the video container to the left

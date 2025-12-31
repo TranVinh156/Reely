@@ -12,10 +12,11 @@ import com.reely.modules.interaction.entity.Likes;
 import com.reely.modules.interaction.repository.CommentRepository;
 import com.reely.modules.interaction.repository.LikeRepository;
 import com.reely.modules.feed.service.VideoService;
-import io.minio.GetPresignedObjectUrlArgs;
-import io.minio.MinioClient;
-import io.minio.RemoveObjectArgs;
-import io.minio.http.Method;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
+import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.services.s3.presigner.S3Presigner;
+import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -28,6 +29,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.ArrayList;
@@ -46,17 +48,20 @@ import org.hibernate.Hibernate;
 public class VideoServiceImpl implements VideoService {
     private final VideoRepository videoRepository;
     private final TagRepository tagRepository;
-    private final MinioClient minioClient;
+    private final S3Client s3Client;
+    private final S3Presigner s3Presigner;
     private final LikeRepository likeRepository;
     private final CommentRepository commentRepository;
 
-    @Value("${minio.bucket-name}")
+    @Value("${aws.s3.bucket-name}")
     private String bucketname;
 
-    public VideoServiceImpl(VideoRepository videoRepository, TagRepository tagRepository, MinioClient minioClient, LikeRepository likeRepository, CommentRepository commentRepository) {
+    public VideoServiceImpl(VideoRepository videoRepository, TagRepository tagRepository, S3Client s3Client,
+            S3Presigner s3Presigner, LikeRepository likeRepository, CommentRepository commentRepository) {
         this.videoRepository = videoRepository;
         this.tagRepository = tagRepository;
-        this.minioClient = minioClient;
+        this.s3Client = s3Client;
+        this.s3Presigner = s3Presigner;
         this.likeRepository = likeRepository;
         this.commentRepository = commentRepository;
     }
@@ -64,7 +69,8 @@ public class VideoServiceImpl implements VideoService {
     @Override
     @Transactional
     public Video addVideo(VideoRequestDto videoRequestDto) {
-        if (videoRequestDto == null) throw new RuntimeException("Video payload is required");
+        if (videoRequestDto == null)
+            throw new RuntimeException("Video payload is required");
         Video video = new Video(videoRequestDto);
 
         Set<Tag> tags = resolveTags(videoRequestDto.getTags());
@@ -74,9 +80,11 @@ public class VideoServiceImpl implements VideoService {
     }
 
     private Set<Tag> resolveTags(List<String> requestedNames) {
-        if (requestedNames == null || requestedNames.isEmpty()) return new HashSet<>();
+        if (requestedNames == null || requestedNames.isEmpty())
+            return new HashSet<>();
 
-        // normalize: trim, drop leading '#', skip blanks, keep order-agnostic uniqueness
+        // normalize: trim, drop leading '#', skip blanks, keep order-agnostic
+        // uniqueness
         List<String> normalized = requestedNames.stream()
                 .filter(Objects::nonNull)
                 .map(String::trim)
@@ -85,12 +93,14 @@ public class VideoServiceImpl implements VideoService {
                 .distinct()
                 .toList();
 
-        if (normalized.isEmpty()) return new HashSet<>();
+        if (normalized.isEmpty())
+            return new HashSet<>();
 
         List<Tag> existing = tagRepository.findByNameIn(normalized);
         Map<String, Tag> byName = new HashMap<>();
         for (Tag t : existing) {
-            if (t != null && t.getName() != null) byName.put(t.getName(), t);
+            if (t != null && t.getName() != null)
+                byName.put(t.getName(), t);
         }
 
         List<Tag> toCreate = new ArrayList<>();
@@ -103,7 +113,8 @@ public class VideoServiceImpl implements VideoService {
         if (!toCreate.isEmpty()) {
             List<Tag> created = tagRepository.saveAll(toCreate);
             for (Tag t : created) {
-                if (t != null && t.getName() != null) byName.put(t.getName(), t);
+                if (t != null && t.getName() != null)
+                    byName.put(t.getName(), t);
             }
         }
 
@@ -112,15 +123,19 @@ public class VideoServiceImpl implements VideoService {
 
     @Override
     public String createPresignedUploadUrl(String filename) {
-        String objectName = UUID.randomUUID() + "_" + filename;
+        String objectName = "videos/" + UUID.randomUUID() + "_" + filename;
         try {
-            return minioClient.getPresignedObjectUrl(
-                    GetPresignedObjectUrlArgs.builder()
-                            .method(Method.PUT)
-                            .bucket(bucketname)
-                            .object(objectName)
-                            .expiry(600)
-                            .build());
+            PutObjectRequest objectRequest = PutObjectRequest.builder()
+                    .bucket(bucketname)
+                    .key(objectName)
+                    .build();
+
+            PutObjectPresignRequest presignRequest = PutObjectPresignRequest.builder()
+                    .signatureDuration(Duration.ofMinutes(10))
+                    .putObjectRequest(objectRequest)
+                    .build();
+
+            return s3Presigner.presignPutObject(presignRequest).url().toString();
         } catch (Exception e) {
             System.out.println("Error creating presigned upload url");
         }
@@ -222,13 +237,12 @@ public class VideoServiceImpl implements VideoService {
         }
 
         try {
-            minioClient.removeObject(
-                    RemoveObjectArgs.builder()
-                            .bucket(bucketname)
-                            .object(video.getOriginalS3Key().substring(7))
-                            .build());
+            s3Client.deleteObject(DeleteObjectRequest.builder()
+                    .bucket(bucketname)
+                    .key(video.getOriginalS3Key().substring(7))
+                    .build());
         } catch (Exception e) {
-            System.out.println("Error deleting video from MinIO: " + e.getMessage());
+            System.out.println("Error deleting video from S3: " + e.getMessage());
         }
 
         likeRepository.deleteByVideoId(videoId);
