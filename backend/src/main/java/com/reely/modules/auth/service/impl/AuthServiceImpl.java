@@ -20,6 +20,7 @@ import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import org.springframework.stereotype.Service;
 
 import com.reely.modules.auth.dto.ChangePasswordRequest;
+import com.reely.modules.auth.dto.ResetPasswordRequest;
 import com.reely.modules.auth.dto.UserClaims;
 import com.reely.modules.auth.entity.PasswordResetToken;
 import com.reely.modules.auth.repository.PasswordResetTokenRepository;
@@ -30,6 +31,10 @@ import com.reely.modules.user.repository.UserRepository;
 import com.reely.modules.user.service.UserService;
 import com.reely.util.EmailSending;
 import com.reely.util.TokenGenerator;
+import com.resend.Resend;
+import com.resend.core.exception.ResendException;
+import com.resend.services.emails.model.CreateEmailOptions;
+import com.resend.services.emails.model.CreateEmailResponse;
 
 @Service
 public class AuthServiceImpl implements AuthService {
@@ -42,6 +47,9 @@ public class AuthServiceImpl implements AuthService {
 
     @Value("${jwt.secret}")
     private String secretKey;
+
+    @Value("${resend.api.key}")
+    private String resendApiKey;
 
     private JwtEncoder jwtEncoder;
 
@@ -128,7 +136,9 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public void sendForgotPasswordEmail(String email) {
         Optional<User> userOptional = this.userRepository.findByEmail(email);
+        Resend resend = new Resend(resendApiKey);
         if (userOptional.isPresent()) {
+            System.out.println("User existing");
             User user = userOptional.get();
             String rawToken = TokenGenerator.generateToken(32);
             String tokenHash = passwordEncoder.encode(rawToken);
@@ -137,8 +147,24 @@ public class AuthServiceImpl implements AuthService {
                     .expiredAt(Instant.now().plus(15 * 60, ChronoUnit.SECONDS))
                     .user(user).build();
             this.passwordResetTokenRepository.save(token);
+
             String resetLink = "http://localhost:5173/reset-password?token=" + rawToken;
-            emailSending.sendEmail(email, "Reset Password for Reely", resetLink);
+            CreateEmailOptions sendEmailRequest = CreateEmailOptions.builder()
+                    .from("onboarding@resend.dev")
+                    .to(email)
+                    .subject("Reset Your Password for Reely")
+                    .html("<p>Hello,</p>"
+                            + "<p>You requested a password reset for your Reely account.</p>"
+                            + "<p>Please click the link below to reset your password:</p>"
+                            + "<a href='" + resetLink + "'>Reset Password</a>"
+                            + "<p>If you did not request this, please ignore this email.</p>")
+                    .build();
+
+            try {
+                resend.emails().send(sendEmailRequest);
+            } catch (ResendException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -156,5 +182,29 @@ public class AuthServiceImpl implements AuthService {
         user.setPasswordHash(hashPassword);
         this.userRepository.save(user);
         return;
+    }
+
+    @Override
+    public void resetPassword(ResetPasswordRequest request) {
+        List<PasswordResetToken> tokens = this.passwordResetTokenRepository
+                .findAllByUsedAtIsNullAndExpiredAtAfter(Instant.now());
+        PasswordResetToken matchedToken = null;
+        for (PasswordResetToken token : tokens) {
+            if (passwordEncoder.matches(request.getToken(), token.getTokenHash())) {
+                matchedToken = token;
+                break;
+            }
+        }
+        if (matchedToken == null) {
+            throw new RuntimeException("Token is not right or expired");
+        }
+
+        User user = matchedToken.getUser();
+        String newPasswordHash = passwordEncoder.encode(request.getNewPassword());
+        user.setPasswordHash(newPasswordHash);
+        this.userRepository.save(user);
+
+        matchedToken.setUsedAt(Instant.now());
+        this.passwordResetTokenRepository.save(matchedToken);
     }
 }
