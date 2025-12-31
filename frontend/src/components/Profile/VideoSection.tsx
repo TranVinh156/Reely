@@ -83,12 +83,17 @@ const VideoSection = ({ userId }: VideoSectionProps) => {
                             userVideos.map((video) => (
                                 <NavLink to={`/videos/${video.id}`} key={video.id} className="aspect-[10/16] bg-gray-900 rounded-lg overflow-hidden relative group cursor-pointer">
                                     <video
-                                        src={`${STORAGE_URL}${video.originalS3Key}`}
+                                        src={`${STORAGE_URL}/${video.originalS3Key}`}
                                         className="w-full h-full object-cover"
                                         muted
                                         loop
                                         playsInline
-                                        onMouseEnter={(e) => e.currentTarget.play()}
+                                        onMouseEnter={(e) => {
+                                            const p = e.currentTarget.play();
+                                            if (p !== undefined) {
+                                                p.catch(() => { });
+                                            }
+                                        }}
                                         onMouseLeave={(e) => {
                                             e.currentTarget.pause();
                                             e.currentTarget.currentTime = 0;
@@ -125,12 +130,17 @@ const VideoSection = ({ userId }: VideoSectionProps) => {
                             likedVideos.map((video) => (
                                 <NavLink to={`/videos/${video.id}`} key={video.id} className="aspect-[10/16] bg-gray-900 rounded-lg overflow-hidden relative group cursor-pointer">
                                     <video
-                                        src={`${STORAGE_URL}${video.originalS3Key}`}
+                                        src={`${STORAGE_URL}/${video.originalS3Key}`}
                                         className="w-full h-full object-cover"
                                         muted
                                         loop
                                         playsInline
-                                        onMouseEnter={(e) => e.currentTarget.play()}
+                                        onMouseEnter={(e) => {
+                                            const p = e.currentTarget.play();
+                                            if (p !== undefined) {
+                                                p.catch(() => { });
+                                            }
+                                        }}
                                         onMouseLeave={(e) => {
                                             e.currentTarget.pause();
                                             e.currentTarget.currentTime = 0;

@@ -24,21 +24,14 @@ import com.reely.modules.user.repository.RoleRepository;
 import com.reely.modules.user.repository.UserRepository;
 import com.reely.modules.user.service.UserService;
 
-import io.minio.GetPresignedObjectUrlArgs;
-import io.minio.MinioClient;
-import io.minio.http.Method;
-
 @Service
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
-    private final MinioClient minioClient;
-    private final String bucketName = "avatar";
 
-    public UserServiceImpl(MinioClient minioClient, UserRepository userRepository, RoleRepository roleRepository) {
+    public UserServiceImpl(UserRepository userRepository, RoleRepository roleRepository) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
-        this.minioClient = minioClient;
     }
 
     @Override

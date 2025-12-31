@@ -25,6 +25,9 @@ export default function VideoPlayer({
 }: Props) {
   // load/unload video based on loadMode
   useEffect(() => {
+    console.log(video)
+  }, [video])
+  useEffect(() => {
     const el = ref.current;
 
     if (!el) return;
@@ -35,13 +38,13 @@ export default function VideoPlayer({
     if (loadMode === "idle") {
       try {
         el.pause();
-      } catch (e) {}
+      } catch (e) { }
 
       if (!el.getAttribute("src")) {
         el.removeAttribute("src");
         try {
           el.load();
-        } catch (e) {}
+        } catch (e) { }
       }
 
       return;
@@ -53,9 +56,15 @@ export default function VideoPlayer({
       el.setAttribute("src", video.src);
       try {
         el.load();
-      } catch (e) {}
+      } catch (e) { }
     }
   }, [loadMode, video.src]);
+
+  useEffect(() => {
+    if (loadMode === "active") {
+      console.log("VideoPlayer active:", video);
+    }
+  }, [loadMode, video.id]);
 
   const ref = useRef<HTMLVideoElement>(null);
   // const { isPlaying, togglePlay } = useVideoController(ref, video.id);
@@ -166,9 +175,8 @@ export default function VideoPlayer({
 
   return (
     <motion.div
-      className={`relative h-full w-full overflow-hidden transition-opacity duration-300 ${
-        isPlaying ? "opacity-100" : "opacity-50"
-      } ${className ?? ""}`}
+      className={`relative h-full w-full overflow-hidden transition-opacity duration-300 ${isPlaying || loadMode === "active" ? "opacity-100" : "opacity-50"
+        } ${className ?? ""}`}
       onPointerUp={handleSurfacePointerUp}
     >
       <video
@@ -181,7 +189,7 @@ export default function VideoPlayer({
         poster={video.poster}
         playsInline
         // loop
-        // muted
+        muted={muted}
         className="h-full w-full object-contain"
       />
       {/* <VideoInfo username={video.user.username} description={video.description} /> */}

@@ -8,6 +8,7 @@ import { h4 } from "motion/react-client";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useFeedStore } from "@/store/feedStore";
 import UserAvatar from "../Profile/UserAvatar";
+import { STORAGE_URL } from "@/utils/constant";
 
 
 interface CommentCardProps {
@@ -60,7 +61,7 @@ const CommentCard: React.FC<CommentCardProps> = ({
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const { user, isAuthenticated } = useAuth();
   const incrementCommentCount = useFeedStore((s) => s.incrementCommentCount);
-  const avatarSrc = avatarUrl ? `http://localhost:9000/${avatarUrl}` : undefined;
+  const avatarSrc = avatarUrl ? `${STORAGE_URL}/${avatarUrl}` : undefined;
   const navigate = useNavigate()
 
   const handleSubmitReply = async () => {
