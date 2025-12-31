@@ -9,6 +9,7 @@ import com.reely.modules.auth.dto.ForgotPasswordResponse;
 import com.reely.modules.auth.dto.LoginRequest;
 import com.reely.modules.auth.dto.LoginResponse;
 import com.reely.modules.auth.dto.RegistrationRequest;
+import com.reely.modules.auth.dto.ResetPasswordRequest;
 import com.reely.modules.auth.service.AuthService;
 import com.reely.modules.user.dto.UserDTO;
 import com.reely.modules.user.service.UserService;
@@ -131,6 +132,13 @@ public class AuthController {
 
         @PostMapping("/forgot-password")
         public ResponseEntity<Void> forgotPassword(@RequestBody ForgotPasswordRequest request) {
+                this.authService.sendForgotPasswordEmail(request.getEmail());
+                return ResponseEntity.noContent().build();
+        }
+
+        @PostMapping("/reset-password")
+        public ResponseEntity<Void> resetPassword(@RequestBody ResetPasswordRequest request) {
+                this.authService.resetPassword(request);
                 return ResponseEntity.noContent().build();
         }
 
