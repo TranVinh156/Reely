@@ -29,7 +29,6 @@ import com.reely.modules.user.dto.UserDTO;
 import com.reely.modules.user.entity.User;
 import com.reely.modules.user.repository.UserRepository;
 import com.reely.modules.user.service.UserService;
-import com.reely.util.EmailSending;
 import com.reely.util.TokenGenerator;
 import com.resend.Resend;
 import com.resend.core.exception.ResendException;
@@ -63,16 +62,13 @@ public class AuthServiceImpl implements AuthService {
 
     private final AuthenticationManager authenticationManager;
 
-    private EmailSending emailSending;
-
     public AuthServiceImpl(JwtEncoder jwtEncoder, UserService userService,
             PasswordEncoder passwordEncoder, PasswordResetTokenRepository passwordResetTokenRepository,
-            EmailSending emailSending, AuthenticationManager authenticationManager, UserRepository userRepository) {
+            AuthenticationManager authenticationManager, UserRepository userRepository) {
         this.jwtEncoder = jwtEncoder;
         this.userService = userService;
         this.passwordEncoder = passwordEncoder;
         this.passwordResetTokenRepository = passwordResetTokenRepository;
-        this.emailSending = emailSending;
         this.userRepository = userRepository;
         this.authenticationManager = authenticationManager;
     }
