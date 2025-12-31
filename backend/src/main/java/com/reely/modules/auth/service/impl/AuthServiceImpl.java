@@ -50,6 +50,9 @@ public class AuthServiceImpl implements AuthService {
     @Value("${resend.api.key}")
     private String resendApiKey;
 
+    @Value("${frontend.url}")
+    private String frontendUrl;
+
     private JwtEncoder jwtEncoder;
 
     private UserService userService;
@@ -144,7 +147,7 @@ public class AuthServiceImpl implements AuthService {
                     .user(user).build();
             this.passwordResetTokenRepository.save(token);
 
-            String resetLink = "http://localhost:5173/reset-password?token=" + rawToken;
+            String resetLink = frontendUrl + "/reset-password?token=" + rawToken;
             CreateEmailOptions sendEmailRequest = CreateEmailOptions.builder()
                     .from("onboarding@resend.dev")
                     .to(email)
@@ -155,7 +158,6 @@ public class AuthServiceImpl implements AuthService {
                             + "<a href='" + resetLink + "'>Reset Password</a>"
                             + "<p>If you did not request this, please ignore this email.</p>")
                     .build();
-
             try {
                 resend.emails().send(sendEmailRequest);
             } catch (ResendException e) {
