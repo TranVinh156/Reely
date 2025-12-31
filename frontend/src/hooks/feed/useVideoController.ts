@@ -23,8 +23,8 @@ export function useVideoController(videoRef: RefObject<HTMLVideoElement | null>,
       setIsPlaying(true);
       const nextVideo = document.querySelectorAll("video[data-id]")[currentIndex + 1] as HTMLVideoElement;
       if (nextVideo) {
-        preloadUrl(nextVideo.src);
-        console.log("preloading next video", nextVideo.src);
+        const nextSrc = nextVideo.getAttribute("src") || nextVideo.currentSrc || "";
+        preloadUrl(nextSrc || undefined);
       }
     };
     const onPause = () => setIsPlaying(false);
