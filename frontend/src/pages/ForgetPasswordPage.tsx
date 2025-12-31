@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import FormInput from '../components/Auth/FormInput'
 import { NavLink } from 'react-router-dom'
+import { forgotPassword } from '../api/auth'
 
 const GOOGLE_LOGO = 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/768px-Google_%22G%22_logo.svg.png'
 
@@ -11,30 +12,28 @@ const ForgetPasswordPage: React.FC = () => {
     const [errorMessage, setErrorMessage] = useState<string>('')
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault()
-        setErrorMessage('')
+        e.preventDefault();
+        setErrorMessage('');
 
         if (!email) {
-            setErrorMessage('Please enter your email address')
-            return
+            setErrorMessage('Please enter your email address');
+            return;
         }
 
-        setIsPending(true)
-
-        setTimeout(() => {
-            setIsPending(false)
-            setIsSubmitted(true)
-        }, 1000)
+        setIsPending(true);
+        try {
+            await forgotPassword(email);
+            setIsSubmitted(true);
+        } catch (err: any) {
+            setErrorMessage(err?.response?.data?.message || 'Failed to send reset link.');
+        } finally {
+            setIsPending(false);
+        }
     }
 
     return (
-        <main className="flex h-screen">
+        <main className="flex h-screen justify-center">
             <section className="mx-8 md:mx-10 login-form flex-3 flex flex-col w-full max-w-xl">
-                <header className="logo flex gap-2 items-center mt-3">
-                    <img src={GOOGLE_LOGO} alt="logo" className="h-6" />
-                    <p className="text-2xl font-extrabold">Reely</p>
-                </header>
-
                 <div className="shrink my-auto lg:px-15">
                     {!isSubmitted ? (
                         <>
@@ -110,9 +109,6 @@ const ForgetPasswordPage: React.FC = () => {
                     )}
                 </div>
             </section>
-
-            <aside className="hidden md:flex md:flex-4 flex-1 min-h-20 bg-blue-500" aria-hidden="true">
-            </aside>
         </main>
     )
 }

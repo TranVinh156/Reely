@@ -20,7 +20,9 @@ public class CorsConfig {
 
         config.setAllowedOriginPatterns(Arrays.asList(
                 "https://reely-ruby.vercel.app",
-                "https://*.vercel.app"));
+                "https://*.vercel.app",
+                "http://localhost:5173",
+                ""));
 
         config.addAllowedHeader(CorsConfiguration.ALL);
         config.addAllowedMethod(CorsConfiguration.ALL);

@@ -1,3 +1,10 @@
+export const forgotPassword = async (email: string): Promise<void> => {
+    await axiosClient.post('/auth/forgot-password', { email });
+};
+
+export const resetPassword = async (data: { token: string; newPassword: string }): Promise<void> => {
+    await axiosClient.post('/auth/reset-password', data);
+};
 import type { LoginResponse } from '../hooks/auth/useLogin';
 import type { RegisterCredentials } from '../hooks/auth/useRegister';
 import type { User } from '../types/user';
