@@ -75,7 +75,7 @@ const Comment: React.FC<CommentProps> = ({ videoId, videoOwnerId, onClose, hideC
   }, [lastReplyAddedTo]);
 
   useEffect(() => {
-    if (!deleteCommentId[0]) return;
+    if (deleteCommentId[0] === "" && deleteCommentId[1] === "") return;
 
     if (deleteCommentId[1]) {
       decrementCommentCount(videoId.toString(), 1);
