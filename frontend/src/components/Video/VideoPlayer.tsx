@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, use } from "react";
+import React, { useRef, useEffect } from "react";
 import type { Video } from "../../types/video";
 import { useVideoController } from "../../hooks/feed/useVideoController";
 import { ProgressBar } from "./ProgressBar";
@@ -23,6 +23,9 @@ export default function VideoPlayer({
   onOrientationChange,
   loadMode = "idle",
 }: Props) {
+  const desiredPreload: HTMLVideoElement["preload"] =
+    loadMode === "active" ? "auto" : loadMode === "preload" ? "metadata" : "none";
+
   // load/unload video based on loadMode
   useEffect(() => {
     console.log(video)
@@ -32,16 +35,19 @@ export default function VideoPlayer({
 
     if (!el) return;
 
-    const desiredPreload = loadMode === "active" ? "auto" : (loadMode === "preload" ? "metadata" : "none");
-    el.preload = desiredPreload;
-
     if (loadMode === "idle") {
       try {
         el.pause();
       } catch (e) { }
 
-      if (!el.getAttribute("src")) {
+      // Ensure any in-flight request is cancelled and memory can be reclaimed.
+      // React may already remove `src`, but doing it explicitly is safer across browsers.
+      if (el.getAttribute("src") || el.currentSrc) {
         el.removeAttribute("src");
+        try {
+          // Some browsers keep fetching unless src property is cleared.
+          el.src = "";
+        } catch (e) {}
         try {
           el.load();
         } catch (e) { }
@@ -50,10 +56,9 @@ export default function VideoPlayer({
       return;
     }
 
-    // ensure src is set
-    const currentSrc = el.getAttribute("src") ?? "";
-    if (video.src && video.src !== currentSrc) {
-      el.setAttribute("src", video.src);
+    // For non-idle modes, the `src` is driven by React. We only nudge the element
+    // to (re)load when needed.
+    if (video.src && (el.getAttribute("src") ?? "") !== video.src) {
       try {
         el.load();
       } catch (e) { }
@@ -72,11 +77,6 @@ export default function VideoPlayer({
     useVideoController(ref, video.id);
 
   useVideoHotkeys();
-
-  useEffect(() => {
-    // ensure metadata preloaded
-    if (ref.current) ref.current.preload = "metadata";
-  }, []);
 
   // useEffect(() => {
   //   if (!ref.current) return;
@@ -186,6 +186,7 @@ export default function VideoPlayer({
         data-video-el
         data-video-id={video.id}
         src={loadMode === "idle" ? undefined : video.src}
+        preload={desiredPreload}
         poster={video.poster}
         playsInline
         // loop
