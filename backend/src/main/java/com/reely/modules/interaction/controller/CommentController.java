@@ -2,11 +2,14 @@ package com.reely.modules.interaction.controller;
 
 import com.reely.modules.interaction.dto.CommentRequestDto;
 import com.reely.modules.interaction.dto.CommentResponseDto;
+import com.reely.modules.interaction.dto.CommentStat;
 import com.reely.modules.interaction.dto.PaginationResponse;
 import com.reely.modules.interaction.service.CommentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/comments")
@@ -41,6 +44,12 @@ public class CommentController {
     ) {
         PaginationResponse<CommentResponseDto> response = commentService.getRepliesByRootCommentId(rootCommentId, page, size);
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("")
+    public ResponseEntity<List<CommentStat>> getCommentStats(@RequestHeader("X-UserId") Long userId, @RequestParam Long days) {
+        return ResponseEntity.ok(commentService.countCommentsByUserIdAndDate(userId, days));
+
     }
 
     @DeleteMapping("/{commentId}")

@@ -1,8 +1,7 @@
 import { useState } from "react"
 import FormInput from "../components/Auth/FormInput"
 import useRegister from "../hooks/auth/useRegister"
-
-const GOOGLE_LOGO = 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/768px-Google_%22G%22_logo.svg.png'
+import Logo from "../components/Layout/Logo"
 
 interface FormDataType {
     email: string
@@ -10,6 +9,7 @@ interface FormDataType {
     password: string
     verifyPassword: string
     verifyCode: string
+    age: string
 }
 
 interface FormErrors {
@@ -18,6 +18,7 @@ interface FormErrors {
     password?: string
     verifyPassword?: string
     verifyCode?: string
+    age?: string
 }
 
 const RegisterPage = () => {
@@ -26,7 +27,8 @@ const RegisterPage = () => {
         username: '',
         password: '',
         verifyPassword: '',
-        verifyCode: ''
+        verifyCode: '',
+        age: ''
     })
     const [errors, setErrors] = useState<FormErrors>({})
 
@@ -72,6 +74,14 @@ const RegisterPage = () => {
             newErrors.verifyCode = 'Verification code must be 6 digits'
         }
 
+        if (!formData.age) {
+            newErrors.age = 'Age is required'
+        } else if (isNaN(Number(formData.age)) || Number(formData.age) <= 0) {
+            newErrors.age = 'Please enter a valid age'
+        } else if (Number(formData.age) < 13) {
+            newErrors.age = 'You must be at least 13 years old'
+        }
+
         setErrors(newErrors)
         return Object.keys(newErrors).length === 0
     }
@@ -87,6 +97,7 @@ const RegisterPage = () => {
             email: formData.email,
             username: formData.username,
             password: formData.password,
+            age: Number(formData.age)
         })
     }
 
@@ -94,10 +105,9 @@ const RegisterPage = () => {
         <main className="flex h-screen">
             <aside className="hidden md:flex bg-blue-500 min-h-20 md:flex-4 flex-1" aria-hidden="true" />
             <section className="mx-8 md:px-20 login-form flex-3 flex flex-col w-full max-w-xl">
-                <header className="logo flex gap-2 items-center mt-3 justify-end">
-                    <img src={GOOGLE_LOGO} alt="logo" className="h-6" />
-                    <p className="text-2xl font-extrabold">Reely</p>
-                </header>
+                <div className="logo gap-2 items-center mt-3 flex justify-start">
+                    <Logo variant="dark" />
+                </div>
 
                 <div className="shrink my-auto flex flex-col gap-8">
                     <h1 className="text-4xl font-extrabold text-center">Sign Up</h1>
@@ -123,6 +133,14 @@ const RegisterPage = () => {
                             value={formData.username}
                             onChange={handleChange("username")}
                             error={errors.username}
+                        />
+                        <FormInput
+                            label="Age"
+                            type="number"
+                            placeholder="Age"
+                            value={formData.age}
+                            onChange={handleChange("age")}
+                            error={errors.age}
                         />
                         <FormInput
                             label="Password"

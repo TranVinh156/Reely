@@ -11,6 +11,7 @@ import com.reely.modules.user.repository.UserFollowRepository;
 import com.reely.modules.user.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import java.util.*;
@@ -26,7 +27,6 @@ public class FeedServiceImpl implements FeedService {
     private final LikeRepository likeRepository;
     private final CommentRepository commentRepository;
     private final FeedMapper feedMapper;
-
     /**
      * Public Feed
      * 
@@ -34,9 +34,9 @@ public class FeedServiceImpl implements FeedService {
      * @return
      */
     @Override
-    public FeedResponse getPublicFeed(Pageable pageable) {
+    public FeedResponse getPublicFeed(Pageable pageable, Long viewerId) {
         Page<Video> page = videoRepository.findPublicFeed(pageable);
-        List<FeedVideoDTO> content = mapVideosToDTO(page.getContent(), null);
+        List<FeedVideoDTO> content = mapVideosToDTO(page.getContent(), viewerId);
         return buildFeedResponse(page, content);
     }
 
@@ -54,9 +54,9 @@ public class FeedServiceImpl implements FeedService {
                 .map(userFollow -> userFollow.getFollowing().getId())
                 .collect(Collectors.toList());
         if (followeeIds.isEmpty())
-            return getPublicFeed(pageable);
+            return getPublicFeed(pageable, userId);
 
-        Page<Video> page = videoRepository.findFollowedFeed(followeeIds, pageable);
+        Page<Video> page = videoRepository.findFeedForUser(followeeIds, pageable);
         List<FeedVideoDTO> content = mapVideosToDTO(page.getContent(), userId);
         return buildFeedResponse(page, content);
     }
@@ -68,9 +68,9 @@ public class FeedServiceImpl implements FeedService {
      * @return
      */
     @Override
-    public FeedResponse getTrendingFeed(Pageable pageable) {
+    public FeedResponse getTrendingFeed(Pageable pageable, Long viewerId) {
         Page<Video> page = videoRepository.findTrendingFeed(pageable);
-        List<FeedVideoDTO> content = mapVideosToDTO(page.getContent(), null);
+        List<FeedVideoDTO> content = mapVideosToDTO(page.getContent(), viewerId);
         return buildFeedResponse(page, content);
     }
 
@@ -82,9 +82,9 @@ public class FeedServiceImpl implements FeedService {
      * @return
      */
     @Override
-    public FeedResponse getUserFeed(Long userId, Pageable pageable) {
+    public FeedResponse getUserFeed(Long userId, Pageable pageable, Long viewerId) {
         Page<Video> page = videoRepository.findByUserId(userId, pageable);
-        List<FeedVideoDTO> content = mapVideosToDTO(page.getContent(), null);
+        List<FeedVideoDTO> content = mapVideosToDTO(page.getContent(), viewerId);
         return buildFeedResponse(page, content);
     }
 
@@ -116,6 +116,7 @@ public class FeedServiceImpl implements FeedService {
 
         return VideoDetailDTO.builder()
                 .videoId(video.getId())
+                .userId(video.getUserId())
                 .title(video.getTitle())
                 .description(video.getDescription())
                 .videoUrl("https://s3.reely.vn/videos/" + video.getOriginalS3Key())
@@ -124,6 +125,8 @@ public class FeedServiceImpl implements FeedService {
                 .viewCount(video.getViewCount())
                 .likeCount(video.getLikeCount())
                 .commentCount(video.getCommentCount())
+            .durationSeconds(video.getDurationSeconds())
+            .tags(video.getTags() == null ? List.of() : video.getTags().stream().map(Tag::getName).toList())
                 .createdAt(video.getCreatedAt())
                 // .comments(commentDTOs)
                 .build();

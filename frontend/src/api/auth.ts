@@ -35,3 +35,7 @@ export const getCurrentUser = async (): Promise<User> => {
     const response = await axiosClient.get('/auth/me');
     return response.data
 }
+
+export const changePassword = async (data: any): Promise<void> => {
+    await axiosClient.post('/auth/change-password', data);
+}

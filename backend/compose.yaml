@@ -23,9 +23,23 @@ services:
     networks:
       - reely-network
 
+  minio:
+    image: minio/minio
+    container_name: minio
+    environment:
+      MINIO_ROOT_USER: admin
+      MINIO_ROOT_PASSWORD: verysecret
+    volumes:
+      - minio_data:/data
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    command: server /data --console-address ":9001"
+
 networks:
   reely-network:
     driver: bridge
 
 volumes:
   rabbitmq_data:
+  minio_data:

@@ -10,13 +10,11 @@ import VideoInfo from "./VideoInfo";
 interface VideoControlsProps {
   username: string;
   description: string;
-  isPlaying: boolean;
   currentTime: number;
   duration: number;
   progress: number;
   muted: boolean;
   volume: number;
-  togglePlay: () => void;
   toggleMute: () => void;
   setVol: (volume: number) => void;
   onSeek: (time: number) => void;
@@ -27,13 +25,11 @@ interface VideoControlsProps {
 export default function VideoControls({
   username,
   description,
-  isPlaying,
   currentTime,
   duration,
   progress,
   muted,
   volume,
-  togglePlay,
   toggleMute,
   setVol,
   onSeek,
@@ -47,9 +43,12 @@ export default function VideoControls({
     //   {/* Placeholder: we'll implement ProgressBar, Volume, etc. in Phase2 */}
     // </div>
 
-    <div className="pointer-events-none absolute inset-0 flex flex-col justify-between select-none">
+    <div
+      className="pointer-events-none absolute inset-0 flex flex-col justify-between select-none"
+      data-video-controls="1"
+    >
       {/* Overlay Play/Pause Animation */}
-      <AnimatePresence>
+      {/* <AnimatePresence>
         {!isPlaying && (
           <motion.div
             key="play-overlay"
@@ -62,7 +61,7 @@ export default function VideoControls({
             <i className="ri-play-circle-fill text-6xl text-white/80" />
           </motion.div>
         )}
-      </AnimatePresence>
+      </AnimatePresence> */}
       {/* Bottom Controls */}
       <div className="pointer-events-auto absolute right-0 bottom-0 left-0 px-3 pb-3">
         <div className="flex flex-col gap-2">

@@ -1,7 +1,16 @@
 package com.reely.modules.user.service.impl;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.reely.config.RabbitMQConfig;
+import com.reely.modules.feed.entity.Video;
+import com.reely.modules.interaction.entity.Likes;
+import com.reely.modules.notification.dto.NotificationRequestDto;
+import com.reely.modules.notification.enums.NotificationType;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
 
 import com.reely.modules.user.dto.UserDTO;
@@ -17,10 +26,13 @@ import jakarta.transaction.Transactional;
 public class UserFollowImpl implements UserFollowService {
     private final UserRepository userRepository;
     private final UserFollowRepository userFollowRepository;
+    private final RabbitTemplate rabbitTemplate;
 
-    public UserFollowImpl(UserRepository userRepository, UserFollowRepository userFollowRepository) {
+
+    public UserFollowImpl(UserRepository userRepository, UserFollowRepository userFollowRepository, RabbitTemplate rabbitTemplate) {
         this.userRepository = userRepository;
         this.userFollowRepository = userFollowRepository;
+        this.rabbitTemplate =  rabbitTemplate;
     }
 
     @Override
@@ -33,6 +45,7 @@ public class UserFollowImpl implements UserFollowService {
                 .following(following)
                 .build();
         userFollowRepository.save(userFollow);
+        publisherFollowNotification(userFollow, follower, following);
     }
 
     @Override
@@ -74,6 +87,32 @@ public class UserFollowImpl implements UserFollowService {
     @Override
     public boolean isFollowing(long followerId, long followingId) {
         return this.userFollowRepository.existsByFollowerIdAndFollowingId(followerId, followingId);
+    }
+
+    private void publisherFollowNotification(UserFollow UserFollow, User follower, User following) {
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+
+            String content = "đã follow bạn";
+            Map<String, Object> payloadMap = new HashMap<>();
+            payloadMap.put("actorId", follower.getId());
+            payloadMap.put("actorUsername", follower.getUsername());
+            payloadMap.put("actorAvatar", follower.getAvatarUrl());
+            payloadMap.put("message", content);
+
+            String payload = objectMapper.writeValueAsString(payloadMap);
+
+            NotificationRequestDto notificationRequestDto = NotificationRequestDto.builder()
+                    .userId(following.getId())
+                    .type(NotificationType.FOLLOW)
+                    .payload(payload)
+                    .readFlag(0)
+                    .build();
+
+            rabbitTemplate.convertAndSend(RabbitMQConfig.FOLLOW_EXCHANGE, RabbitMQConfig.FOLLOW_ROUTING_KEY, notificationRequestDto);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
     }
 
 }

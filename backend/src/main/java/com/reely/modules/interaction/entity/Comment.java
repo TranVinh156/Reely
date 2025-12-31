@@ -36,20 +36,20 @@ public class Comment {
     private Comment replyToComment;
 
     private Integer replyCount;
-    private Integer deleted_flag;
+    private Integer deletedFlag;
     private String text;
-    private Instant created_at;
-    private Instant updated_at;
+    private Instant createdAt;
+    private Instant updatedAt;
 
     @PrePersist
     public void prePersist() {
-        created_at = Instant.now();
-        updated_at = Instant.now();
+        createdAt = Instant.now();
+        updatedAt = Instant.now();
     }
 
     @PreUpdate
     public void preUpdate() {
-        updated_at = Instant.now();
+        updatedAt = Instant.now();
     }
 
 }

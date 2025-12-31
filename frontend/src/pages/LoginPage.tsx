@@ -2,7 +2,8 @@ import React, { useState } from 'react'
 import FormInput from '../components/Auth/FormInput'
 import useLogin, { type LoginCredentials } from '../hooks/auth/useLogin'
 import backgroundImage from '../assets/background.png'
-import { useNavigate, Link } from 'react-router'
+import { useNavigate, Link, NavLink } from 'react-router'
+import Logo from '../components/Layout/Logo'
 
 const GOOGLE_LOGO = 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/768px-Google_%22G%22_logo.svg.png'
 
@@ -34,8 +35,7 @@ const LoginPage: React.FC = () => {
         <main className="flex h-screen">
             <section className="mx-8 md:mx-10 login-form flex-3 flex flex-col w-full max-w-xl">
                 <header className="logo flex gap-2 items-center mt-3">
-                    <img src={GOOGLE_LOGO} alt="logo" className="h-6" />
-                    <p className="text-2xl font-extrabold">Reely</p>
+                    <Logo variant="dark" />
                 </header>
 
                 <div className="shrink my-auto lg:px-15">
@@ -44,7 +44,7 @@ const LoginPage: React.FC = () => {
 
                     {error && (
                         <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-md" role="alert">
-                            {error instanceof Error ? error.message : 'Login failed. Please try again.'}
+                            {(error as any)?.response?.data?.message || 'Login failed. Please try again.'}
                         </div>
                     )}
 
@@ -52,6 +52,10 @@ const LoginPage: React.FC = () => {
                         <FormInput label="Email" type="email" value={formData.email} onChange={handleChange('email')} placeholder="Email" />
 
                         <FormInput label="Password" type="password" value={formData.password} onChange={handleChange('password')} placeholder="Password" />
+
+                        <NavLink to="/password/reset" className='z-10 text-right text-sm hover:underline hover:cursor-pointer'>
+                            Forgot Password
+                        </NavLink>
 
                         <button
                             type="submit"
@@ -75,13 +79,13 @@ const LoginPage: React.FC = () => {
                     </button>
 
                     <div className="text-center mt-4">
-                        Need an account? <Link to="/register" className="text-blue-600 underline">Create one</Link>
+                        Need an account? <NavLink to="/register" className="underline">Create one</NavLink>
                     </div>
                 </div>
             </section>
 
-            <aside className="hidden md:flex md:flex-4 flex-1 min-h-20" aria-hidden="true">
-                <img src={backgroundImage} alt="" className="w-full h-full object-cover object-left scale-x-[-1]" />
+            <aside className="hidden md:flex md:flex-4 flex-1 min-h-20 bg-blue-500" aria-hidden="true">
+                {/* <img src={backgroundImage} alt="" className="w-full h-full object-cover object-left scale-x-[-1]" /> */}
             </aside>
         </main>
     )

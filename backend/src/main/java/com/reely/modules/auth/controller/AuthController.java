@@ -3,6 +3,9 @@ package com.reely.modules.auth.controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.reely.modules.auth.dto.ChangePasswordRequest;
+import com.reely.modules.auth.dto.ForgotPasswordRequest;
+import com.reely.modules.auth.dto.ForgotPasswordResponse;
 import com.reely.modules.auth.dto.LoginRequest;
 import com.reely.modules.auth.dto.LoginResponse;
 import com.reely.modules.auth.dto.RegistrationRequest;
@@ -15,6 +18,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -119,6 +123,17 @@ public class AuthController {
                                 .header(HttpHeaders.SET_COOKIE, clearCookie.toString()).build();
         }
 
+        @PostMapping("/change-password")
+        public ResponseEntity<Void> changePassword(@RequestBody ChangePasswordRequest request) {
+                this.authService.handleChangePassword(request);
+                return ResponseEntity.noContent().build();
+        }
+
+        @PostMapping("/forgot-password")
+        public ResponseEntity<Void> forgotPassword(@RequestBody ForgotPasswordRequest request) {
+                return ResponseEntity.noContent().build();
+        }
+
         @PostMapping("/register")
         public ResponseEntity<UserDTO> register(@RequestBody RegistrationRequest request) {
                 String hashPassword = this.passwordEncoder.encode(request.getPassword());
@@ -133,5 +148,4 @@ public class AuthController {
                 UserDTO userDTO = this.userService.getUserByEmail(email);
                 return ResponseEntity.ok(userDTO);
         }
-
 }

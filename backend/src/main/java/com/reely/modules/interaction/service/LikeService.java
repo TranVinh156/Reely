@@ -2,8 +2,10 @@ package com.reely.modules.interaction.service;
 
 import com.reely.modules.interaction.dto.LikeRequestDto;
 import com.reely.modules.interaction.dto.LikeResponseDto;
+import com.reely.modules.interaction.dto.LikeStat;
 import com.reely.modules.interaction.entity.Likes;
 
+import java.time.Instant;
 import java.util.List;
 
 public interface LikeService {
@@ -11,6 +13,9 @@ public interface LikeService {
     List<LikeResponseDto> getLikeByVideoId(Long videoId);
     List<LikeResponseDto> getLikeByUserId(Long userId);
     LikeResponseDto getLikeByVideoIdAndUserId(Long videoId, Long userId);
+    List<LikeStat> countLikesByUserIdAndDate(Long userId, Long days);
+    List<Long> statisticLikesUserAge(Long userId);
     Likes getLikeById(Long likeId);
     void deleteLike(long likeId);
+    void deleteLikeByVideoIdAndUserId(Long videoId, Long userId);
 }

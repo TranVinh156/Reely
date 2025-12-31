@@ -1,12 +1,23 @@
-import LogoImage from '@/assets/logo.png'
+import { NavLink } from "react-router-dom";
+import logo from "../../assets/logo.png";
 
 
-const Logo = () => {
+const Logo = ({ collapsed, variant = 'light' }: { collapsed?: boolean, variant?: 'light' | 'dark' }) => {
     return (
-        <div className='flex items-center gap-2'>
-            <img className="w-10 h-auto" src={LogoImage} alt="logo" />
-            <p className='font-bold hidden md:flex text-2xl text-white'>Reely</p>
-        </div>
+        <NavLink to={'/'} className="w-full">
+            <div className='flex items-center gap-2 w-fit'>
+                <img
+                    src={logo}
+                    alt="Logo"
+                    className={`w-12 h-12 filter brightness-0 ${variant === 'light' ? 'invert' : ''}`}
+                />
+                {!collapsed && (
+                    <p className={`font-black hidden lg:flex text-3xl ${variant === 'light' ? 'text-white' : 'text-black'}`}>
+                        Reely
+                    </p>
+                )}
+            </div>
+        </NavLink>
     )
 }
 

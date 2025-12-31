@@ -25,7 +25,7 @@ public class CommentResponseDto {
         this.username = comment.getUser().getUsername();
         this.comment = comment.getText();
         this.avatarUrl = comment.getUser().getAvatarUrl();
-        this.timestamp = comment.getCreated_at().toString();
+        this.timestamp = comment.getCreatedAt().toString();
         this.replyCount = comment.getReplyCount();
         if (comment.getReplyToComment() != null) {
             this.usernameReplied = comment.getReplyToComment().getUser().getUsername();

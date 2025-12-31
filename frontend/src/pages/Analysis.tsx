@@ -1,0 +1,30 @@
+import AnalysisLineChart from "@/components/Analysis/AnalysisLineChart";
+import AnalysisNavigateBar from "@/components/Analysis/AnalysisNavigateBar";
+import AnalysisOption from "@/components/Analysis/AnalysisOption";
+import AnalysisPieChart from "@/components/Analysis/AnalysisPieChart";
+import LastestPost from "@/components/Analysis/LatestPost";
+import Sidebar from "@/components/Layout/Sidebar";
+import React, { useState } from "react";
+
+const Analysis: React.FC = () => {
+    const [activeBar, setActiveBar] = useState("views"); 
+    const [searchTime, setSearchTime] = useState("7")
+    return (
+        <div className='flex bg-neutral-900'>
+            <Sidebar />
+            <div className="bg-[#161823] min-h-screen flex-1 px-4 md:px-10 lg:px-20">
+                <AnalysisNavigateBar searchTime={searchTime} setSearchTime={setSearchTime}/>
+                <AnalysisOption activeBar={activeBar} setActiveBar={setActiveBar}/>
+                <AnalysisLineChart activeBar={activeBar} searchTime={searchTime}/>
+
+                <div className="flex flex-col lg:flex-row mt-5 gap-10">
+                    <AnalysisPieChart></AnalysisPieChart>
+                    <LastestPost>
+                    </LastestPost>
+                    
+                </div>
+            </div>              
+        </div>
+    )
+}
+export default Analysis;

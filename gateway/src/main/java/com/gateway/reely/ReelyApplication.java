@@ -19,14 +19,35 @@ public class ReelyApplication {
 	@Bean
 	public RouteLocator routeLocator(RouteLocatorBuilder builder) {
 		return builder.routes()
-				.route("auth-service", p -> p
-						.path("/api/v1/auth/**")
-						.uri(backendUrl))
-				.route("user-service", p -> p
-						.path("/api/v1/users/**")
+				.route("api-service", p -> p
+						.path("/**")
 						.uri(backendUrl))
 				.route("api-service", p -> p
-						.path("/hello")
+						.path("/api/v1/notifications/**")
+						.uri(backendUrl))
+				.route("api-service", p -> p
+						.path("/api/v1/comments/**")
+						.uri(backendUrl))
+				.route("api-service", p -> p
+						.path("/api/v1/videos/**")
+						.uri(backendUrl))
+				.route("api-service", p -> p
+						.path("/api/v1/reports/**")
+						.uri(backendUrl))
+				.route("upload-service", p -> p
+						.path("/api/v1/upload/**")
+						.uri(backendUrl))
+                .route("api-service", p -> p
+                        .path("/api/v1/likes/**")
+                        .uri(backendUrl))				
+				.route("search-service", p -> p
+						.path("/api/v1/search/**")
+						.uri(backendUrl))
+				.route("tags-service", p -> p
+						.path("/api/v1/tags/**")
+						.uri(backendUrl))
+				.route("feed-service", p -> p
+						.path("/api/v1/feed/**")
 						.uri(backendUrl))
 				.build();
 	}
