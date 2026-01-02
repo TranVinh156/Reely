@@ -8,7 +8,6 @@ interface FormDataType {
     username: string
     password: string
     verifyPassword: string
-    verifyCode: string
     age: string
 }
 
@@ -17,7 +16,6 @@ interface FormErrors {
     username?: string
     password?: string
     verifyPassword?: string
-    verifyCode?: string
     age?: string
 }
 
@@ -27,7 +25,6 @@ const RegisterPage = () => {
         username: '',
         password: '',
         verifyPassword: '',
-        verifyCode: '',
         age: ''
     })
     const [errors, setErrors] = useState<FormErrors>({})
@@ -68,12 +65,6 @@ const RegisterPage = () => {
             newErrors.verifyPassword = 'Passwords do not match'
         }
 
-        if (!formData.verifyCode) {
-            newErrors.verifyCode = 'Verification code is required'
-        } else if (formData.verifyCode.length !== 6) {
-            newErrors.verifyCode = 'Verification code must be 6 digits'
-        }
-
         if (!formData.age) {
             newErrors.age = 'Age is required'
         } else if (isNaN(Number(formData.age)) || Number(formData.age) <= 0) {
@@ -102,11 +93,10 @@ const RegisterPage = () => {
     }
 
     return (
-        <main className="flex h-screen">
-            <aside className="hidden md:flex bg-blue-500 min-h-20 md:flex-4 flex-1" aria-hidden="true" />
-            <section className="mx-8 md:px-20 login-form flex-3 flex flex-col w-full max-w-xl">
-                <div className="logo gap-2 items-center mt-3 flex justify-start">
-                    <Logo variant="dark" />
+        <main className="flex h-screen items-center justify-center">
+            <section className="mx-8 md:px-20 login-form flex-3 flex flex-col w-full max-w-xl gap-16">
+                <div className="logo flex gap-2 mt-3 w-full items-center justify-center">
+                    <Logo variant="dark" className="" />
                 </div>
 
                 <div className="shrink my-auto flex flex-col gap-8">
@@ -158,23 +148,6 @@ const RegisterPage = () => {
                             onChange={handleChange("verifyPassword")}
                             error={errors.verifyPassword}
                         />
-                        <div className="flex gap-2">
-                            <div className="flex-1">
-                                <FormInput
-                                    label="Verify code"
-                                    placeholder="Enter the 6-digit code"
-                                    value={formData.verifyCode}
-                                    onChange={handleChange("verifyCode")}
-                                    error={errors.verifyCode}
-                                />
-                            </div>
-                            <button
-                                type="button"
-                                className="text-black font-semibold border flex-1 border-gray-200 rounded-md h-12 mt-auto"
-                            >
-                                Send code
-                            </button>
-                        </div>
                         <button
                             type="submit"
                             disabled={isPending}

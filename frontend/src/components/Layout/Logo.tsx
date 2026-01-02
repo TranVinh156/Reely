@@ -2,9 +2,9 @@ import { NavLink } from "react-router-dom";
 import logo from "../../assets/logo.png";
 
 
-const Logo = ({ collapsed, variant = 'light' }: { collapsed?: boolean, variant?: 'light' | 'dark' }) => {
+const Logo = ({ collapsed, variant = 'light', className = "w-full" }: { collapsed?: boolean, variant?: 'light' | 'dark', className?: string }) => {
     return (
-        <NavLink to={'/'} className="w-full">
+        <NavLink to={'/'} className={className}>
             <div className='flex items-center gap-2 w-fit'>
                 <img
                     src={logo}

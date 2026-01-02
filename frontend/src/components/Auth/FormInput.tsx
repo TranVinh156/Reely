@@ -27,9 +27,7 @@ const FormInput: React.FC<FormInputProps> = ({
     id,
     name,
 }) => {
-    const safeLabel = label || '';
-    const safeName = name || safeLabel;
-    const inputId = id || `input-${safeName.toLowerCase().replace(/\s+/g, '-')}`;
+    const inputId = id || `input-${name || label.toLowerCase().replace(/\s+/g, '-')}`;
     const [isFocused, setIsFocused] = React.useState(false);
 
     const showFloating = isFocused || value !== '';
@@ -39,7 +37,7 @@ const FormInput: React.FC<FormInputProps> = ({
             <div className="relative">
                 <input
                     id={inputId}
-                    name={safeName.toLowerCase().replace(/\s+/g, '-')}
+                    name={name || label.toLowerCase().replace(/\s+/g, '-')}
                     type={type}
                     value={value}
                     onChange={(e) => onChange(e.target.value)}
