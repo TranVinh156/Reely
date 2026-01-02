@@ -94,7 +94,7 @@ const RegisterPage = () => {
 
     return (
         <main className="flex h-screen items-center justify-center">
-            <section className="mx-8 md:px-20 login-form flex-3 flex flex-col w-full max-w-xl gap-16">
+            <section className="mx-8 md:px-20 login-form flex-3 flex flex-col w-full max-w-xl gap-8">
                 <div className="logo flex gap-2 mt-3 w-full items-center justify-center">
                     <Logo variant="dark" className="" />
                 </div>

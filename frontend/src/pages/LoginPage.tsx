@@ -66,18 +66,6 @@ const LoginPage: React.FC = () => {
                             {isPending ? 'Signing in...' : 'Sign in'}
                         </button>
                     </form>
-
-                    <p className="w-full text-center my-3 text-gray-400">or</p>
-
-                    <button
-                        type="button"
-                        className="flex gap-2 items-center justify-center py-3 px-4 border border-gray-200 w-full rounded-md font-bold"
-                        aria-label="Sign in with Google"
-                    >
-                        Sign in with Google
-                        <img src={GOOGLE_LOGO} alt="google-icon" className="w-5 h-5" />
-                    </button>
-
                     <div className="text-center mt-4">
                         Need an account? <NavLink to="/register" className="underline">Create one</NavLink>
                     </div>
