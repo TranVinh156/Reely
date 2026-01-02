@@ -5,7 +5,7 @@ import { preloadUrl } from "./usePreloadRendition";
 
 export function useVideoController(videoRef: RefObject<HTMLVideoElement | null>, id: string) {
   const [isPlaying, setIsPlaying] = useState(false);
-  const [muted, setMuted] = useState(true);
+  const [muted, setMuted] = useState(false);
   const [volume, setVolume] = useState(1);
   const autoPlay = useFeedStore((s) => s.autoPlay);
   const currentIndex = useFeedStore((s) => s.currentIndex);
