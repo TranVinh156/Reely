@@ -32,13 +32,13 @@ const LoginPage: React.FC = () => {
     }
 
     return (
-        <main className="flex h-screen items-center">
-            <section className="mx-8 md:mx-10 login-form flex-3 flex flex-col w-full items-center gap-12">
+        <div className="flex h-screen items-center justify-center p-6">
+            <div className="login-form flex flex-col w-full max-w-md items-center gap-12">
                 <div className="logo flex gap-2 mt-3 w-full items-center justify-center">
                     <Logo variant="dark" className="" />
                 </div>
 
-                <div className="shrink w-md my-auto lg:px-12 lg:w-2xl">
+                <div className="w-full px-2">
                     <h1 className="text-4xl font-extrabold">Sign in</h1>
                     <p className="text-gray-400 mt-1 mb-6">Please login to continue your account</p>
 
@@ -70,8 +70,8 @@ const LoginPage: React.FC = () => {
                         Need an account? <NavLink to="/register" className="underline">Create one</NavLink>
                     </div>
                 </div>
-            </section>
-        </main>
+            </div>
+        </div>
     )
 }
 
