@@ -32,13 +32,13 @@ const LoginPage: React.FC = () => {
     }
 
     return (
-        <main className="flex h-screen">
-            <section className="mx-8 md:mx-10 login-form flex-3 flex flex-col w-full max-w-xl">
-                <header className="logo flex gap-2 items-center mt-3">
-                    <Logo variant="dark" />
-                </header>
+        <main className="flex h-screen items-center">
+            <section className="mx-8 md:mx-10 login-form flex-3 flex flex-col w-full items-center gap-12">
+                <div className="logo flex gap-2 mt-3 w-full items-center justify-center">
+                    <Logo variant="dark" className="" />
+                </div>
 
-                <div className="shrink my-auto lg:px-15">
+                <div className="shrink w-md my-auto lg:px-12 lg:w-2xl">
                     <h1 className="text-4xl font-extrabold">Sign in</h1>
                     <p className="text-gray-400 mt-1 mb-6">Please login to continue your account</p>
 
@@ -83,10 +83,6 @@ const LoginPage: React.FC = () => {
                     </div>
                 </div>
             </section>
-
-            <aside className="hidden md:flex md:flex-4 flex-1 min-h-20 bg-blue-500" aria-hidden="true">
-                {/* <img src={backgroundImage} alt="" className="w-full h-full object-cover object-left scale-x-[-1]" /> */}
-            </aside>
         </main>
     )
 }
