@@ -17,8 +17,9 @@ const UploadPreview: React.FC<Props> = ({ file, handleCancel, thumbnail }) => {
   const [tagsText, setTagsText] = React.useState("");
   const [videoSrc, setSrc] = React.useState("");
   const { user } = useAuth();
+  const navigate = useNavigate();
 
-  const { uploadVideo } = useUpload();
+  const { uploadVideo, uploading, progress } = useUpload();
   const parsedTags = React.useMemo(() => {
     return tagsText
       .split(/[\s,]+/)
@@ -34,14 +35,14 @@ const UploadPreview: React.FC<Props> = ({ file, handleCancel, thumbnail }) => {
     if (!file) return;
 
     try {
-      const result = await uploadVideo(
+      await uploadVideo(
         user?.id,
         title.trim(),
         description.trim(),
         file,
         parsedTags,
       );
-      handleCancel();
+      navigate(`/users/${user?.username}`);
     } catch (err) {
       console.error("Upload failed:", err);
     }
@@ -140,13 +141,13 @@ const UploadPreview: React.FC<Props> = ({ file, handleCancel, thumbnail }) => {
             </p>
           </div>
           <div className="mt-2 flex flex-col justify-end gap-4 sm:flex-row">
-            <NavLink
-              to={`/users/${user?.username}`}
+            <button
               onClick={handlePublish}
-              className="flex-1 cursor-pointer rounded bg-black px-4 py-2 font-semibold text-white hover:bg-gray-400"
+              disabled={uploading}
+              className="flex-1 cursor-pointer rounded bg-black px-4 py-2 font-semibold text-white hover:bg-gray-400 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Publish Video
-            </NavLink>
+              {uploading ? "Publishing..." : "Publish Video"}
+            </button>
             <button
               onClick={handleCancel}
               className="flex-1 cursor-pointer rounded bg-gray-600 px-4 py-2 font-semibold text-white hover:bg-gray-700"
@@ -165,6 +166,16 @@ const UploadPreview: React.FC<Props> = ({ file, handleCancel, thumbnail }) => {
           />
         </div>
       </div>
+      {uploading && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+          <div className="flex flex-col items-center justify-center rounded-xl bg-[#181C32] p-8 shadow-2xl border border-gray-700">
+            <CircularProgress progress={progress} size={100} strokeWidth={8} />
+            <p className="mt-6 text-xl font-bold text-white">Publishing Video...</p>
+            <p className="mt-2 text-sm text-gray-400">Please wait...</p>
+            <p className="mt-1 text-lg font-semibold text-blue-400">{progress}%</p>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

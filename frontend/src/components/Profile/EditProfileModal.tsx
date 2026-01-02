@@ -4,6 +4,7 @@ import { Save, UserIcon, X, Pencil } from "lucide-react"
 import { useState, useEffect, useRef } from "react"
 import { useGetAvatarPresignedUrl } from "@/hooks/upload/usePresignedUrl";
 import { useUploadFile } from "@/hooks/upload/useUploadFile";
+import { STORAGE_URL } from "@/utils/constant";
 
 interface EditProfileModalProps {
     isOpen: boolean;
@@ -30,7 +31,6 @@ const EditProfileModal = ({ isOpen, onClose }: EditProfileModalProps) => {
     const { mutateAsync: updateProfileMutate, isPending, isError } = useUpdateProfile()
     const { mutateAsync: getPresignedUrl } = useGetAvatarPresignedUrl();
     const { uploadFile, isUploading } = useUploadFile();
-    const storageUrl = 'http://localhost:9000'
 
     useEffect(() => {
         if (user) {
@@ -40,9 +40,9 @@ const EditProfileModal = ({ isOpen, onClose }: EditProfileModalProps) => {
                 bio: user.bio || '',
                 avatarUrl: user.avatarUrl || ''
             })
-            
-            const avatar = user.avatarUrl 
-                ? (user.avatarUrl.startsWith('http') ? user.avatarUrl : `${storageUrl}/${user.avatarUrl}`)
+
+            const avatar = user.avatarUrl
+                ? (user.avatarUrl.startsWith('http') ? user.avatarUrl : `${STORAGE_URL}/${user.avatarUrl}`)
                 : null;
 
             setPreviewAvatar(avatar);
@@ -116,10 +116,10 @@ const EditProfileModal = ({ isOpen, onClose }: EditProfileModalProps) => {
                             <div className="absolute bottom-0 right-0 bg-black p-2 rounded-full text-white shadow-lg border-4 border-primary">
                                 <Pencil size={16} />
                             </div>
-                            <input 
-                                type="file" 
-                                ref={fileInputRef} 
-                                className="hidden" 
+                            <input
+                                type="file"
+                                ref={fileInputRef}
+                                className="hidden"
                                 accept="image/*"
                                 onChange={handleFileChange}
                             />

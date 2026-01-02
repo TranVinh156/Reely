@@ -1,5 +1,6 @@
 package com.gateway.reely;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.gateway.route.RouteLocator;
@@ -10,7 +11,8 @@ import org.springframework.web.reactive.config.EnableWebFlux;
 @SpringBootApplication
 @EnableWebFlux
 public class ReelyApplication {
-	private final String backendUrl = "http://localhost:8080";
+	@Value("${backend.url}")
+	private String backendUrl;
 
 	public static void main(String[] args) {
 		SpringApplication.run(ReelyApplication.class, args);

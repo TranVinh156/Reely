@@ -19,6 +19,7 @@ import TagPage from "./pages/TagePage";
 import ForgetPasswordPage from "./pages/ForgetPasswordPage";
 import Analysis from "./pages/Analysis";
 import VideoPage from "./pages/VideoPage";
+import ResetPasswordPage from "./pages/ResetPasswordPage";
 
 const queryClient = new QueryClient();
 
@@ -128,6 +129,10 @@ ReactDOM.createRoot(root).render(
                             }
                         />
 
+                        <Route
+                            path="/reset-password"
+                            element={<ResetPasswordPage />}
+                        />
                     </Routes>
                 </BrowserRouter>
             </UploadProvider>
