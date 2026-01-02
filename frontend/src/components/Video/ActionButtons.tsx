@@ -1,6 +1,6 @@
 // frontend/src/components/Video/ActionButtons.tsx
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { useLocation } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 import { useMediaQuery } from "@/hooks/feed/useMediaQuery";
 import { useFeedStore } from "@/store/feedStore";
 import Comment from "@/components/Comment/Comment";
@@ -155,7 +155,7 @@ export function ActionButtons({ video }: Props) {
       >
         {/* Avatar */}
         <div className="relative">
-          <div className="h-12 w-12 overflow-hidden rounded-full border-2 border-white/20">
+          <NavLink to={video.user.id} className="h-12 w-12 overflow-hidden rounded-full border-2 border-white/20">
             {video.user.avatar ? (
               <img
                 src={video.user.avatar}
@@ -167,7 +167,7 @@ export function ActionButtons({ video }: Props) {
                 <UserIcon color="black" />
               </div>
             )}
-          </div>
+          </NavLink>
           {currentUser && currentUser.id !== videoOwnerIdNumber && (!isFollowed || justFollowed) && (
             <button
               onClick={handleFollow}
@@ -221,14 +221,14 @@ export function ActionButtons({ video }: Props) {
       {isCommentOpen && (
         <>
           {isSmallScreen && (
-            <div 
+            <div
               className="fixed inset-0 bg-black/50 z-40"
               onClick={closeComment}
             />
           )}
           <div className={`fixed z-50 shadow-xl bg-[#1e1e1e] transition-all duration-300 ease-in-out
-            ${isSmallScreen 
-              ? "inset-x-0 bottom-0 h-[70vh] rounded-t-2xl border-t border-white/10" 
+            ${isSmallScreen
+              ? "inset-x-0 bottom-0 h-[70vh] rounded-t-2xl border-t border-white/10"
               : "right-0 top-0 bottom-0 w-[450px] border-l border-white/10"
             }
           `}>
