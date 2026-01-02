@@ -8,7 +8,7 @@ interface Props {
 const UploadDropZone: React.FC<Props> = ({ onFileSelect }) => {
   const [isDragging, setIsDragging] = useState(false);
   const dragCounter = useRef(0);
-  
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) onFileSelect(file);
@@ -19,7 +19,7 @@ const UploadDropZone: React.FC<Props> = ({ onFileSelect }) => {
     e.stopPropagation();
     setIsDragging(false);
     dragCounter.current = 0;
-    
+
     const file = e.dataTransfer.files[0];
     if (file) onFileSelect(file);
   };
@@ -43,31 +43,30 @@ const UploadDropZone: React.FC<Props> = ({ onFileSelect }) => {
   return (
     <div className='text-white'>
       <div
-        className={`upload-dropzone mt-20 p-8 sm:p-16 md:p-20 lg:p-25 text-center rounded-xl m-auto max-w-screen-xl bg-[#181C32]  border-2 border-dashed transition-all duration-200 ${
-          isDragging 
-            ? 'border-white/40 scale-[1.01]' 
-            : 'border-white/10 hover:border-white/40'
+        className={`upload-dropzone mt-20 p-8 sm:p-16 md:p-20 lg:p-25 text-center rounded-xl m-auto max-w-screen-xl bg-[#181C32]  border-2 border-dashed transition-all duration-200 ${isDragging
+          ? 'border-white/40 scale-[1.01]'
+          : 'border-white/10 hover:border-white/40'
           }`}
-          onDrop={handleDrop}
-          onDragLeave={handleDragLeave}
-          onDragEnter={handleDragEnter}
-        >
-          <div className={`flex items-center justify-center mb-6 transition-transform duration-200`}>
-              <div className='rounded-full bg-gray-600 p-6'>
-                  <FileUp size={50} color="white" opacity={0.9} className='sm:w-[70px] sm:h-[70px] md:w-[80px] md:h-[80px]'/>
-              </div>  
+        onDrop={handleDrop}
+        onDragLeave={handleDragLeave}
+        onDragEnter={handleDragEnter}
+      >
+        <div className={`flex items-center justify-center mb-6 transition-transform duration-200`}>
+          <div className='rounded-full bg-gray-600 p-6'>
+            <FileUp size={50} color="white" opacity={0.9} className='sm:w-[70px] sm:h-[70px] md:w-[80px] md:h-[80px]' />
           </div>
-          <p className="text-lg sm:text-xl md:text-2xl font-semibold mb-2">Select the video to upload</p>
-          <p className="pb-10 text-base sm:text-lg">Or drag and drop here</p>
-          <input type="file" accept="video/*" className="hidden" id="fileInput" onChange={handleChange} />
-          <label htmlFor="fileInput" className="font-semibold btn text-sm sm:text-lg mt-4 cursor-pointer bg-gray-600 text-white hover:bg-black hover:text-white/80 px-6 py-2 rounded">
-              Select Video
-          </label>
+        </div>
+        <p className="text-lg sm:text-xl md:text-2xl font-semibold mb-2">Select the video to upload</p>
+        <p className="pb-10 text-base sm:text-lg">Or drag and drop here</p>
+        <input type="file" accept="video/*" className="hidden" id="fileInput" onChange={handleChange} />
+        <label htmlFor="fileInput" className="font-semibold btn text-sm sm:text-lg mt-4 cursor-pointer bg-gray-600 text-white hover:bg-black hover:text-white/80 px-6 py-2 rounded">
+          Select Video
+        </label>
       </div>
 
-      <div className='flex mt-10 m-auto max-w-screen-xl gap-10'>
+      <div className='flex flex-col md:flex-row mt-10 m-auto max-w-screen-xl gap-10'>
         <div className='flex gap-3 flex-1'>
-          <Video className='mt-0.5'/>
+          <Video className='mt-0.5' />
           <div>
             <h3 className='font-bold text-lg'>Capacity and duration</h3>
             <p className='text-white/80'>Maximum storage capacity: 1GB, video duration:  minutes. </p>
@@ -75,7 +74,7 @@ const UploadDropZone: React.FC<Props> = ({ onFileSelect }) => {
         </div>
 
         <div className='flex gap-3 flex-1'>
-          <FolderClosedIcon className='mt-0.5'/>
+          <FolderClosedIcon className='mt-0.5' />
           <div>
             <h3 className='font-bold text-lg'>Video format</h3>
             <p className='text-white/80'>Suggested format: “.mp4”. Other major formats are supported. </p>
@@ -83,17 +82,17 @@ const UploadDropZone: React.FC<Props> = ({ onFileSelect }) => {
         </div>
 
         <div className='flex gap-3 flex-1'>
-          <Lightbulb className='mt-0.5'/>
+          <Lightbulb className='mt-0.5' />
           <div>
             <h3 className='font-bold text-lg'>Aspect ratio</h3>
             <p className='text-white/80'  >Suggested aspect ratio: 16:9 for landscape mode, 9:16 for portrait mode. </p>
           </div>
         </div>
-        
-        
+
+
       </div>
     </div>
-    
+
   );
 };
 
