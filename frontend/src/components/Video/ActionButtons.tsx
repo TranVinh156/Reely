@@ -155,7 +155,7 @@ export function ActionButtons({ video }: Props) {
       >
         {/* Avatar */}
         <div className="relative">
-          <NavLink to={video.user.id} className="h-12 w-12 overflow-hidden rounded-full border-2 border-white/20">
+          <NavLink className="h-12 w-12 overflow-hidden rounded-full border-2 border-white/20" to={`/users/${video.user.id}`}>
             {video.user.avatar ? (
               <img
                 src={video.user.avatar}
