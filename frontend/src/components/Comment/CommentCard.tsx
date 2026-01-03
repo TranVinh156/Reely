@@ -61,7 +61,6 @@ const CommentCard: React.FC<CommentCardProps> = ({
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const { user, isAuthenticated } = useAuth();
   const incrementCommentCount = useFeedStore((s) => s.incrementCommentCount);
-  const avatarSrc = avatarUrl ? `${STORAGE_URL}/${avatarUrl}` : undefined;
   const navigate = useNavigate()
 
   const handleSubmitReply = async () => {
@@ -137,7 +136,7 @@ const CommentCard: React.FC<CommentCardProps> = ({
       <div className="flex gap-3 px-4 py-2 w-full bg-[#1e1e1e]">
         {/* Avatar */}
         <NavLink to={`/users/${username}`} onClick={onNavigate} className="flex flex-col justify-start pt-1">
-          <UserAvatar size={40}/>
+          <UserAvatar size={40} avatarUrl={avatarUrl} />
         </NavLink>
 
         {/* Content */}
