@@ -118,7 +118,9 @@ ReactDOM.createRoot(root).render(
                         <Route
                             path="/analysis"
                             element={
-                                <Analysis />
+                                <AuthGuard>
+                                    <Analysis />
+                                </AuthGuard>
                             }
                         />
 

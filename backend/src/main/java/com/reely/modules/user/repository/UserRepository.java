@@ -22,31 +22,31 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     List<User> findByUsername(String username);
 
+    Boolean existsByUsername(String username);
+
     /**
-     * Search users by username or displayName (accent-insensitive), with a simple relevance ordering.
+     * Search users by username or displayName (accent-insensitive), with a simple
+     * relevance ordering.
      */
-    @Query(
-            value = """
-                    SELECT u.*
-                    FROM users u
-                    WHERE (
-                        u.username COLLATE utf8mb4_0900_ai_ci LIKE CONCAT('%', :q, '%')
-                        OR u.display_name COLLATE utf8mb4_0900_ai_ci LIKE CONCAT('%', :q, '%')
-                    )
-                    ORDER BY (
-                        (CASE WHEN u.username COLLATE utf8mb4_0900_ai_ci LIKE CONCAT('%', :q, '%') THEN 3 ELSE 0 END)
-                      + (CASE WHEN u.display_name COLLATE utf8mb4_0900_ai_ci LIKE CONCAT('%', :q, '%') THEN 2 ELSE 0 END)
-                    ) DESC,
-                    u.id DESC
-                    """,
-            countQuery = """
-                    SELECT COUNT(*)
-                    FROM users u
-                    WHERE (
-                        u.username COLLATE utf8mb4_0900_ai_ci LIKE CONCAT('%', :q, '%')
-                        OR u.display_name COLLATE utf8mb4_0900_ai_ci LIKE CONCAT('%', :q, '%')
-                    )
-                    """,
-            nativeQuery = true)
+    @Query(value = """
+            SELECT u.*
+            FROM users u
+            WHERE (
+                u.username COLLATE utf8mb4_0900_ai_ci LIKE CONCAT('%', :q, '%')
+                OR u.display_name COLLATE utf8mb4_0900_ai_ci LIKE CONCAT('%', :q, '%')
+            )
+            ORDER BY (
+                (CASE WHEN u.username COLLATE utf8mb4_0900_ai_ci LIKE CONCAT('%', :q, '%') THEN 3 ELSE 0 END)
+              + (CASE WHEN u.display_name COLLATE utf8mb4_0900_ai_ci LIKE CONCAT('%', :q, '%') THEN 2 ELSE 0 END)
+            ) DESC,
+            u.id DESC
+            """, countQuery = """
+            SELECT COUNT(*)
+            FROM users u
+            WHERE (
+                u.username COLLATE utf8mb4_0900_ai_ci LIKE CONCAT('%', :q, '%')
+                OR u.display_name COLLATE utf8mb4_0900_ai_ci LIKE CONCAT('%', :q, '%')
+            )
+            """, nativeQuery = true)
     Page<User> searchUsers(@Param("q") String q, Pageable pageable);
 }
