@@ -35,11 +35,12 @@ const UploadPreview: React.FC<Props> = ({ file, handleCancel, thumbnail }) => {
     if (!file) return;
 
     try {
-      await uploadVideo(
+      uploadVideo(
         user?.id,
         title.trim(),
         description.trim(),
         file,
+        thumbnail || "",
         parsedTags,
       );
       navigate(`/users/${user?.username}`);
@@ -166,16 +167,6 @@ const UploadPreview: React.FC<Props> = ({ file, handleCancel, thumbnail }) => {
           />
         </div>
       </div>
-      {uploading && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-          <div className="flex flex-col items-center justify-center rounded-xl bg-[#181C32] p-8 shadow-2xl border border-gray-700">
-            <CircularProgress progress={progress} size={100} strokeWidth={8} />
-            <p className="mt-6 text-xl font-bold text-white">Publishing Video...</p>
-            <p className="mt-2 text-sm text-gray-400">Please wait...</p>
-            <p className="mt-1 text-lg font-semibold text-blue-400">{progress}%</p>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

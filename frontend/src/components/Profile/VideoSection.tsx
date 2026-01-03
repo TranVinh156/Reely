@@ -6,6 +6,8 @@ import { Heart, Video, Play, Loader2 } from "lucide-react"
 import { useState, useEffect } from "react"
 import { useInView } from "react-intersection-observer"
 import { NavLink } from "react-router-dom";
+import { useUpload } from "@/hooks/upload/useUploadVideo";
+import CircularProgress from "@/components/UploadVideo/CircularProgress";
 
 interface VideoSectionProps {
     userId: number;
@@ -30,6 +32,7 @@ const VideoSection = ({ userId }: VideoSectionProps) => {
     } = useGetLikedVideos(userId);
 
     const { user: currentUser } = useAuth();
+    const { uploading, progress } = useUpload();
 
     const { ref, inView } = useInView();
 
@@ -75,9 +78,19 @@ const VideoSection = ({ userId }: VideoSectionProps) => {
             {section === "videos" && (
                 <>
                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
+                        {uploading && currentUser?.id === userId && (
+                            <div className="aspect-[10/16] bg-black rounded-lg overflow-hidden relative group cursor-pointer flex items-center justify-center border border-gray-800">
+                                <div className="absolute inset-0 flex items-center justify-center">
+                                    <CircularProgress progress={progress} size={60} strokeWidth={6} />
+                                </div>
+                                <div className="absolute bottom-2 left-2 text-white text-xs font-bold bg-black/50 px-2 py-1 rounded">
+                                    Uploading...
+                                </div>
+                            </div>
+                        )}
                         {isLoadingUserVideos ? (
                             <div className="col-span-full text-center text-gray-500 py-10">Loading videos...</div>
-                        ) : userVideos.length === 0 ? (
+                        ) : userVideos.length === 0 && !uploading ? (
                             <div className="col-span-full text-center text-gray-500 py-10">No videos yet</div>
                         ) : (
                             userVideos.map((video) => (

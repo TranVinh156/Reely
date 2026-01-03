@@ -2,6 +2,7 @@ import axiosClient from "@/utils/axios.client";
 import { a, desc } from "motion/react-client";
 import React, { createContext, useContext, useState } from "react";
 import axios from "axios";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   abortVideoChunkUpload,
   completeVideoChunkUpload,
@@ -15,11 +16,12 @@ interface UploadContextType {
     title: string,
     description: string,
     file: File,
+    thumbnail: string,
     tags?: string[],
   ) => Promise<void>;
   uploading: boolean;
   progress: number;
-
+  uploadThumbnail: string | null;
 }
 export const UploadContext = createContext<UploadContextType | undefined>(
   undefined,
@@ -46,17 +48,21 @@ export const getVideoDuration = (file: File): Promise<number> => {
 export const UploadProvider = ({ children }: { children: React.ReactNode }) => {
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [uploadThumbnail, setUploadThumbnail] = useState<string | null>(null);
+  const queryClient = useQueryClient();
 
   const uploadVideo = async (
     userId: number | undefined,
     title: string,
     description: string,
     file: File,
+    thumbnail: string,
     tags?: string[],
   ) => {
     if (!file) return;
 
     setUploading(true);
+    setUploadThumbnail(thumbnail);
     const MAX_RETRY = 3;
     let uploadId: string | null = null;
 
@@ -112,7 +118,7 @@ export const UploadProvider = ({ children }: { children: React.ReactNode }) => {
 
       // Step 4: Create video record
       const durationSeconds = await getVideoDuration(file);
-      await axiosClient.post("/videos", {
+      const response = await axiosClient.post("/videos", {
         userId,
         title,
         description,
@@ -122,6 +128,23 @@ export const UploadProvider = ({ children }: { children: React.ReactNode }) => {
         duration: durationSeconds,
         tags: tags || [],
       });
+
+      const newVideo = response.data;
+      setProgress(100);
+      queryClient.setQueriesData({ queryKey: ["user-videos", userId] }, (oldData: any) => {
+        if (!oldData || !oldData.pages) return oldData;
+
+        const newPages = [...oldData.pages];
+        if (newPages.length > 0) {
+          newPages[0] = {
+            ...newPages[0],
+            content: [newVideo, ...newPages[0].content]
+          };
+        }
+        return { ...oldData, pages: newPages };
+      });
+
+      queryClient.invalidateQueries({ queryKey: ["user-videos", userId] });
 
       setProgress(100);
     } catch (error) {
@@ -139,7 +162,7 @@ export const UploadProvider = ({ children }: { children: React.ReactNode }) => {
 
   
   return (
-    <UploadContext.Provider value={{ uploadVideo, uploading, progress }}>
+    <UploadContext.Provider value={{ uploadVideo, uploading, progress, uploadThumbnail }}>
       {children}
     </UploadContext.Provider>
   );
