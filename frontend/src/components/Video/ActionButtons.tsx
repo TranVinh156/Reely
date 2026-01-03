@@ -214,7 +214,11 @@ export function ActionButtons({ video }: Props) {
       </div>
 
       {shareModalOpen && (
-        <ShareModel onClose={() => setShareModalOpen(false)} videoUrl={video.src} />
+        <ShareModel 
+          onClose={() => setShareModalOpen(false)} 
+          videoUrl={video.src} 
+          shareUrl={`${window.location.origin}/videos/${video.id}`}
+        />
       )}
 
       {/* Comment Drawer */}

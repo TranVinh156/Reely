@@ -3,14 +3,16 @@ import React from "react";
 import { Icon } from "@iconify/react";
 interface Props {
     videoUrl: string
+    shareUrl?: string
     onClose: () => void
 }
 
-export const ShareModel: React.FC<Props> = ({onClose, videoUrl}) => {
-    const encodedUrl = encodeURIComponent(videoUrl);
+export const ShareModel: React.FC<Props> = ({onClose, videoUrl, shareUrl}) => {
+    const urlToShare = shareUrl || videoUrl;
+    const encodedUrl = encodeURIComponent(urlToShare);
 
     const handleCopy = () => {
-        navigator.clipboard.writeText(videoUrl);
+        navigator.clipboard.writeText(urlToShare);
     };
 
     const handleDownload = async () => {
@@ -115,7 +117,7 @@ export const ShareModel: React.FC<Props> = ({onClose, videoUrl}) => {
                     <input
                         type="text"
                         readOnly
-                        value={videoUrl}
+                        value={urlToShare}
                         className="w-full bg-transparent text-sm text-gray-300 outline-none truncate mr-2"
                     />
                     <button 
