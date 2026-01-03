@@ -41,4 +41,28 @@ public class GlobalExceptionHandler {
 
         return new ResponseEntity<>(body, HttpStatus.UNAUTHORIZED);
     }
+
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<ErrorResponse> handleRuntimeException(RuntimeException e, WebRequest request) {
+        ErrorResponse response = ErrorResponse.builder()
+                .message(e.getMessage())
+                .status(HttpStatus.BAD_REQUEST.value())
+                .error("Bad Request")
+                .timestamp(Instant.now())
+                .build();
+
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ErrorResponse> handleGlobalException(Exception e, WebRequest request) {
+        ErrorResponse response = ErrorResponse.builder()
+                .message(e.getMessage())
+                .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                .error("Internal Server Error")
+                .timestamp(Instant.now())
+                .build();
+
+        return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
 }
