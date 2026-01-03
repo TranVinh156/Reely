@@ -9,6 +9,7 @@ import javax.crypto.spec.SecretKeySpec;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -46,7 +47,21 @@ public class SecurityConfig {
         http.csrf(c -> c.disable())
                 .authorizeHttpRequests(
                         (authz) -> authz
-                                .requestMatchers("/hello").hasAuthority("SUPER_ADMIN")
+                                .requestMatchers(HttpMethod.GET, "/api/v1/users").hasAuthority("SUPER_ADMIN")
+                                .requestMatchers(HttpMethod.POST, "/api/v1/comments/**").authenticated()
+                                .requestMatchers(HttpMethod.POST, "/api/v1/likes/**").authenticated()
+                                .requestMatchers(HttpMethod.DELETE, "/api/v1/likes/**").authenticated()
+                                .requestMatchers(HttpMethod.POST, "/api/v1/reports/**").authenticated()
+                                .requestMatchers(HttpMethod.PUT, "/api/v1/reports/**").authenticated()
+                                .requestMatchers(HttpMethod.POST, "/api/v1/notifications/**").authenticated()
+                                .requestMatchers(HttpMethod.POST, "/api/v1/upload/**").authenticated()
+                                .requestMatchers(HttpMethod.POST, "/api/v1/videos/**").authenticated()
+                                .requestMatchers(HttpMethod.PUT, "/api/v1/users/**").authenticated()
+                                .requestMatchers(HttpMethod.POST, "/api/v1/users/**").authenticated()
+                                .requestMatchers(HttpMethod.DELETE, "/api/v1/users/**").authenticated()
+                                .requestMatchers("/api/v1/auth/me").authenticated()
+                                .requestMatchers("/api/v1/auth/change-password").authenticated()
+                                .requestMatchers("/api/v1/auth/logout").authenticated()
                                 .anyRequest().permitAll())
                 .addFilterBefore(headerAuthenticationFilter(), AuthorizationFilter.class)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
