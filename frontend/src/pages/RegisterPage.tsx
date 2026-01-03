@@ -104,7 +104,7 @@ const RegisterPage = () => {
 
                     {error && (
                         <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
-                            {error instanceof Error ? error.message : 'Registration failed. Please try again.'}
+                            {(error as any)?.response?.data?.message || 'Register failed. Please try again.'}
                         </div>
                     )}
 

@@ -58,6 +58,10 @@ public class UserServiceImpl implements UserService {
             throw new RuntimeException("User with this email already existed.");
         }
 
+        if (this.userRepository.existsByUsername(request.getUsername())) {
+            throw new RuntimeException("User with this username already existed.");
+        }
+
         Role role = this.roleRepository.findByName(RoleName.USER).get();
 
         User user = new User();
@@ -102,9 +106,15 @@ public class UserServiceImpl implements UserService {
             user.setDisplayName(request.getDisplayName());
         }
         if (request.getUsername() != null) {
+            if (this.userRepository.existsByUsername(request.getUsername())) {
+                throw new RuntimeException("User with this username already existed.");
+            }
             user.setUsername(request.getUsername());
         }
         if (request.getEmail() != null) {
+            if (this.userRepository.existsByUsername(request.getUsername())) {
+                throw new RuntimeException("User with this email already existed.");
+            }
             user.setEmail(request.getEmail());
         }
         this.userRepository.save(user);
