@@ -86,13 +86,18 @@ export default function Sidebar() {
       icon: <UserRoundPlus />,
       text: "Following",
       link: "/",
-      onClick: () => {
+      onClick: (e) => {
+        if (!isAuthenticated) {
+          e.preventDefault();
+          navigate('/login');
+          return;
+        }
         setMode("following")
       }
     },
     { icon: <User2 />, text: "Profile", link: user ? `/users/${user.username}` : "/login" },
     // { icon: <Upload />, text: "Upload", link: "/upload" }
-    { icon: <ChartNoAxesCombined />, text: "Analysis", link: "/analysis" },
+    { icon: <ChartNoAxesCombined />, text: "Analysis", link: isAuthenticated ? "/analysis" : "/login" },
     { icon: <Bell />, text: "Notification", link: "#", onClick: toggleNotification }
   ]
 
@@ -196,6 +201,7 @@ export default function Sidebar() {
           <span className="text-[10px] mt-1">Search</span>
         </NavLink>
 
+        
         <NavLink
           to="/analysis"
           className={({ isActive }) => `flex flex-col items-center justify-center w-full h-full ${isActive ? 'text-white' : 'text-gray-500'}`}
