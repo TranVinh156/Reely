@@ -110,9 +110,6 @@ const UserProfile = () => {
                                                 : 'Follow'
                                         }
                                     </button>
-                                    <button className="bg-gray-600 px-8 py-2 rounded-lg">
-                                        Message
-                                    </button>
                                 </> :
                                 <>
                                     <button onClick={() => setIsEditProfileOpen(true)} className="bg-red-600 px-8 py-2 rounded-lg">

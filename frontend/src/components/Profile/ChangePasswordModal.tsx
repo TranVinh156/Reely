@@ -40,7 +40,6 @@ const ChangePasswordModal = ({ isOpen, onClose }: ChangePasswordModalProps) => {
             })
             onClose()
             setFormData({ oldPassword: '', newPassword: '', confirmPassword: '' })
-            alert("Password changed successfully")
         } catch (err: any) {
             setError(err.response?.data?.message || "Failed to change password")
         }
